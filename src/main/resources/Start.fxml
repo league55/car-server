@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<BorderPane prefHeight="451.0" prefWidth="577.0" styleClass="marker-1--button" stylesheets="@static/css/application.css"
+            xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="root.app.controllers.MainController">
+    <bottom>
+        <HBox alignment="CENTER" BorderPane.alignment="TOP_RIGHT">
+            <Button fx:id="cameraButton" alignment="center" onAction="#startCamera" text="Start camera">
+                <HBox.margin>
+                    <Insets right="10.0"/>
+                </HBox.margin>
+            </Button>
+            <Button fx:id="videoButton" alignment="center" onAction="#startVideo" text="Start video">
+                <HBox.margin>
+                    <Insets left="10.0"/>
+                </HBox.margin>
+            </Button>
+        </HBox>
+    </bottom>
+    <center>
+        <AnchorPane fx:id="imageWrapperPane" prefHeight="600.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+            <ImageView fx:id="imageView" preserveRatio="true" smooth="false" styleClass="imageView"
+                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                       AnchorPane.topAnchor="0.0"/>
+        </AnchorPane>
+
+    </center>
+    <right>
+        <VBox prefHeight="425.0" prefWidth="171.0" BorderPane.alignment="CENTER">
+            <children>
+                <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
+                    <ToggleButton fx:id="markerOneButton" onAction="#setFirstMarker" styleClass="marker-1--button"
+                                  stylesheets="@../resources/static/css/application.css">
+                        <HBox.margin>
+                            <Insets right="5.0"/>
+                        </HBox.margin>
+                    </ToggleButton>
+                    <ToggleButton fx:id="markerTwoButton" onAction="#setSecondMarker" styleClass="marker-2--button"
+                                  stylesheets="@../resources/static/css/application.css">
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </ToggleButton>
+                    <VBox.margin>
+                        <Insets bottom="15.0" top="15.0"/>
+                    </VBox.margin>
+                </HBox>
+                <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
+                    <Button fx:id="refreshBtn" onAction="#refresh" styleClass="refresh--button"
+                            stylesheets="@../resources/static/css/application.css">
+                        <HBox.margin>
+                            <Insets left="5.0"/>
+                        </HBox.margin>
+                    </Button>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                    <VBox.margin>
+                        <Insets bottom="15.0" top="15.0"/>
+                    </VBox.margin>
+                </HBox>
+                <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="82.0" prefWidth="125.0">
+                    <children>
+                        <Slider orientation="VERTICAL" showTickMarks="true">
+                            <HBox.margin>
+                                <Insets right="15.0"/>
+                            </HBox.margin>
+                        </Slider>
+                        <Slider layoutX="60.0" layoutY="10.0" orientation="VERTICAL" showTickMarks="true">
+                            <HBox.margin>
+                                <Insets left="15.0"/>
+                            </HBox.margin>
+                        </Slider>
+                    </children>
+                    <VBox.margin>
+                        <Insets bottom="5.0" top="5.0"/>
+                    </VBox.margin>
+                </HBox>
+                <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="139.0" prefWidth="125.0">
+                    <children>
+                        <TableView fx:id="tableLines" editable="true">
+                            <columns>
+                                <!-- Колонки таблицы -->
+                                <TableColumn fx:id="idColumn" editable="false" prefWidth="55.0" text="№"/>
+                                <TableColumn fx:id="distanceColumn" prefWidth="55.0" text="метров"/>
+                                <TableColumn fx:id="delButton" editable="false" prefWidth="60.0" text="del"/>
+                            </columns>
+                        </TableView>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>

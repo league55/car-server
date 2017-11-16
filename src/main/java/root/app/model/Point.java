@@ -1,7 +1,6 @@
 package root.app.model;
 
 
-import com.sun.istack.internal.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,10 +8,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Point {
 
-    @NotNull
     private Double x;
 
-    @NotNull
     private Double y;
 
     private Double windowHeight;

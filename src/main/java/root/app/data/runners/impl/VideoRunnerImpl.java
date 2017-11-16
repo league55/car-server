@@ -32,7 +32,7 @@ public class VideoRunnerImpl extends BasicRunner {
     @Override
     protected void openCamera() {
         // start the video capture
-        this.capture.open("http://localhost:8080/cars");
+        this.capture.open("C:\\Users\\maksym\\IdeaProjects\\carsmonitoring\\src\\main\\resources\\videos\\vid6.mp4");
         this.capture.set(CAP_PROP_FPS, 1);
 
         // update the button content

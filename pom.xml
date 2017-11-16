@@ -16,6 +16,30 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+                <version>3.7.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-4</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>root.appConfiguration.Start</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -89,5 +113,21 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.opencv</groupId>
+            <artifactId>opencv</artifactId>
+            <version>3.3.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/opencv-331.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.foo</groupId>
+            <artifactId>opencv_ffmpeg_64</artifactId>
+            <version>3.3.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/opencv_ffmpeg331_64.dll</systemPath>
+            <type>dll</type>
+        </dependency>
     </dependencies>
 </project>

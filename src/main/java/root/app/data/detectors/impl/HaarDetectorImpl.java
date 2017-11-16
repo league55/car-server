@@ -4,6 +4,8 @@ import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.opencv.objdetect.Objdetect;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import root.app.data.detectors.Detector;
 import root.app.model.Car;
 
@@ -20,7 +22,7 @@ public class HaarDetectorImpl implements Detector {
 
     private HaarDetectorImpl() {
         carsCascade = new CascadeClassifier();
-        this.carsCascade.load("/home/maksym/Документы/cars.xml");
+        this.carsCascade.load("C:\\Users\\maksym\\IdeaProjects\\opencv-samples\\vehicle-detection-haar\\cars3.xml");
     }
 
     private int absoluteCarsSize;

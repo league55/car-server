@@ -16,8 +16,7 @@ import java.util.List;
 @Service
 public class SubstitutionDetectorImpl implements Detector {
 
-    final
-    ContourGrabber contourGrabber;
+    private final ContourGrabber contourGrabber;
 
     @Autowired
     public SubstitutionDetectorImpl(ContourGrabber contourGrabber) {

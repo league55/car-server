@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.model.MarkersPair;
-import root.app.properties.LineConfigService;
 import root.app.properties.IOService;
+import root.app.properties.LineConfigService;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,7 +31,7 @@ public class LineConfigServiceImpl implements LineConfigService {
     @Override
     public void save(MarkersPair pair) {
         try {
-            List<MarkersPair> markersPairs = saver.readProperty(fileName);
+            List<MarkersPair> markersPairs = findAll();
 
             if (pair.getId() == null) {
                 pair.setId(getNextId(markersPairs));
@@ -43,7 +43,7 @@ public class LineConfigServiceImpl implements LineConfigService {
                 markersPairs.add(pair);
             }
 
-           saver.writeProperty(fileName, markersPairs);
+            saver.writeProperty(fileName, markersPairs);
         } catch (IOException e) {
             log.error("Failed to save pair,", e);
         }
@@ -69,7 +69,7 @@ public class LineConfigServiceImpl implements LineConfigService {
         try {
             return saver.readProperty(fileName).stream().anyMatch(pair -> aLong.equals(pair.getId()));
         } catch (IOException e) {
-            log.error("Failed to save pair,", e);
+            log.error("Failed to check exists pair,", e);
         }
         return false;
     }
@@ -77,9 +77,10 @@ public class LineConfigServiceImpl implements LineConfigService {
     @Override
     public List<MarkersPair> findAll() {
         try {
-            return saver.readProperty(fileName);
+            final List<MarkersPair> markersPairs = saver.readProperty(fileName);
+            return markersPairs == null ? Lists.newArrayList() : markersPairs;
         } catch (IOException e) {
-            log.error("Failed to save pair,", e);
+            log.error("Failed to find all pairs,", e);
         }
         return null;
     }
@@ -93,10 +94,10 @@ public class LineConfigServiceImpl implements LineConfigService {
     public void delete(Long aLong) {
         List<MarkersPair> all = findAll();
         OptionalInt index = IntStream.range(0, all.size())
-                .filter(userInd-> all.get(userInd).getId().equals(aLong))
+                .filter(userInd -> all.get(userInd).getId().equals(aLong))
                 .findFirst();
 
-        if(index.isPresent()) {
+        if (index.isPresent()) {
             all.remove(index.getAsInt());
         }
 
@@ -126,11 +127,23 @@ public class LineConfigServiceImpl implements LineConfigService {
     public void updateDistance(Long id, Integer distance) {
         MarkersPair markersPair = findOne(id);
 
-        if(markersPair != null) {
+        if (markersPair != null) {
             markersPair.setDistance(distance);
             save(markersPair);
         } else {
             log.error("Can't update distance for {}", id);
+        }
+    }
+
+    @Override
+    public void updateWayNumber(Long id, Integer wayNum) {
+        MarkersPair markersPair = findOne(id);
+
+        if (markersPair != null) {
+            markersPair.setWayNum(wayNum);
+            save(markersPair);
+        } else {
+            log.error("Can't update wayNum for {}", id);
         }
     }
 

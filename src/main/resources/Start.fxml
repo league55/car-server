@@ -4,9 +4,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import java.net.URL?>
 <BorderPane prefHeight="451.0" prefWidth="577.0" styleClass="marker-1--button" stylesheets="@static/css/application.css"
-            xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="root.app.controllers.MainController">
     <bottom>
         <HBox alignment="CENTER" BorderPane.alignment="TOP_RIGHT">
@@ -31,7 +30,7 @@
 
     </center>
     <right>
-        <VBox prefHeight="425.0" prefWidth="171.0" BorderPane.alignment="CENTER">
+        <VBox prefHeight="426.0" prefWidth="225.0" BorderPane.alignment="CENTER">
             <children>
                 <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
                     <ToggleButton fx:id="markerOneButton" onAction="#setFirstMarker" styleClass="marker-1--button"
@@ -64,23 +63,6 @@
                         <Insets bottom="15.0" top="15.0"/>
                     </VBox.margin>
                 </HBox>
-                <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="82.0" prefWidth="125.0">
-                    <children>
-                        <Slider orientation="VERTICAL" showTickMarks="true">
-                            <HBox.margin>
-                                <Insets right="15.0"/>
-                            </HBox.margin>
-                        </Slider>
-                        <Slider layoutX="60.0" layoutY="10.0" orientation="VERTICAL" showTickMarks="true">
-                            <HBox.margin>
-                                <Insets left="15.0"/>
-                            </HBox.margin>
-                        </Slider>
-                    </children>
-                    <VBox.margin>
-                        <Insets bottom="5.0" top="5.0"/>
-                    </VBox.margin>
-                </HBox>
                 <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="139.0" prefWidth="125.0">
                     <children>
                         <TableView fx:id="tableLines" editable="true">
@@ -88,6 +70,7 @@
                                 <!-- Колонки таблицы -->
                                 <TableColumn fx:id="idColumn" editable="false" prefWidth="55.0" text="№"/>
                                 <TableColumn fx:id="distanceColumn" prefWidth="55.0" text="метров"/>
+                                <TableColumn fx:id="wayNum" prefWidth="55.0" text="полоса"/>
                                 <TableColumn fx:id="delButton" editable="false" prefWidth="60.0" text="del"/>
                             </columns>
                         </TableView>

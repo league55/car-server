@@ -33,7 +33,7 @@ public class LineCrossingServiceImpl implements LineCrossingService {
 
                     if (isCarCrossedLine(pair.getLineB(), car)) {
                         car.setSecondMarkerCrossed(System.currentTimeMillis());
-                        car.setDistancePassed(pair.getDistance());
+                        car.setPassedPair(pair);
                     }
                 }
             });

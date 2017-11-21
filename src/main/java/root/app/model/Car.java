@@ -35,7 +35,7 @@ public class Car {
     private int framesAfterFirstMarker;
     private int framesBetweenMarkers;
 
-    private Integer distancePassed;
+    private MarkersPair passedPair;
 
     private Double speed;
 

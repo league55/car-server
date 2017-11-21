@@ -19,6 +19,7 @@ public class MarkersPair {
     private Line lineB;
 
     private Integer distance = 0;
+    private Integer wayNum = 0;
 
     public MarkersPair(long id, Line lineA, Line lineB) {
         this.id = id;

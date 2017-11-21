@@ -25,4 +25,6 @@ public interface LineConfigService {
     void deleteAll();
 
     void updateDistance(Long id, Integer distance);
+
+    void updateWayNumber(Long id, Integer wayNum);
 }

@@ -10,5 +10,6 @@ import lombok.Data;
 public class LinesTableRowFX {
     Long id;
     Integer distance;
+    Integer wayNum;
     Button delButton;
 }

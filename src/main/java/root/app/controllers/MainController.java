@@ -3,7 +3,6 @@ package root.app.controllers;
 import com.google.common.collect.Lists;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -23,7 +22,6 @@ import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import root.app.data.drawingTools.DrawLabel;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
 import root.app.data.services.DrawingService;
@@ -86,11 +84,13 @@ public class MainController {
     private TableColumn<LinesTableRowFX, Integer> distanceColumn;
 
     @FXML
+    private TableColumn<LinesTableRowFX, Integer> wayNum;
+
+    @FXML
     private TableColumn<LinesTableRowFX, Button> delButton;
 
 
     private static List<MarkersPair> pairs;
-    private ObservableList<LinesTableRowFX> data;
 
     @FXML
     void initialize() {
@@ -98,13 +98,11 @@ public class MainController {
         pairs = Lists.newArrayList();
         imageView.setOnMousePressed(mouseEventEventHandler);
 
-        distanceColumn.setOnEditCommit((row) -> {
-            lineProvider.updateDistance(row.getRowValue().getId(), row.getNewValue());
-        });
+        distanceColumn.setOnEditCommit((row) -> lineProvider.updateDistance(row.getRowValue().getId(), row.getNewValue()));
+        wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
     }
 
 
-    private DrawLabel drawLabel = new DrawLabel();
     private final EventHandler<MouseEvent> mouseEventEventHandler = me -> {
         if (NONE.equals(activeControl)) {
             return;
@@ -123,8 +121,6 @@ public class MainController {
             Line fxLine = new Line(line.getStart().getX(), line.getStart().getY(), line.getEnd().getX(), line.getEnd().getY());
             fxLine.setStroke(activeControl.color);
             imageWrapperPane.getChildren().add(fxLine);
-//          drawLabel.accept(pair, imageWrapperPane);
-
         }
     };
 
@@ -154,24 +150,6 @@ public class MainController {
         videoRunner.setImageView(imageView);
         videoRunner.startCapturing();
     }
-
-    private void postImageViewRenderedInitialize() {
-        Task<Void> sleeper = new Task<Void>() {
-            @Override
-            protected Void call() throws Exception {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    log.error("An error occured in separate thread {} ", e.getCause(), e);
-                }
-                return null;
-            }
-        };
-
-        sleeper.setOnSucceeded(event1 -> drawLinesAndLabels());
-        new Thread(sleeper).start();
-    }
-
 
     @FXML
     public void setFirstMarker(ActionEvent event) {
@@ -203,8 +181,7 @@ public class MainController {
 
 
     enum OnClickMode {
-        FIRST_MARKER(Color.RED), SECOND_MARKER(Color.DARKORANGE), DRAWING(Color.DARKOLIVEGREEN),
-        BIGGEST_SIZE(Color.DARKOLIVEGREEN), LEAST_SIZE(Color.CADETBLUE), NONE(null);
+        FIRST_MARKER(Color.RED), SECOND_MARKER(Color.DARKORANGE), NONE(null);
 
         Color color;
 
@@ -221,17 +198,20 @@ public class MainController {
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         distanceColumn.setCellValueFactory(new PropertyValueFactory<>("distance"));
-        distanceColumn.setCellFactory(TextFieldTableCell.<LinesTableRowFX, Integer>forTableColumn(new IntegerStringConverter()));
+        distanceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        wayNum.setCellValueFactory(new PropertyValueFactory<>("distance"));
+        wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
 
-        data = FXCollections.observableArrayList(pairs.stream().map((pair) -> {
+        ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(pairs.stream().map((pair) -> {
             Button x = new Button("x");
             x.setTextFill(Color.RED);
             x.setOnAction(e -> {
                 lineProvider.delete(pair);
                 drawingService.removePair(imageWrapperPane, pair);
+                drawLinesAndLabels();
             });
-            return new LinesTableRowFX(pair.getId(), pair.getDistance(), x);
+            return new LinesTableRowFX(pair.getId(), pair.getDistance(), pair.getWayNum(), x);
         }).collect(toList()));
 
         tableLines.setItems(data);

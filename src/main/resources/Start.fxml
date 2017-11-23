@@ -16,7 +16,19 @@
             </Button>
             <Button fx:id="videoButton" alignment="center" onAction="#startVideo" text="Start video">
                 <HBox.margin>
-                    <Insets left="10.0"/>
+                    <Insets left="10.0" right="10.0"/>
+                </HBox.margin>
+                <opaqueInsets>
+                    <Insets right="15.0"/>
+                </opaqueInsets>
+            </Button>
+            <Button alignment="center" fx:id="chooseFileBtn" layoutX="313.0" layoutY="10.0" onAction="#chooseFile"
+                    text="choose file">
+                <opaqueInsets>
+                    <Insets/>
+                </opaqueInsets>
+                <HBox.margin>
+                    <Insets left="15.0"/>
                 </HBox.margin>
             </Button>
         </HBox>
@@ -34,13 +46,13 @@
             <children>
                 <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
                     <ToggleButton fx:id="markerOneButton" onAction="#setFirstMarker" styleClass="marker-1--button"
-                                  stylesheets="@../resources/static/css/application.css">
+                                  stylesheets="@static/css/application.css">
                         <HBox.margin>
                             <Insets right="5.0"/>
                         </HBox.margin>
                     </ToggleButton>
                     <ToggleButton fx:id="markerTwoButton" onAction="#setSecondMarker" styleClass="marker-2--button"
-                                  stylesheets="@../resources/static/css/application.css">
+                                  stylesheets="@static/css/application.css">
                         <HBox.margin>
                             <Insets left="5.0"/>
                         </HBox.margin>
@@ -51,7 +63,7 @@
                 </HBox>
                 <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
                     <Button fx:id="refreshBtn" onAction="#refresh" styleClass="refresh--button"
-                            stylesheets="@../resources/static/css/application.css">
+                            stylesheets="static/css/application.css">
                         <HBox.margin>
                             <Insets left="5.0"/>
                         </HBox.margin>
@@ -68,10 +80,10 @@
                         <TableView fx:id="tableLines" editable="true">
                             <columns>
                                 <!-- Колонки таблицы -->
-                                <TableColumn fx:id="idColumn" editable="false" prefWidth="55.0" text="№"/>
+                                <TableColumn fx:id="idColumn" editable="false" prefWidth="55.0" text="id"/>
                                 <TableColumn fx:id="distanceColumn" prefWidth="55.0" text="метров"/>
                                 <TableColumn fx:id="wayNum" prefWidth="55.0" text="полоса"/>
-                                <TableColumn fx:id="delButton" editable="false" prefWidth="60.0" text="del"/>
+                                <TableColumn fx:id="delButton" editable="false" prefWidth="30.0" text="del"/>
                             </columns>
                         </TableView>
                     </children>

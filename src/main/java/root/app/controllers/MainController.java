@@ -18,6 +18,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ import root.app.model.MarkersPair;
 import root.app.model.Point;
 import root.app.properties.LineConfigService;
 
+import java.io.File;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -41,8 +43,13 @@ import static root.app.controllers.MainController.OnClickMode.NONE;
 @Component
 public class MainController {
 
+    public static String pathToVideoFile;
+
     private static OnClickMode activeControl;
     private static int lineMarkersAmount = -1;
+    private static List<MarkersPair> pairs;
+    private final FileChooser fileChooser = new FileChooser();
+
     // the FXML button
     @FXML
     private Button cameraButton;
@@ -89,8 +96,9 @@ public class MainController {
     @FXML
     private TableColumn<LinesTableRowFX, Button> delButton;
 
+    @FXML
+    private Button chooseFileBtn;
 
-    private static List<MarkersPair> pairs;
 
     @FXML
     void initialize() {
@@ -146,6 +154,11 @@ public class MainController {
     @FXML
     protected void startVideo(ActionEvent event) {
         log.info("Start work with video");
+        if (pathToVideoFile == null) {
+            chooseFile(event);
+            if (pathToVideoFile == null) return;
+        }
+
         videoRunner.setActionButton(videoButton);
         videoRunner.setImageView(imageView);
         videoRunner.startCapturing();
@@ -176,6 +189,14 @@ public class MainController {
     public void refresh(ActionEvent actionEvent) {
         if (lineMarkersAmount < pairs.size()) {
             drawLinesAndLabels();
+        }
+    }
+
+    @FXML
+    public void chooseFile(ActionEvent actionEvent) {
+        File file = fileChooser.showOpenDialog(chooseFileBtn.getScene().getWindow());
+        if (file != null) {
+            pathToVideoFile = file.getAbsolutePath();
         }
     }
 

@@ -19,24 +19,13 @@
                 <version>3.7.0</version>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.2-beta-4</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>root.appConfiguration.Start</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>1.5.8.RELEASE</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -44,11 +33,15 @@
         </plugins>
     </build>
 
+    <properties>
+        <spring.version>1.5.8.RELEASE</spring.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
-            <version>1.5.8.RELEASE</version>
+            <version>${spring.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -76,7 +69,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>1.5.8.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <dependency>
@@ -113,20 +106,17 @@
             <scope>test</scope>
         </dependency>
 
+
         <dependency>
-            <groupId>org.opencv</groupId>
-            <artifactId>opencv</artifactId>
+            <groupId>com.foo</groupId>
+            <artifactId>opencv-core</artifactId>
             <version>3.3.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/opencv-331.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>com.foo</groupId>
-            <artifactId>opencv_ffmpeg_64</artifactId>
+            <artifactId>opencv_java331</artifactId>
             <version>3.3.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/opencv_ffmpeg331_64.dll</systemPath>
             <type>dll</type>
         </dependency>
     </dependencies>

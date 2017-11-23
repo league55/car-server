@@ -1,5 +1,6 @@
 package root.app.data.runners.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
@@ -9,11 +10,13 @@ import root.app.data.services.*;
 import root.app.properties.LineConfigService;
 
 import static org.opencv.videoio.Videoio.CAP_PROP_FPS;
+import static root.app.controllers.MainController.pathToVideoFile;
 
 /**
  * Use video from camera
  */
 @Component
+@Slf4j
 public class VideoRunnerImpl extends BasicRunner {
 
     @Autowired
@@ -32,9 +35,8 @@ public class VideoRunnerImpl extends BasicRunner {
     @Override
     protected void openCamera() {
         // start the video capture
-        this.capture.open("C:\\Users\\maksym\\IdeaProjects\\carsmonitoring\\src\\main\\resources\\videos\\vid6.mp4");
+        this.capture.open(pathToVideoFile);
         this.capture.set(CAP_PROP_FPS, 1);
-
         // update the button content
         this.button.setText("Stop Video");
     }

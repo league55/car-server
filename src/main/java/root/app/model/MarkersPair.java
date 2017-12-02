@@ -11,14 +11,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MarkersPair {
-    private Long id;
-
+public class MarkersPair extends BasicModel {
     private Line lineA;
-
     private Line lineB;
 
-    private Integer distance = 0;
+    private Integer distanceLeft = 0;
+//    private Integer distanceRight = 0;
     private Integer wayNum = 0;
 
     public MarkersPair(long id, Line lineA, Line lineB) {

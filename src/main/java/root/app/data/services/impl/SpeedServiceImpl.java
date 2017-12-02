@@ -24,7 +24,7 @@ public class SpeedServiceImpl implements SpeedService {
             final double sec = ((car.getSecondMarkerCrossed() - car.getFistMarkerCrossed()) / 1000.0);
             final MarkersPair passedPair = car.getPassedPair();
 
-            double speed = passedPair.getDistance() / sec;
+            double speed = passedPair.getDistanceLeft() / sec;
             double kmPerHorCoeff = 3.6;
 
             car.setSpeed(Math.floor(speed * kmPerHorCoeff * 10) / 10);

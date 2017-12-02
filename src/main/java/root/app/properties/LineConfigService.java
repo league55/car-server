@@ -2,29 +2,10 @@ package root.app.properties;
 
 import root.app.model.MarkersPair;
 
-import java.util.List;
-
 /**
- * Read / Write app.properties
+ * Lines specific methods
  */
-public interface LineConfigService {
-    void save(MarkersPair pair);
-
-    MarkersPair findOne(Long aLong);
-
-    boolean exists(Long aLong);
-
-    List<MarkersPair> findAll();
-
-    long count();
-
-    void delete(Long aLong);
-
-    void delete(MarkersPair markersPair);
-
-    void deleteAll();
-
-    void updateDistance(Long id, Integer distance);
-
+public interface LineConfigService extends ConfigService<MarkersPair> {
+    void updateLeftDistance(Long id, Integer distance);
     void updateWayNumber(Long id, Integer wayNum);
 }

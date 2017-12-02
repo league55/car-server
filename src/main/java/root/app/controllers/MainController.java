@@ -106,7 +106,7 @@ public class MainController {
         pairs = Lists.newArrayList();
         imageView.setOnMousePressed(mouseEventEventHandler);
 
-        distanceColumn.setOnEditCommit((row) -> lineProvider.updateDistance(row.getRowValue().getId(), row.getNewValue()));
+        distanceColumn.setOnEditCommit((row) -> lineProvider.updateLeftDistance(row.getRowValue().getId(), row.getNewValue()));
         wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
     }
 
@@ -220,7 +220,7 @@ public class MainController {
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         distanceColumn.setCellValueFactory(new PropertyValueFactory<>("distance"));
         distanceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        wayNum.setCellValueFactory(new PropertyValueFactory<>("distance"));
+        wayNum.setCellValueFactory(new PropertyValueFactory<>("wayNum"));
         wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
 
@@ -232,7 +232,7 @@ public class MainController {
                 drawingService.removePair(imageWrapperPane, pair);
                 drawLinesAndLabels();
             });
-            return new LinesTableRowFX(pair.getId(), pair.getDistance(), pair.getWayNum(), x);
+            return new LinesTableRowFX(pair.getId(), pair.getDistanceLeft(), pair.getWayNum(), x);
         }).collect(toList()));
 
         tableLines.setItems(data);

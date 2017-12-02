@@ -10,7 +10,10 @@ import org.springframework.stereotype.Service;
 import root.app.data.drawingTools.DrawLabel;
 import root.app.data.services.DrawingService;
 import root.app.model.MarkersPair;
+import root.app.model.Zone;
+import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
+import root.app.data.services.ZoneComputingService;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +31,14 @@ public class DrawingServiceImpl implements DrawingService {
     private final BiConsumer<MarkersPair, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
+    private final ConfigService zoneConfigService;
+    private final ZoneComputingService computingService;
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider) {
+    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService zoneConfigService, ZoneComputingService computingService) {
         this.lineProvider = lineProvider;
+        this.zoneConfigService = zoneConfigService;
+        this.computingService = computingService;
     }
 
     @Override
@@ -111,11 +118,20 @@ public class DrawingServiceImpl implements DrawingService {
             root.app.model.Line lineB = pair.getLineB();
             lineB.setEnd(point);
 
+            zoneConfigService.save(getZone(pair));
             lineProvider.save(pair);
             log.info("Saved new line with ID {}", pair.getId());
             return lineB;
         }
         throw new IllegalStateException("Can't determine state of line pair!");
+    }
+
+    private Zone getZone(MarkersPair pair) {
+        return Zone.builder()
+                .isParent(true)
+                .pair(pair)
+                .childZones(computingService.getChildZones(pair, 5))
+                .build();
     }
 
 }

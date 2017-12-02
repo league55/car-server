@@ -1,5 +1,6 @@
 package root.app.data.services;
 
+import javafx.scene.shape.Polygon;
 import root.app.model.MarkersPair;
 import root.app.model.Zone;
 
@@ -10,4 +11,6 @@ import java.util.List;
  * */
 public interface ZoneComputingService {
     List<Zone> getChildZones(MarkersPair pair, int zoneAmount);
+
+    Polygon toFxPolygon(Zone zone);
 }

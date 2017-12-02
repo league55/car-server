@@ -4,6 +4,7 @@ import javafx.scene.layout.AnchorPane;
 import root.app.model.Line;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
+import root.app.model.Zone;
 
 import java.util.List;
 
@@ -13,6 +14,8 @@ import java.util.List;
 public interface DrawingService {
 
     void showLines(AnchorPane imageWrapperPane, List<MarkersPair> lines);
+
+    void showZones(AnchorPane imageWrapperPane, List<Zone> zones);
 
     void removePair(AnchorPane imageWrapperPane, MarkersPair pair);
 

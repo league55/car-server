@@ -11,6 +11,13 @@ import java.util.List;
 @NoArgsConstructor
 public class Zone extends BasicModel {
 
+    public Zone(Long id, MarkersPair pair, boolean isParent, List<Zone> childZones) {
+        super(id);
+        this.pair = pair;
+        this.isParent = isParent;
+        this.childZones = childZones;
+    }
+
     public Zone(MarkersPair pair, boolean isParent, List<Zone> childZones) {
         this.pair = pair;
         this.isParent = isParent;

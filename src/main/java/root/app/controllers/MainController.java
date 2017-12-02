@@ -30,6 +30,8 @@ import root.app.data.services.ImageScaleService;
 import root.app.model.LinesTableRowFX;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
+import root.app.model.Zone;
+import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 
 import java.io.File;
@@ -77,6 +79,9 @@ public class MainController {
 
     @Autowired
     private LineConfigService lineProvider;
+
+    @Autowired
+    private ConfigService<Zone> zoneConfigService;
 
     @Autowired
     private DrawingService drawingService;
@@ -238,6 +243,7 @@ public class MainController {
         tableLines.setItems(data);
 
         drawingService.showLines(imageWrapperPane, pairs);
+        drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
     }
 
 }

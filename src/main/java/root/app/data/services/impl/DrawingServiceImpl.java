@@ -4,6 +4,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,13 @@ public class DrawingServiceImpl implements DrawingService {
 
             markerLines.forEach(pair -> drawLabel.accept(pair, imageWrapperPane));
         });
+
+    }
+
+    @Override
+    public void showZones(AnchorPane imageWrapperPane, List<Zone> zones) {
+        List<Polygon> polygon = zones.stream().map(computingService::toFxPolygon).collect(toList());
+        imageWrapperPane.getChildren().addAll(polygon);
 
     }
 

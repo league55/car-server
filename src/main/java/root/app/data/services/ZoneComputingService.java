@@ -13,4 +13,6 @@ public interface ZoneComputingService {
     List<Zone> getChildZones(MarkersPair pair, int zoneAmount);
 
     Polygon toFxPolygon(Zone zone);
+
+    public List<Double> getPolygonPoints(MarkersPair pair);
 }

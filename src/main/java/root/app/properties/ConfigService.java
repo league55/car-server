@@ -6,7 +6,7 @@ import java.util.List;
  * Generic Read / Write app.properties
  */
 public interface ConfigService<T> {
-    void save(T t);
+    Long save(T t);
 
     T findOne(Long aLong);
 

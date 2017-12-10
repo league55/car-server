@@ -10,25 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.drawingTools.DrawLabel;
 import root.app.data.services.DrawingService;
+import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
 import root.app.model.Zone;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
-import root.app.data.services.ZoneComputingService;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
-import static root.app.data.drawingTools.LinesStatusPredicates.*;
 
 @Slf4j
 @Service
 public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
+    public static final String ZONE_PREFIX = "zone_";
 
+    private static MarkersPair pairInProgress;
     private final BiConsumer<MarkersPair, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
@@ -87,7 +87,8 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void removePair(AnchorPane imageWrapperPane, MarkersPair pair) {
+    public void removeZone(AnchorPane imageWrapperPane, Zone zone) {
+        MarkersPair pair = zone.getPair();
         Predicate<Node> isLineToDelete = node -> {
             return node instanceof Line
                     && (((Line) node).getEndX() == pair.getLineB().getEnd().getX()
@@ -95,50 +96,42 @@ public class DrawingServiceImpl implements DrawingService {
         };
         imageWrapperPane.getChildren().removeIf(isLineToDelete);
         imageWrapperPane.getChildren().removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
+        imageWrapperPane.getChildren().removeIf(node -> (ZONE_PREFIX + zone.getId()).equals(node.getId()));
     }
 
     @Override
     public root.app.model.Line drawLines(List<MarkersPair> pairs, root.app.model.Point point) {
-        boolean allPairsComplete = pairs.stream().filter(COMPLETE_PAIRS).count() == pairs.size();
-        Optional<MarkersPair> firstNotNullA_WithoutEnd = pairs.stream().filter(LINE_A_WITHOUT_END).findFirst();
-        Optional<MarkersPair> firstNotNullA_NullB = pairs.stream().filter(LINE_A_COMPLETE).findFirst();
-        Optional<MarkersPair> firstNotNullB_WithoutEnd = pairs.stream().filter(LINE_B_WITHOUT_END).findFirst();
 
-        if (pairs.isEmpty() || allPairsComplete) {
-            MarkersPair pair = new MarkersPair();
+        if (pairInProgress == null || pairInProgress.getLineB() != null && pairInProgress.getLineB().getEnd() != null) {
+            pairInProgress = new MarkersPair();
             root.app.model.Line lineA = new root.app.model.Line();
             lineA.setStart(point);
-            pair.setLineA(lineA);
-            pairs.add(pair);
+            pairInProgress.setLineA(lineA);
             return null;
-        } else if (firstNotNullA_WithoutEnd.isPresent()) {
-            root.app.model.Line lineA = firstNotNullA_WithoutEnd.get().getLineA();
-            lineA.setEnd(point);
-            return lineA;
-
-        } else if (firstNotNullA_NullB.isPresent()) {
+        } else if (pairInProgress.getLineA().getEnd() == null) {
+            pairInProgress.getLineA().setEnd(point);
+            return pairInProgress.getLineA();
+        } else if (pairInProgress.getLineB() == null) {
             root.app.model.Line lineB = new root.app.model.Line();
             lineB.setStart(point);
-            firstNotNullA_NullB.get().setLineB(lineB);
+            pairInProgress.setLineB(lineB);
             return null;
-        } else if (firstNotNullB_WithoutEnd.isPresent()) {
-            MarkersPair pair = firstNotNullB_WithoutEnd.get();
-            root.app.model.Line lineB = pair.getLineB();
-            lineB.setEnd(point);
+        } else {
+            pairInProgress.getLineB().setEnd(point);
 
-            zoneConfigService.save(getZone(pair));
-            lineProvider.save(pair);
-            log.info("Saved new line with ID {}", pair.getId());
-            return lineB;
+            final Long pairId = lineProvider.save(pairInProgress);
+            zoneConfigService.save(getZone(lineProvider.findOne(pairId)));
+            pairs.add(pairInProgress);
+            log.info("Saved new line with ID {}", pairId);
+
+            return pairInProgress.getLineB();
         }
-        throw new IllegalStateException("Can't determine state of line pair!");
     }
 
     private Zone getZone(MarkersPair pair) {
         return Zone.builder()
                 .isParent(true)
                 .pair(pair)
-                .childZones(computingService.getChildZones(pair, 5))
                 .build();
     }
 

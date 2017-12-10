@@ -1,5 +1,7 @@
 package root.app.model;
 
+import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,24 +11,18 @@ import java.util.List;
 @Data
 @Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Zone extends BasicModel {
-
-    public Zone(Long id, MarkersPair pair, boolean isParent, List<Zone> childZones) {
-        super(id);
-        this.pair = pair;
+    public Zone(boolean isParent, List<Zone> childZones) {
         this.isParent = isParent;
         this.childZones = childZones;
     }
-
-    public Zone(MarkersPair pair, boolean isParent, List<Zone> childZones) {
-        this.pair = pair;
-        this.isParent = isParent;
-        this.childZones = childZones;
-    }
-
-    MarkersPair pair;
 
     @Builder.Default
-    boolean isParent = false;
-    List<Zone> childZones;
+    private Boolean isParent = false;
+
+    private MarkersPair pair;
+
+    @Builder.Default
+    private List<Zone> childZones = Lists.newArrayList();
 }

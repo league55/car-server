@@ -220,7 +220,7 @@ public class MainController {
         Bounds boundsInLocal = imageView.getBoundsInLocal();
         List<MarkersPair> initLines = lineProvider.findAll();
         pairs = scaleService.fixedSize(boundsInLocal.getHeight(), boundsInLocal.getWidth(), initLines);
-        lineMarkersAmount = pairs.size();
+        lineMarkersAmount = initLines.size();
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         distanceColumn.setCellValueFactory(new PropertyValueFactory<>("distance"));
@@ -229,15 +229,17 @@ public class MainController {
         wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
 
-        ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(pairs.stream().map((pair) -> {
+        ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAll().stream().map((zone) -> {
             Button x = new Button("x");
             x.setTextFill(Color.RED);
+            final MarkersPair pair = zone.getPair();
             x.setOnAction(e -> {
                 lineProvider.delete(pair);
-                drawingService.removePair(imageWrapperPane, pair);
+                zoneConfigService.delete(zone);
+                drawingService.removeZone(imageWrapperPane, zone);
                 drawLinesAndLabels();
             });
-            return new LinesTableRowFX(pair.getId(), pair.getDistanceLeft(), pair.getWayNum(), x);
+            return new LinesTableRowFX(zone.getId(), pair.getDistanceLeft(), pair.getWayNum(), x);
         }).collect(toList()));
 
         tableLines.setItems(data);

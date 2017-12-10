@@ -12,8 +12,8 @@ import java.util.List;
 @Configuration
 public class ApplicationConfig {
 
-@Bean
+    @Bean
     ConfigService<Zone> zoneConfigService(IOService<List<Zone>> saver) {
-    return new ConfigServiceImpl<>(saver, "zoneProps.yml");
-}
+        return new ConfigServiceImpl<>(saver, "zoneProps.yml");
+    }
 }

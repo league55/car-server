@@ -1,18 +1,8 @@
 package root.app.model;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public abstract class BasicModel {
-    Long id;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Long id;
 }

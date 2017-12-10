@@ -17,7 +17,7 @@ public interface DrawingService {
 
     void showZones(AnchorPane imageWrapperPane, List<Zone> zones);
 
-    void removePair(AnchorPane imageWrapperPane, MarkersPair pair);
+    void removeZone(AnchorPane imageWrapperPane, Zone zone);
 
     Line drawLines(List<MarkersPair> pairs, Point point);
 }

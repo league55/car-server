@@ -25,7 +25,8 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
     }
 
     @Override
-    public void save(T pair) {
+    public Long save(T pair) {
+        Long id;
         try {
             List<T> t = findAll();
 
@@ -40,9 +41,12 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
             }
 
             saver.writeProperty(fileName, t);
+            id = pair.getId();
         } catch (IOException e) {
             log.error("Failed to save ,", e);
+        return -1L;
         }
+        return id;
     }
 
     private Long getNextId(List<T> t) {
@@ -78,7 +82,7 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
         } catch (IOException e) {
             log.error("Failed to find all objects of type,", e);
         }
-        return null;
+        return Lists.newArrayList();
     }
 
     @Override

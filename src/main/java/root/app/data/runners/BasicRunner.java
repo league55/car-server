@@ -11,6 +11,8 @@ import org.opencv.videoio.VideoCapture;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
+import root.app.data.services.impl.ImageScaleServiceImpl;
+import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.MarkersPair;
 import root.app.properties.LineConfigService;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public abstract class BasicRunner implements Runner {
-    private final static int FRAME_WIDTH = 600;
+    private final static int FRAME_WIDTH = 1280;
     protected Button button;
 
     private ImageView imageView;
@@ -52,7 +54,6 @@ public abstract class BasicRunner implements Runner {
 
     private List<Car> cars = new ArrayList<>();
     private static long frameCounter = 0;
-    private static double fps = 0;
 
     protected BasicRunner(Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
                           LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, ImageScaleService scaleService, CVShowing cvShowing) {
@@ -145,9 +146,6 @@ public abstract class BasicRunner implements Runner {
                     crossingLines = scaleService.fixedSize(frame1.height(), frame1.width(), lineProvider.findAll());
                 }
 
-                frameCounter++;
-                fps = frameCounter;
-
                 if (!frame1.empty() && !frame2.empty() && crossingLines.size() > 0) {
                     // car detection
                     List<Car> currentFrameCars = carsDetector.detectCars(frame1, frame2);
@@ -162,8 +160,8 @@ public abstract class BasicRunner implements Runner {
 
                     currentFrameCars.clear();
 
-                    lineCrossingService.findCrossingLineCars(cars, crossingLines);
-                    speedService.countSpeed(cars, fps);
+                    lineCrossingService.findCrossingLineCars(cars, new ScreenSize(frame1.height(), frame1.width()));
+                    speedService.countSpeed(cars);
                     long newCarCount = lineCrossingService.countCars(cars);
 
                     boolean isCarCrossing = newCarCount != carCount;

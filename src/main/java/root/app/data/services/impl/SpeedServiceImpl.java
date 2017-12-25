@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class SpeedServiceImpl implements SpeedService {
     @Override
-    public void countSpeed(List<Car> cars, double fps) {
+    public void countSpeed(List<Car> cars) {
         cars.forEach(car -> {
             if (car.getFistMarkerCrossed() == null || car.getSecondMarkerCrossed() == null || car.getSpeed() != null) {
                 return;

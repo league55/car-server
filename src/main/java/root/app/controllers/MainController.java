@@ -7,10 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleButton;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
@@ -27,10 +24,8 @@ import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
-import root.app.model.LinesTableRowFX;
-import root.app.model.MarkersPair;
-import root.app.model.Point;
-import root.app.model.Zone;
+import root.app.model.*;
+import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 
@@ -84,6 +79,9 @@ public class MainController {
     private ConfigService<Zone> zoneConfigService;
 
     @Autowired
+    private ConfigService<AppConfigDTO> appConfigService;
+
+    @Autowired
     private DrawingService drawingService;
 
     @Autowired
@@ -102,6 +100,14 @@ public class MainController {
     private TableColumn<LinesTableRowFX, Button> delButton;
 
     @FXML
+    private Button saveZonesPerLineAmount;
+    @FXML
+    private Button zoneHeightButton;
+    @FXML
+    private TextField zonesPerLineAmount;
+    @FXML
+    private TextField zoneHeightValue;
+    @FXML
     private Button chooseFileBtn;
 
 
@@ -113,6 +119,45 @@ public class MainController {
 
         distanceColumn.setOnEditCommit((row) -> lineProvider.updateLeftDistance(row.getRowValue().getId(), row.getNewValue()));
         wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
+        saveZonesPerLineAmount.setOnAction(event -> {
+            Integer zonesAmount = null;
+            try {
+                zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
+            } catch (NumberFormatException e) {
+                log.error("Zones per line must be integer");
+            }
+            if (zonesAmount != null) {
+                final AppConfigDTO prevZonesPerLine = appConfigService
+                        .findAll()
+                        .stream()
+                        .filter(c -> ConfigAttribute.ZonesPerLineAmount.equals(c.getKey()))
+                        .findFirst()
+                        .orElse(new AppConfigDTO());
+                prevZonesPerLine.setValue(zonesAmount);
+                appConfigService.save(prevZonesPerLine);
+                log.info("Zones per line now: {}", zonesAmount);
+            }
+        });
+
+        zoneHeightButton.setOnAction(event -> {
+            Integer zonesHeight = null;
+            try {
+                zonesHeight = Integer.parseInt(zoneHeightValue.getText());
+            } catch (NumberFormatException e) {
+                log.error("Zones per line must be integer");
+            }
+            if (zonesHeight != null) {
+                final AppConfigDTO prevZoneHeight = appConfigService
+                        .findAll()
+                        .stream()
+                        .filter(c -> ConfigAttribute.ZoneHeight.equals(c.getKey()))
+                        .findFirst()
+                        .orElse(new AppConfigDTO());
+                prevZoneHeight.setValue(zonesHeight);
+                appConfigService.save(prevZoneHeight);
+                log.info("Zones height now: {}", zonesHeight);
+            }
+        });
     }
 
 
@@ -205,7 +250,6 @@ public class MainController {
         }
     }
 
-
     enum OnClickMode {
         FIRST_MARKER(Color.RED), SECOND_MARKER(Color.DARKORANGE), NONE(null);
 
@@ -247,6 +291,16 @@ public class MainController {
         drawingService.showLines(imageWrapperPane, pairs);
         drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
     }
+
+    public ImageView getImageView() {
+        return imageView;
+    }
+
+    public AnchorPane getImageWrapperPane() {
+        return imageWrapperPane;
+    }
+
+
 
 }
 

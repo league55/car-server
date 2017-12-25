@@ -33,7 +33,7 @@ public class Start extends Application {
     @Override
     public void start(Stage primaryStage) {
         try {
-            Scene scene = new Scene(root, 800, 600);
+            Scene scene = new Scene(root, 1300, 800);
             // scene
             primaryStage.setTitle("Speedy");
             primaryStage.setScene(scene);

@@ -1,6 +1,7 @@
 package root.app.data.runners.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
@@ -19,7 +20,7 @@ public class CameraRunnerImpl extends BasicRunner {
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
-            LineCrossingService lineCrossingService,
+            @Qualifier("lineCrossingServiceImpl") LineCrossingService lineCrossingService,
             SpeedService speedService,
             LineConfigService lineProvider,
             ImageScaleService scaleService,

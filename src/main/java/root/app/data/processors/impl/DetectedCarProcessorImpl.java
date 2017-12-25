@@ -4,6 +4,7 @@ import org.opencv.core.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.processors.DetectedCarProcessor;
+import root.app.data.services.ImageScaleService;
 import root.app.data.services.NextPositionPredictionService;
 import root.app.model.Car;
 
@@ -14,8 +15,12 @@ import static java.lang.Math.*;
 @Service
 public class DetectedCarProcessorImpl implements DetectedCarProcessor {
 
+    private static final int REMEMBER_FRAMES = 15;
+
     @Autowired
     private NextPositionPredictionService predictionService;
+    @Autowired
+    private ImageScaleService scaleService;
 
     @Override
     public void matchCurrentFrameDetectedCarsToExistingDetectedCars(List<Car> existingCars, List<Car> currentFrameCars) {
@@ -57,7 +62,7 @@ public class DetectedCarProcessorImpl implements DetectedCarProcessor {
                 existingCar.numOfConsecutiveFramesWithoutAMatch++;
             }
 
-            if (existingCar.numOfConsecutiveFramesWithoutAMatch >= 5) {
+            if (existingCar.numOfConsecutiveFramesWithoutAMatch >= REMEMBER_FRAMES) {
                 existingCar.isStillTracked = false;
             }
 
@@ -74,6 +79,7 @@ public class DetectedCarProcessorImpl implements DetectedCarProcessor {
         car.currentBoundingRect = currentFrameCar.currentBoundingRect;
 
         car.centerPositions.add(lastCenter);
+        car.setLastCenter(lastCenter);
 
         car.currentDiagonalSize = currentFrameCar.currentDiagonalSize;
         car.currentAspectRatio = currentFrameCar.currentAspectRatio;

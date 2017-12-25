@@ -2,6 +2,7 @@ package root.app.data.runners.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
@@ -24,7 +25,7 @@ public class VideoRunnerImpl extends BasicRunner {
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
-            LineCrossingService lineCrossingService,
+            @Qualifier("zoneCrossingService") LineCrossingService lineCrossingService,
             SpeedService speedService,
             LineConfigService lineProvider,
             ImageScaleService scaleService,

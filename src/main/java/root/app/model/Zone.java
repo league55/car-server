@@ -9,20 +9,15 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Zone extends BasicModel {
-    public Zone(boolean isParent, List<Zone> childZones) {
-        this.isParent = isParent;
-        this.childZones = childZones;
-    }
-
-    @Builder.Default
-    private Boolean isParent = false;
-
     private MarkersPair pair;
+    private List<Zone.ChildZone> childZones = Lists.newArrayList();
 
-    @Builder.Default
-    private List<Zone> childZones = Lists.newArrayList();
+    @Data
+    @AllArgsConstructor
+    public static class ChildZone {
+        private MarkersPair pair;
+    }
 }

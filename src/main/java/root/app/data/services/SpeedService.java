@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface SpeedService {
 
-   void countSpeed(List<Car> cars, double fps);
+   void countSpeed(List<Car> cars);
 }

@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 public class Point {
 
     private Double x;
-
     private Double y;
 
     private Double windowHeight;
-
     private Double windowWidth;
 
     public Point(double x, double y) {
@@ -26,6 +24,11 @@ public class Point {
         this.y = y;
         this.windowHeight = windowHeight;
         this.windowWidth = windowWidth;
+    }
+
+    public Point(org.opencv.core.Point lastCenter) {
+        this.x = lastCenter.x;
+        this.y = lastCenter.y;
     }
 }
 

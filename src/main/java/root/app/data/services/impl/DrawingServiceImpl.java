@@ -1,5 +1,6 @@
 package root.app.data.services.impl;
 
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -81,9 +82,12 @@ public class DrawingServiceImpl implements DrawingService {
 
     @Override
     public void showZones(AnchorPane imageWrapperPane, List<Zone> zones) {
-        List<Polygon> polygon = zones.stream().map(computingService::toFxPolygon).collect(toList());
-        imageWrapperPane.getChildren().addAll(polygon);
+        final ObservableList<Node> children = imageWrapperPane.getChildren();
 
+        zones.forEach(parentZone -> {
+            List<Polygon> polygon = computingService.toFxPolygon(parentZone);
+            children.addAll(polygon);
+        });
     }
 
     @Override
@@ -94,9 +98,12 @@ public class DrawingServiceImpl implements DrawingService {
                     && (((Line) node).getEndX() == pair.getLineB().getEnd().getX()
                     || ((Line) node).getEndX() == pair.getLineA().getEnd().getX());
         };
-        imageWrapperPane.getChildren().removeIf(isLineToDelete);
-        imageWrapperPane.getChildren().removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
-        imageWrapperPane.getChildren().removeIf(node -> (ZONE_PREFIX + zone.getId()).equals(node.getId()));
+
+        final ObservableList<Node> children = imageWrapperPane.getChildren();
+
+        children.removeIf(isLineToDelete);
+        children.removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
+        children.removeIf(node -> node.getId().contains(ZONE_PREFIX + zone.getId()));
     }
 
     @Override
@@ -120,7 +127,7 @@ public class DrawingServiceImpl implements DrawingService {
             pairInProgress.getLineB().setEnd(point);
 
             final Long pairId = lineProvider.save(pairInProgress);
-            zoneConfigService.save(getZone(lineProvider.findOne(pairId)));
+            zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
             pairs.add(pairInProgress);
             log.info("Saved new line with ID {}", pairId);
 
@@ -128,11 +135,8 @@ public class DrawingServiceImpl implements DrawingService {
         }
     }
 
-    private Zone getZone(MarkersPair pair) {
-        return Zone.builder()
-                .isParent(true)
-                .pair(pair)
-                .build();
+    private Zone getParentZone(MarkersPair pair) {
+        return new Zone(pair, computingService.getChildZones(pair));
     }
 
 }

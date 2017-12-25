@@ -41,6 +41,11 @@ public class LineCrossingServiceImpl implements LineCrossingService {
         });
     }
 
+    @Override
+    public void findCrossingLineCars(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize) {
+
+    }
+
     //TODO: count not perfect horizontal lines
     private boolean isCarCrossedLine(Line line, Car car) {
         int prevFrameIndex = car.centerPositions.size() - 2;

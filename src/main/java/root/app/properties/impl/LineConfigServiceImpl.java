@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class LineConfigServiceImpl extends ConfigServiceImpl<MarkersPair> implements LineConfigService {
-    private static final String fileName = "lineMarkersProps.yml";
+    private static final String fileName = "config/lineMarkersProps.yml";
 
     @Autowired
     public LineConfigServiceImpl(IOService<List<MarkersPair>> saver) {

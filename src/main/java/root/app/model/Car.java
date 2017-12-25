@@ -5,6 +5,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
+import root.app.data.services.impl.ImageScaleServiceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +22,6 @@ public class Car {
 
     public MatOfPoint currentContour;
     public Rect currentBoundingRect;
-    public List<Point> centerPositions;
     public double currentDiagonalSize;
     public double currentAspectRatio;
     public boolean isNewAppearCar;
@@ -32,12 +32,14 @@ public class Car {
     private Long secondMarkerCrossed;
     private Long fistMarkerCrossed;
 
-    private int framesAfterFirstMarker;
-    private int framesBetweenMarkers;
+    private ImageScaleServiceImpl.ScreenSize screenSize;
 
     private MarkersPair passedPair;
 
     private Double speed;
+
+    private Point lastCenter;
+    public List<Point> centerPositions;
 
     public Car(MatOfPoint contour) {
         Point currentCenter = new Point();
@@ -50,6 +52,7 @@ public class Car {
         currentCenter.x = (currentBoundingRect.x + currentBoundingRect.x + currentBoundingRect.width) / 2;
         currentCenter.y = (currentBoundingRect.y + currentBoundingRect.y + currentBoundingRect.height) / 2;
 
+        lastCenter = currentCenter;
         centerPositions.add(currentCenter);
 
         currentDiagonalSize = sqrt(pow(currentBoundingRect.width, 2) + pow(currentBoundingRect.height, 2));

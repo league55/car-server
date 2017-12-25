@@ -1,5 +1,6 @@
 package root.app.data.services.impl;
 
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import root.app.data.services.ImageScaleService;
 import root.app.model.Line;
@@ -17,13 +18,26 @@ public class ImageScaleServiceImpl implements ImageScaleService {
     @Override
     public List<MarkersPair> fixedSize(double currentHeight, double currentWidth, List<MarkersPair> pairs) {
         return pairs.stream().peek(pair -> {
-                    pair.setLineA(fixScale.apply(new Point(currentWidth, currentHeight), pair.getLineA()));
-                    pair.setLineB(fixScale.apply(new Point(currentWidth, currentHeight), pair.getLineB()));
+                    pair.setLineA(fixLinesScale.apply(new Point(currentWidth, currentHeight), pair.getLineA()));
+                    pair.setLineB(fixLinesScale.apply(new Point(currentWidth, currentHeight), pair.getLineB()));
                 }
         ).collect(toList());
     }
 
-    private BiFunction<Point, Line, Line> fixScale = (screenSize, line) -> {
+    @Override
+    public Point fixScale(Point point, ScreenSize screenSizeInit, ScreenSize screenSize) {
+        double heightMultiplier = screenSize.getWindowHeight() / screenSizeInit.getWindowHeight();
+        double widthMultiplier = screenSize.getWindowWidth() / screenSizeInit.getWindowWidth();
+
+        point.setX(point.getX() * widthMultiplier);
+        point.setY(point.getY() * heightMultiplier);
+        point.setWindowHeight(screenSize.getWindowHeight());
+        point.setWindowWidth(screenSize.getWindowWidth());
+
+        return point;
+    }
+
+    private BiFunction<Point, Line, Line> fixLinesScale = (screenSize, line) -> {
         double heightMultiplier = screenSize.getY() / line.getStart().getWindowHeight();
         double widthMultiplier = screenSize.getX() / line.getStart().getWindowWidth();
         Point A1 = line.getStart();
@@ -44,4 +58,16 @@ public class ImageScaleServiceImpl implements ImageScaleService {
         return line;
     };
 
+    @Getter
+    public static class ScreenSize {
+
+        private double windowHeight;
+        private double windowWidth;
+
+
+        public ScreenSize(double windowHeight, double windowWidth) {
+            this.windowHeight = windowHeight;
+            this.windowWidth = windowWidth;
+        }
+    }
 }

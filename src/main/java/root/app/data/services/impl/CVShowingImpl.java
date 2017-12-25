@@ -34,6 +34,7 @@ public class CVShowingImpl implements CVShowing {
                 List<Point> centerPositions = car.centerPositions;
 //              putText(imgFrame2Copy, i + "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
 
+                putText(imgFrame2Copy, i + "c", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 if (car.getSpeed() != null) {
                     putText(imgFrame2Copy, car.getSpeed() + "km/h", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 }

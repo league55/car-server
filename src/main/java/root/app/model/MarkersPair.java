@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MarkersPair extends BasicModel {
-    private Long id;
 
     private Line lineA;
     private Line lineB;
@@ -21,8 +20,7 @@ public class MarkersPair extends BasicModel {
 //    private Integer distanceRight = 0;
     private Integer wayNum = 0;
 
-    public MarkersPair(long id, Line lineA, Line lineB) {
-        this.id = id;
+    public MarkersPair(Line lineA, Line lineB) {
         this.lineA = lineA;
         this.lineB = lineB;
     }

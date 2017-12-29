@@ -25,6 +25,7 @@ import root.app.data.runners.impl.VideoRunnerImpl;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
 import root.app.model.*;
+import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
@@ -79,7 +80,7 @@ public class MainController {
     private ConfigService<Zone> zoneConfigService;
 
     @Autowired
-    private ConfigService<AppConfigDTO> appConfigService;
+    private AppConfigService appConfigService;
 
     @Autowired
     private DrawingService drawingService;
@@ -119,45 +120,8 @@ public class MainController {
 
         distanceColumn.setOnEditCommit((row) -> lineProvider.updateLeftDistance(row.getRowValue().getId(), row.getNewValue()));
         wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
-        saveZonesPerLineAmount.setOnAction(event -> {
-            Integer zonesAmount = null;
-            try {
-                zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
-            } catch (NumberFormatException e) {
-                log.error("Zones per line must be integer");
-            }
-            if (zonesAmount != null) {
-                final AppConfigDTO prevZonesPerLine = appConfigService
-                        .findAll()
-                        .stream()
-                        .filter(c -> ConfigAttribute.ZonesPerLineAmount.equals(c.getKey()))
-                        .findFirst()
-                        .orElse(new AppConfigDTO());
-                prevZonesPerLine.setValue(zonesAmount);
-                appConfigService.save(prevZonesPerLine);
-                log.info("Zones per line now: {}", zonesAmount);
-            }
-        });
-
-        zoneHeightButton.setOnAction(event -> {
-            Integer zonesHeight = null;
-            try {
-                zonesHeight = Integer.parseInt(zoneHeightValue.getText());
-            } catch (NumberFormatException e) {
-                log.error("Zones per line must be integer");
-            }
-            if (zonesHeight != null) {
-                final AppConfigDTO prevZoneHeight = appConfigService
-                        .findAll()
-                        .stream()
-                        .filter(c -> ConfigAttribute.ZoneHeight.equals(c.getKey()))
-                        .findFirst()
-                        .orElse(new AppConfigDTO());
-                prevZoneHeight.setValue(zonesHeight);
-                appConfigService.save(prevZoneHeight);
-                log.info("Zones height now: {}", zonesHeight);
-            }
-        });
+        saveZonesPerLineAmount.setOnAction(saveZonesPerLine);
+        zoneHeightButton.setOnAction(saveFirstZoneHeight);
     }
 
 
@@ -179,6 +143,7 @@ public class MainController {
             Line fxLine = new Line(line.getStart().getX(), line.getStart().getY(), line.getEnd().getX(), line.getEnd().getY());
             fxLine.setStroke(activeControl.color);
             imageWrapperPane.getChildren().add(fxLine);
+            activeControl = NONE;
         }
     };
 
@@ -280,6 +245,7 @@ public class MainController {
             x.setOnAction(e -> {
                 lineProvider.delete(pair);
                 zoneConfigService.delete(zone);
+                zone.getChildZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
                 drawingService.removeZone(imageWrapperPane, zone);
                 drawLinesAndLabels();
             });
@@ -292,6 +258,31 @@ public class MainController {
         drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
     }
 
+    private EventHandler<ActionEvent> saveZonesPerLine = event -> {
+        Integer zonesAmount = null;
+        try {
+            zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
+        } catch (NumberFormatException e) {
+            log.error("Zones per line must be integer");
+        }
+        if (zonesAmount != null) {
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZonesPerLineAmount, zonesAmount));
+            log.info("Zones per line now: {}", zonesAmount);
+        }
+    };
+    private EventHandler<ActionEvent> saveFirstZoneHeight = event -> {
+        Integer zonesHeight = null;
+        try {
+            zonesHeight = Integer.parseInt(zoneHeightValue.getText());
+        } catch (NumberFormatException e) {
+            log.error("Zones per line must be integer");
+        }
+        if (zonesHeight != null) {
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZoneHeight, zonesHeight));
+            log.info("Zones height now: {}", zonesHeight);
+        }
+    };
+
     public ImageView getImageView() {
         return imageView;
     }
@@ -299,7 +290,6 @@ public class MainController {
     public AnchorPane getImageWrapperPane() {
         return imageWrapperPane;
     }
-
 
 
 }

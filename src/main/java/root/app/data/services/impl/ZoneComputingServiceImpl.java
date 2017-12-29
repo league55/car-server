@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.*;
+import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
@@ -16,10 +17,9 @@ import java.util.List;
 
 @Service
 public class ZoneComputingServiceImpl implements ZoneComputingService {
-    private static final String ZONE_PREFIX = "zone_";
 
     @Autowired
-    private ConfigService<AppConfigDTO> appConfigService;
+    private AppConfigService appConfigService;
 
     @Autowired
     private LineConfigService lineConfigService;
@@ -27,7 +27,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     @Override
     public ArrayList<Zone.ChildZone> getChildZones(MarkersPair pair) {
         final Line lastLine = pair.getLineB();
-        AppConfigDTO<String> zonesPerLineConfig = appConfigService.findAll().stream().filter(c -> ConfigAttribute.ZonesPerLineAmount.equals(c.getKey())).findFirst().get();
+        AppConfigDTO<String> zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
         Integer zonesPerLine = Integer.parseInt(zonesPerLineConfig.getValue());
         final ArrayList<Zone.ChildZone> zones = Lists.newArrayList();
 

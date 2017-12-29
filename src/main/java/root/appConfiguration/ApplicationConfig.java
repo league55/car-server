@@ -18,8 +18,4 @@ public class ApplicationConfig {
         return new ConfigServiceImpl<>(saver, "config/zoneProps.yml");
     }
 
-    @Bean
-    ConfigService<AppConfigDTO> appConfigService(IOService<List<AppConfigDTO>> saver) {
-        return new ConfigServiceImpl<>(saver, "config/appProps.yml");
-    }
 }

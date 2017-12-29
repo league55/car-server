@@ -22,12 +22,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
+import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 
 @Slf4j
 @Service
 public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
-    public static final String ZONE_PREFIX = "zone_";
 
     private static MarkersPair pairInProgress;
     private final BiConsumer<MarkersPair, AnchorPane> drawLabel = new DrawLabel();
@@ -93,6 +93,14 @@ public class DrawingServiceImpl implements DrawingService {
     @Override
     public void removeZone(AnchorPane imageWrapperPane, Zone zone) {
         MarkersPair pair = zone.getPair();
+        final ObservableList<Node> children = imageWrapperPane.getChildren();
+
+        removePair(imageWrapperPane, pair);
+        zone.getChildZones().forEach(child -> removePair(imageWrapperPane, child.getPair()));
+        children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX + zone.getId()));
+    }
+
+    private void removePair(AnchorPane imageWrapperPane, MarkersPair pair) {
         Predicate<Node> isLineToDelete = node -> {
             return node instanceof Line
                     && (((Line) node).getEndX() == pair.getLineB().getEnd().getX()
@@ -103,7 +111,6 @@ public class DrawingServiceImpl implements DrawingService {
 
         children.removeIf(isLineToDelete);
         children.removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
-        children.removeIf(node -> node.getId().contains(ZONE_PREFIX + zone.getId()));
     }
 
     @Override

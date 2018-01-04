@@ -11,10 +11,11 @@ import org.opencv.videoio.VideoCapture;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
-import root.app.data.services.impl.ImageScaleServiceImpl;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.MarkersPair;
+import root.app.model.Zone;
+import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 import root.utils.Utils;
 
@@ -46,6 +47,8 @@ public abstract class BasicRunner implements Runner {
     private final Detector carsDetector;
     private final DetectedCarProcessor carProcessor;
     private final DrawingService drawingService;
+    private final ZoneCrossingService zoneCrossingService;
+    private final ConfigService<Zone> zoneConfigService;
     private final LineCrossingService lineCrossingService;
     private final LineConfigService lineProvider;
     private final ImageScaleService scaleService;
@@ -56,10 +59,12 @@ public abstract class BasicRunner implements Runner {
     private static long frameCounter = 0;
 
     protected BasicRunner(Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, ImageScaleService scaleService, CVShowing cvShowing) {
+                          ZoneCrossingService zoneCrossingService, ConfigService<Zone> zoneConfigService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, ImageScaleService scaleService, CVShowing cvShowing) {
         this.carsDetector = carsDetector;
         this.carProcessor = carProcessor;
         this.drawingService = drawingService;
+        this.zoneCrossingService = zoneCrossingService;
+        this.zoneConfigService = zoneConfigService;
         this.lineCrossingService = lineCrossingService;
         this.speedService = speedService;
         this.lineProvider = lineProvider;
@@ -160,9 +165,16 @@ public abstract class BasicRunner implements Runner {
 
                     currentFrameCars.clear();
 
-                    lineCrossingService.findCrossingLineCars(cars, new ScreenSize(frame1.height(), frame1.width()));
+//                    cars.forEach(car -> {
+//                        if (lineCrossingService.isCarCrossedAllZones(car))
+//                            car.setStillTracked(false);
+//                    });
+
+                    lineCrossingService.setCrossingTimeMarks(cars);
+                    zoneCrossingService.paintBusyZones(cars, new ScreenSize(frame1.height(), frame1.width()));
+
                     speedService.countSpeed(cars);
-                    long newCarCount = lineCrossingService.countCars(cars);
+                    long newCarCount = zoneCrossingService.countCars(cars);
 
                     boolean isCarCrossing = newCarCount != carCount;
                     if (isCarCrossing) {

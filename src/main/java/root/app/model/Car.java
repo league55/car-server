@@ -1,5 +1,6 @@
 package root.app.model;
 
+import com.google.common.collect.Lists;
 import lombok.Data;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -29,14 +30,8 @@ public class Car {
     public int numOfConsecutiveFramesWithoutAMatch;
     public Point predictedNextPosition;
 
-    private Long secondMarkerCrossed;
-    private Long fistMarkerCrossed;
-
     private ImageScaleServiceImpl.ScreenSize screenSize;
-
-    private MarkersPair passedPair;
-
-    private Double speed;
+    private List<CrossedPair> crossedPairs = Lists.newArrayList();
 
     private Point lastCenter;
     public List<Point> centerPositions;
@@ -46,6 +41,7 @@ public class Car {
         predictedNextPosition = new Point();
         centerPositions = new ArrayList<>();
         currentContour = contour;
+        numOfConsecutiveFramesWithoutAMatch = 0;
 
         currentBoundingRect = Imgproc.boundingRect(currentContour);
 
@@ -58,6 +54,5 @@ public class Car {
         currentDiagonalSize = sqrt(pow(currentBoundingRect.width, 2) + pow(currentBoundingRect.height, 2));
 
         currentAspectRatio = (float) currentBoundingRect.width / (float) currentBoundingRect.height;
-        numOfConsecutiveFramesWithoutAMatch = 0;
     }
 }

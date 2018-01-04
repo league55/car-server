@@ -266,7 +266,7 @@ public class MainController {
             log.error("Zones per line must be integer");
         }
         if (zonesAmount != null) {
-            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZonesPerLineAmount, zonesAmount));
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZonesPerLineAmount, zonesAmount + ""));
             log.info("Zones per line now: {}", zonesAmount);
         }
     };
@@ -278,7 +278,7 @@ public class MainController {
             log.error("Zones per line must be integer");
         }
         if (zonesHeight != null) {
-            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZoneHeight, zonesHeight));
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.ZoneHeight, zonesHeight + ""));
             log.info("Zones height now: {}", zonesHeight);
         }
     };

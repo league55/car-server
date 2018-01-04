@@ -9,6 +9,7 @@ import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
 import root.app.properties.LineConfigService;
+import root.app.properties.impl.ZoneConfigService;
 
 import static org.opencv.videoio.Videoio.CAP_PROP_FPS;
 import static root.app.controllers.MainController.pathToVideoFile;
@@ -25,12 +26,14 @@ public class VideoRunnerImpl extends BasicRunner {
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
-            @Qualifier("zoneCrossingService") LineCrossingService lineCrossingService,
+            ZoneCrossingService zoneCrossingService,
+            ZoneConfigService zoneConfigService,
+            LineCrossingService lineCrossingService,
             SpeedService speedService,
             LineConfigService lineProvider,
             ImageScaleService scaleService,
             CVShowing cvShowing) {
-        super(carsDetector, carProcessor, drawingService, lineCrossingService, speedService, lineProvider, scaleService, cvShowing);
+        super(carsDetector, carProcessor, drawingService, zoneCrossingService, zoneConfigService, lineCrossingService, speedService, lineProvider, scaleService, cvShowing);
     }
 
     @Override

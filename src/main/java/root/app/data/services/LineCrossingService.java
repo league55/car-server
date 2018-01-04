@@ -1,21 +1,17 @@
 package root.app.data.services;
 
-import org.opencv.core.Mat;
-import root.app.data.services.impl.ImageScaleServiceImpl;
 import root.app.model.Car;
+import root.app.model.Line;
 import root.app.model.MarkersPair;
+import root.app.model.Zone;
 
 import java.util.List;
 
-/**
- * Processing crossing lines
- */
 public interface LineCrossingService {
 
-    long countCars(List<Car> cars);
+    boolean isCarCrossedAllZones(Car car);
 
-    void findCrossingLineCars(List<Car> cars, List<MarkersPair> lines);
+    boolean isCarCrossedLine(Line line, Car car);
 
-    void findCrossingLineCars(List<Car> cars, ImageScaleServiceImpl.ScreenSize  screenSize);
-
+    List<Car> setCrossingTimeMarks(List<Car> cars);
 }

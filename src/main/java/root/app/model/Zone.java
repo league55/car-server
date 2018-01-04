@@ -18,6 +18,14 @@ public class Zone extends BasicModel {
     @Data
     @AllArgsConstructor
     public static class ChildZone {
+        private String id;
+        private Boolean isLast;
         private MarkersPair pair;
+
+        public ChildZone(String childZoneId, MarkersPair childZonePair) {
+            this.id = childZoneId;
+            this.pair = childZonePair;
+            this.isLast = false;
+        }
     }
 }

@@ -9,7 +9,6 @@ import root.app.data.services.ZoneComputingService;
 import root.app.model.*;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
-import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 
 import java.util.ArrayList;
@@ -27,7 +26,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     @Override
     public ArrayList<Zone.ChildZone> getChildZones(MarkersPair pair) {
         final Line lastLine = pair.getLineB();
-        AppConfigDTO<String> zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
+        AppConfigDTO zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
         Integer zonesPerLine = Integer.parseInt(zonesPerLineConfig.getValue());
         final ArrayList<Zone.ChildZone> zones = Lists.newArrayList();
 
@@ -35,13 +34,13 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
             final double k = 1.0 / (zonesPerLine - i - 1);
 
             final MarkersPair childZonePair = getChildZonePair(pair, k);
-            final Zone.ChildZone z = new Zone.ChildZone(childZonePair);
+            final Zone.ChildZone z = new Zone.ChildZone(getChildZoneId(childZonePair, i), childZonePair);
             zones.add(z);
 
             pair.setLineA(childZonePair.getLineB());
         }
         //add last zone
-        zones.add(getLastZone(pair.getLineA(), lastLine));
+        zones.add(getLastZone(pair.getLineA(), lastLine, zonesPerLine));
         return zones;
     }
 
@@ -64,10 +63,11 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         return lineConfigService.findOne(saved);
     }
 
-    private Zone.ChildZone getLastZone(Line start, Line end) {
+    private Zone.ChildZone getLastZone(Line start, Line end, int i) {
         final MarkersPair lastPair = new MarkersPair(start, end);
         final Long saved = lineConfigService.save(lastPair);
-        return new Zone.ChildZone(lineConfigService.findOne(saved));
+        String zoneId = getChildZoneId(lineConfigService.findOne(saved), i);
+        return new Zone.ChildZone(zoneId, true, lineConfigService.findOne(saved));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         polygon.setOpacity(0.1);
         polygon.setStroke(Color.GREEN);
         polygon.setStrokeWidth(5);
-        polygon.setId(getChildZoneId(parent, childId));
+        polygon.setId(zone.getId());
         return polygon;
     }
 
@@ -110,9 +110,8 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         );
     }
 
-    @Override
-    public String getChildZoneId(Zone parent, int i) {
-        return ZONE_PREFIX + parent.getId() + "_" + i;
+    private String getChildZoneId(MarkersPair pair, Integer i) {
+        return ZONE_PREFIX + pair.getId() + "_" + i;
     }
 
 }

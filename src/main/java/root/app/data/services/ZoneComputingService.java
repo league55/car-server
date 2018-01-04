@@ -21,5 +21,4 @@ public interface ZoneComputingService {
 
     public List<Double> getPolygonPoints(MarkersPair pair);
 
-    String getChildZoneId(Zone parent, int i);
 }

@@ -10,9 +10,9 @@ import root.app.properties.ConfigAttribute;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class AppConfigDTO<T> extends BasicModel {
+public class AppConfigDTO extends BasicModel {
 
     private ConfigAttribute key;
-    private T value;
+    private String value;
 }
 

@@ -34,7 +34,7 @@ public class DetectedCarProcessorImpl implements DetectedCarProcessor {
         for (Car currentFrameCar : currentFrameCars) {
 
             int intIndexOfLeastDistance = 0;
-            double leastDistance = 100000.0;
+            double leastDistance = 200000.0;
 
             for (int i = 0; i < existingCars.size(); i++) {
                 if (existingCars.get(i).isStillTracked) {

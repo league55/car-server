@@ -2,14 +2,12 @@ package root.app.data.services.impl;
 
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import root.app.controllers.MainController;
 import root.app.data.services.ZoneCrossingService;
 import root.app.model.Car;
 import root.app.model.CrossedPair;
@@ -18,15 +16,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
-
 @Component
 @Qualifier("zoneCrossingService")
 @Slf4j
 public class ZoneCrossingServiceImpl implements ZoneCrossingService {
-
-    @Autowired
-    private MainController mainController;
 
     @Override
     public long countCars(List<Car> cars) {
@@ -38,8 +31,7 @@ public class ZoneCrossingServiceImpl implements ZoneCrossingService {
     }
 
     @Override
-    public void paintBusyZones(List<Car> cars, ScreenSize screenSize) {
-        final AnchorPane zonesContainer = mainController.getImageWrapperPane();
+    public void paintBusyZones(List<Car> cars, Pane zonesContainer) {
 
         final List<String> childZonesWithCars = cars.stream()
                 .map(Car::getCrossedPairs)
@@ -51,7 +43,7 @@ public class ZoneCrossingServiceImpl implements ZoneCrossingService {
         final List<String> childZonesWithoutCars = cars.stream()
                 .map(Car::getCrossedPairs)
                 .flatMap(Collection::stream)
-                .filter(cz -> !childZonesWithCars.contains(cz.getZoneId()))
+                .filter(cz -> cz.getTimeEnteredZone() != null && cz.getTimeLeavedZone() != null)
                 .map(CrossedPair::getZoneId)
                 .collect(Collectors.toList());
 

@@ -3,6 +3,7 @@ package root.app.data.services.impl;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
@@ -86,7 +87,10 @@ public class DrawingServiceImpl implements DrawingService {
 
         zones.forEach(parentZone -> {
             List<Polygon> polygon = computingService.toFxPolygon(parentZone);
-            children.addAll(polygon);
+            //if these zones weren't added before
+            if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getChildZones().get(0).getId())).size() == 0) {
+                children.addAll(polygon);
+            }
         });
     }
 
@@ -97,7 +101,15 @@ public class DrawingServiceImpl implements DrawingService {
 
         removePair(imageWrapperPane, pair);
         zone.getChildZones().forEach(child -> removePair(imageWrapperPane, child.getPair()));
+        zone.getChildZones().forEach(child -> removeChildZone(imageWrapperPane, child));
         children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX + zone.getId()));
+    }
+
+    private void removeChildZone(AnchorPane imageWrapperPane, Zone.ChildZone child) {
+        Predicate<Node> isZoneToDelete = node -> node instanceof Polygon && (child.getId().equals(node.getId()));
+        final ObservableList<Node> children = imageWrapperPane.getChildren();
+
+        children.removeIf(isZoneToDelete);
     }
 
     private void removePair(AnchorPane imageWrapperPane, MarkersPair pair) {
@@ -112,34 +124,12 @@ public class DrawingServiceImpl implements DrawingService {
         children.removeIf(isLineToDelete);
         children.removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
     }
-
     @Override
-    public root.app.model.Line drawLines(List<MarkersPair> pairs, root.app.model.Point point) {
-
-        if (pairInProgress == null || pairInProgress.getLineB() != null && pairInProgress.getLineB().getEnd() != null) {
-            pairInProgress = new MarkersPair();
-            root.app.model.Line lineA = new root.app.model.Line();
-            lineA.setStart(point);
-            pairInProgress.setLineA(lineA);
-            return null;
-        } else if (pairInProgress.getLineA().getEnd() == null) {
-            pairInProgress.getLineA().setEnd(point);
-            return pairInProgress.getLineA();
-        } else if (pairInProgress.getLineB() == null) {
-            root.app.model.Line lineB = new root.app.model.Line();
-            lineB.setStart(point);
-            pairInProgress.setLineB(lineB);
-            return null;
-        } else {
-            pairInProgress.getLineB().setEnd(point);
-
-            final Long pairId = lineProvider.save(pairInProgress);
-            zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
-            pairs.add(pairInProgress);
-            log.info("Saved new line with ID {}", pairId);
-
-            return pairInProgress.getLineB();
-        }
+    public void submitZone(List<MarkersPair> pairs, MarkersPair pair, Pane pane) {
+        final Long pairId = lineProvider.save(pair);
+        zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
+        pairs.add(pairInProgress);
+        log.info("Saved new line with ID {}", pairId);
     }
 
     private Zone getParentZone(MarkersPair pair) {

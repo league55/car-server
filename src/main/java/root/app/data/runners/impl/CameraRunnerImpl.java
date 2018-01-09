@@ -1,14 +1,12 @@
 package root.app.data.runners.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
 import root.app.properties.LineConfigService;
-import root.app.properties.impl.ZoneConfigService;
 
 /**
  * Use video from camera
@@ -22,13 +20,11 @@ public class CameraRunnerImpl extends BasicRunner {
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
             ZoneCrossingService zoneCrossingService,
-            ZoneConfigService zoneConfigService,
             LineCrossingService lineCrossingService,
             SpeedService speedService,
             LineConfigService lineProvider,
-            ImageScaleService scaleService,
             CVShowing cvShowing) {
-        super(carsDetector, carProcessor, drawingService, zoneCrossingService, zoneConfigService, lineCrossingService, speedService, lineProvider, scaleService, cvShowing);
+        super(carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package root.app.data.services;
 
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import root.app.model.Line;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
@@ -19,5 +20,5 @@ public interface DrawingService {
 
     void removeZone(AnchorPane imageWrapperPane, Zone zone);
 
-    Line drawLines(List<MarkersPair> pairs, Point point);
+    void submitZone(List<MarkersPair> pairs, MarkersPair pair, Pane pane);
 }

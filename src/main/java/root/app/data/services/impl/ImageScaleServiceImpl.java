@@ -6,6 +6,7 @@ import root.app.data.services.ImageScaleService;
 import root.app.model.Line;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
+import root.app.model.Zone;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -16,10 +17,10 @@ import static java.util.stream.Collectors.toList;
 public class ImageScaleServiceImpl implements ImageScaleService {
 
     @Override
-    public List<MarkersPair> fixedSize(double currentHeight, double currentWidth, List<MarkersPair> pairs) {
+    public List<MarkersPair> fixedSize(ScreenSize screenSize, List<MarkersPair> pairs) {
         return pairs.stream().peek(pair -> {
-                    pair.setLineA(fixLinesScale.apply(new Point(currentWidth, currentHeight), pair.getLineA()));
-                    pair.setLineB(fixLinesScale.apply(new Point(currentWidth, currentHeight), pair.getLineB()));
+                    pair.setLineA(fixLinesScale.apply(screenSize, pair.getLineA()));
+                    pair.setLineB(fixLinesScale.apply(screenSize, pair.getLineB()));
                 }
         ).collect(toList());
     }
@@ -37,21 +38,30 @@ public class ImageScaleServiceImpl implements ImageScaleService {
         return point;
     }
 
-    private BiFunction<Point, Line, Line> fixLinesScale = (screenSize, line) -> {
-        double heightMultiplier = screenSize.getY() / line.getStart().getWindowHeight();
-        double widthMultiplier = screenSize.getX() / line.getStart().getWindowWidth();
+    @Override
+    public Zone.ChildZone fixedSize(ScreenSize screenSize, Zone.ChildZone childZone) {
+
+        final MarkersPair pair = childZone.getPair();
+
+        childZone.setPair(fixPair(screenSize, pair));
+        return childZone;
+    }
+
+    private BiFunction<ScreenSize, Line, Line> fixLinesScale = (screenSize, line) -> {
+        double heightMultiplier = screenSize.getWindowHeight() / line.getStart().getWindowHeight();
+        double widthMultiplier = screenSize.getWindowWidth() / line.getStart().getWindowWidth();
         Point A1 = line.getStart();
         Point A2 = line.getEnd();
 
         A1.setX(A1.getX() * widthMultiplier);
         A1.setY(A1.getY() * heightMultiplier);
-        A1.setWindowHeight(screenSize.getY());
-        A1.setWindowWidth(screenSize.getX());
+        A1.setWindowHeight(screenSize.getWindowHeight());
+        A1.setWindowWidth(screenSize.getWindowWidth());
 
         A2.setX(A2.getX() * widthMultiplier);
         A2.setY(A2.getY() * heightMultiplier);
-        A2.setWindowHeight(screenSize.getY());
-        A2.setWindowWidth(screenSize.getX());
+        A2.setWindowHeight(screenSize.getWindowHeight());
+        A2.setWindowWidth(screenSize.getWindowHeight());
 
         line.setStart(A1);
         line.setEnd(A2);
@@ -62,12 +72,19 @@ public class ImageScaleServiceImpl implements ImageScaleService {
     public static class ScreenSize {
 
         private double windowHeight;
-        private double windowWidth;
 
+        private double windowWidth;
 
         public ScreenSize(double windowHeight, double windowWidth) {
             this.windowHeight = windowHeight;
             this.windowWidth = windowWidth;
         }
+
+    }
+
+    private MarkersPair fixPair(ScreenSize screenSize, MarkersPair pair) {
+        pair.setLineA(fixLinesScale.apply(screenSize, pair.getLineA()));
+        pair.setLineB(fixLinesScale.apply(screenSize, pair.getLineB()));
+        return pair;
     }
 }

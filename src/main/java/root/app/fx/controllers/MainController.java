@@ -1,4 +1,4 @@
-package root.app.controllers;
+package root.app.fx.controllers;
 
 import com.google.common.collect.Lists;
 import javafx.collections.FXCollections;
@@ -14,7 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +23,12 @@ import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
-import root.app.model.*;
+import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
+import root.app.fx.AnchorsService;
+import root.app.model.AppConfigDTO;
+import root.app.model.LinesTableRowFX;
+import root.app.model.MarkersPair;
+import root.app.model.Zone;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
@@ -34,7 +38,7 @@ import java.io.File;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static root.app.controllers.MainController.OnClickMode.NONE;
+import static root.app.fx.controllers.MainController.OnClickMode.NONE;
 
 
 @Slf4j
@@ -88,6 +92,9 @@ public class MainController {
     @Autowired
     private ImageScaleService scaleService;
 
+    @Autowired
+    private AnchorsService anchorsService;
+
     @FXML
     private TableColumn<LinesTableRowFX, Long> idColumn;
 
@@ -125,6 +132,7 @@ public class MainController {
     }
 
 
+    //    for future
     private final EventHandler<MouseEvent> mouseEventEventHandler = me -> {
         if (NONE.equals(activeControl)) {
             return;
@@ -135,16 +143,6 @@ public class MainController {
         double sceneHeight = imageView.getBoundsInLocal().getHeight();
         double sceneWidth = imageView.getBoundsInLocal().getWidth();
         me.consume();
-
-        Point newPoint = new Point(initX, initY, sceneHeight, sceneWidth);
-        root.app.model.Line line = drawingService.drawLines(pairs, newPoint);
-
-        if (line != null) {
-            Line fxLine = new Line(line.getStart().getX(), line.getStart().getY(), line.getEnd().getX(), line.getEnd().getY());
-            fxLine.setStroke(activeControl.color);
-            imageWrapperPane.getChildren().add(fxLine);
-            activeControl = NONE;
-        }
     };
 
 
@@ -158,6 +156,7 @@ public class MainController {
         log.info("Start work with camera");
         cameraRunner.setActionButton(cameraButton);
         cameraRunner.setImageView(imageView);
+        cameraRunner.setContainerPane(imageWrapperPane);
         cameraRunner.startCapturing();
     }
 
@@ -176,30 +175,11 @@ public class MainController {
 
         videoRunner.setActionButton(videoButton);
         videoRunner.setImageView(imageView);
+        videoRunner.setContainerPane(imageWrapperPane);
         videoRunner.startCapturing();
+        drawLinesAndLabels();
     }
 
-    @FXML
-    public void setFirstMarker(ActionEvent event) {
-        if (this.markerOneButton.isSelected()) {
-            MainController.activeControl = OnClickMode.FIRST_MARKER;
-
-            markerTwoButton.setSelected(false);
-        } else {
-            MainController.activeControl = NONE;
-        }
-    }
-
-    @FXML
-    public void setSecondMarker(ActionEvent event) {
-        if (this.markerTwoButton.isSelected()) {
-            MainController.activeControl = OnClickMode.SECOND_MARKER;
-
-            markerOneButton.setSelected(false);
-        } else {
-            MainController.activeControl = NONE;
-        }
-    }
 
     public void refresh(ActionEvent actionEvent) {
         if (lineMarkersAmount < pairs.size()) {
@@ -215,6 +195,24 @@ public class MainController {
         }
     }
 
+    public void addAnchors(ActionEvent actionEvent) {
+        anchorsService.addNewZone(imageWrapperPane);
+    }
+
+    public void submitZone(ActionEvent actionEvent) {
+        double sceneHeight = imageView.getBoundsInLocal().getHeight();
+        double sceneWidth = imageView.getBoundsInLocal().getWidth();
+
+        drawingService.submitZone(pairs, anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
+        anchorsService.clean(imageWrapperPane);
+
+        drawLinesAndLabels();
+    }
+
+    public void cleanAnchors(ActionEvent actionEvent) {
+        anchorsService.clean(imageWrapperPane);
+    }
+
     enum OnClickMode {
         FIRST_MARKER(Color.RED), SECOND_MARKER(Color.DARKORANGE), NONE(null);
 
@@ -228,7 +226,7 @@ public class MainController {
     private void drawLinesAndLabels() {
         Bounds boundsInLocal = imageView.getBoundsInLocal();
         List<MarkersPair> initLines = lineProvider.findAll();
-        pairs = scaleService.fixedSize(boundsInLocal.getHeight(), boundsInLocal.getWidth(), initLines);
+        pairs = scaleService.fixedSize(new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth()), initLines);
         lineMarkersAmount = initLines.size();
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));

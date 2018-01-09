@@ -1,5 +1,6 @@
 package root.app.data.services;
 
+import root.app.data.services.impl.ImageScaleServiceImpl;
 import root.app.model.Car;
 import root.app.model.Line;
 import root.app.model.MarkersPair;
@@ -13,5 +14,5 @@ public interface LineCrossingService {
 
     boolean isCarCrossedLine(Line line, Car car);
 
-    List<Car> setCrossingTimeMarks(List<Car> cars);
+    List<Car> setCrossingTimeMarks(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize);
 }

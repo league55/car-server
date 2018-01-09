@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import root.app.data.services.ImageScaleService;
 import root.app.data.services.LineCrossingService;
 import root.app.model.Car;
 import root.app.model.Line;
@@ -20,10 +21,12 @@ import java.util.stream.Collectors;
 public class LineCrossingServiceImpl implements LineCrossingService {
 
     private final ZoneConfigService zoneConfigService;
+    private final ImageScaleService imageScaleService;
 
     @Autowired
-    public LineCrossingServiceImpl(ZoneConfigService zoneConfigService) {
+    public LineCrossingServiceImpl(ZoneConfigService zoneConfigService, ImageScaleService imageScaleService) {
         this.zoneConfigService = zoneConfigService;
+        this.imageScaleService = imageScaleService;
     }
 
     @Override
@@ -53,8 +56,12 @@ public class LineCrossingServiceImpl implements LineCrossingService {
     }
 
     @Override
-    public List<Car> setCrossingTimeMarks(List<Car> cars) {
-        List<Zone.ChildZone> childZones = zoneConfigService.findAll().stream().map(Zone::getChildZones).flatMap(Collection::stream).collect(Collectors.toList());
+    public List<Car> setCrossingTimeMarks(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize) {
+        List<Zone.ChildZone> childZones = zoneConfigService.findAll().stream()
+                .map(Zone::getChildZones).flatMap(Collection::stream)
+                .map(childZone -> imageScaleService.fixedSize(screenSize, childZone))
+                .collect(Collectors.toList());
+
 
         cars.forEach(car -> {
             findCrossedChildZone(childZones, car);

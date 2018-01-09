@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class BasicRunner implements Runner {
@@ -31,6 +33,7 @@ public abstract class BasicRunner implements Runner {
     protected Button button;
 
     private ImageView imageView;
+    private Pane containerPane;
     // the OpenCV object that realizes the video capture
     private ScheduledExecutorService timer;
     // the OpenCV object that realizes the video capture
@@ -48,10 +51,8 @@ public abstract class BasicRunner implements Runner {
     private final DetectedCarProcessor carProcessor;
     private final DrawingService drawingService;
     private final ZoneCrossingService zoneCrossingService;
-    private final ConfigService<Zone> zoneConfigService;
     private final LineCrossingService lineCrossingService;
     private final LineConfigService lineProvider;
-    private final ImageScaleService scaleService;
     private final SpeedService speedService;
     private final CVShowing cvShowing;
 
@@ -59,16 +60,14 @@ public abstract class BasicRunner implements Runner {
     private static long frameCounter = 0;
 
     protected BasicRunner(Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, ConfigService<Zone> zoneConfigService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, ImageScaleService scaleService, CVShowing cvShowing) {
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, CVShowing cvShowing) {
         this.carsDetector = carsDetector;
         this.carProcessor = carProcessor;
         this.drawingService = drawingService;
         this.zoneCrossingService = zoneCrossingService;
-        this.zoneConfigService = zoneConfigService;
         this.lineCrossingService = lineCrossingService;
         this.speedService = speedService;
         this.lineProvider = lineProvider;
-        this.scaleService = scaleService;
         this.cvShowing = cvShowing;
     }
 
@@ -148,7 +147,7 @@ public abstract class BasicRunner implements Runner {
                 this.capture.read(frame2);
 
                 if (crossingLines == null || crossingLines.size() == 0) {
-                    crossingLines = scaleService.fixedSize(frame1.height(), frame1.width(), lineProvider.findAll());
+                    crossingLines = lineProvider.findAll();
                 }
 
                 if (!frame1.empty() && !frame2.empty() && crossingLines.size() > 0) {
@@ -165,16 +164,13 @@ public abstract class BasicRunner implements Runner {
 
                     currentFrameCars.clear();
 
-//                    cars.forEach(car -> {
-//                        if (lineCrossingService.isCarCrossedAllZones(car))
-//                            car.setStillTracked(false);
-//                    });
-
-                    lineCrossingService.setCrossingTimeMarks(cars);
-                    zoneCrossingService.paintBusyZones(cars, new ScreenSize(frame1.height(), frame1.width()));
+                    lineCrossingService.setCrossingTimeMarks(cars, new ScreenSize(frame1.height(), frame1.width()));
+                    zoneCrossingService.paintBusyZones(cars, containerPane);
 
                     speedService.countSpeed(cars);
                     long newCarCount = zoneCrossingService.countCars(cars);
+
+                    cars = cars.stream().filter(Car::isStillTracked).collect(Collectors.toList());
 
                     boolean isCarCrossing = newCarCount != carCount;
                     if (isCarCrossing) {
@@ -209,6 +205,10 @@ public abstract class BasicRunner implements Runner {
 
     public void setImageView(ImageView imageView) {
         this.imageView = imageView;
+    }
+
+    public void setContainerPane(Pane pane) {
+        this.containerPane = pane;
     }
 }
 

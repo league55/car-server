@@ -36,8 +36,9 @@ public class CVShowingImpl implements CVShowing {
 
                 putText(imgFrame2Copy, "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 if (car.getCrossedPairs().size() > 0) {
-                    final Double lastSpeed = car.getCrossedPairs().get(car.getCrossedPairs().size() - 1).getSpeed();
-                    putText(imgFrame2Copy, lastSpeed + "km/h", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
+                    Double lastSpeed = car.getCrossedPairs().get(car.getCrossedPairs().size() - 1).getSpeed();
+                    if(lastSpeed == null) lastSpeed = 0.0;
+//                    putText(imgFrame2Copy, lastSpeed + "km/h", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 }
             }
         }

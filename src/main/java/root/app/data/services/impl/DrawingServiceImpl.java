@@ -31,7 +31,7 @@ public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
 
     private static MarkersPair pairInProgress;
-    private final BiConsumer<MarkersPair, AnchorPane> drawLabel = new DrawLabel();
+    private final BiConsumer<Zone, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
     private final ConfigService zoneConfigService;
@@ -75,8 +75,6 @@ public class DrawingServiceImpl implements DrawingService {
 
             imageWrapperPane.getChildren().addAll(linesA);
             imageWrapperPane.getChildren().addAll(linesB);
-
-            markerLines.forEach(pair -> drawLabel.accept(pair, imageWrapperPane));
         });
 
     }
@@ -91,6 +89,9 @@ public class DrawingServiceImpl implements DrawingService {
             if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getChildZones().get(0).getId())).size() == 0) {
                 children.addAll(polygon);
             }
+
+            drawLabel.accept(parentZone, imageWrapperPane);
+
         });
     }
 

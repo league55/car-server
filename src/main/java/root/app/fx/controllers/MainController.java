@@ -52,14 +52,13 @@ public class MainController {
     private static List<MarkersPair> pairs;
     private final FileChooser fileChooser = new FileChooser();
 
-    // the FXML button
+    //    -------------- FXML ----------------
     @FXML
     private Button cameraButton;
     @FXML
     private Button videoButton;
     @FXML
     private ToggleButton markerOneButton;
-
     @FXML
     private ToggleButton markerTwoButton;
     // the FXML image view
@@ -67,46 +66,20 @@ public class MainController {
     private ImageView imageView;
     @FXML
     private TableView<LinesTableRowFX> tableLines;
-
     @FXML
     private AnchorPane imageWrapperPane;
-
-    @Autowired
-    private VideoRunnerImpl videoRunner;
-
-    @Autowired
-    private CameraRunnerImpl cameraRunner;
-
-    @Autowired
-    private LineConfigService lineProvider;
-
-    @Autowired
-    private ConfigService<Zone> zoneConfigService;
-
-    @Autowired
-    private AppConfigService appConfigService;
-
-    @Autowired
-    private DrawingService drawingService;
-
-    @Autowired
-    private ImageScaleService scaleService;
-
-    @Autowired
-    private AnchorsService anchorsService;
-
+    @FXML
+    private Button saveIpButton;
+    @FXML
+    private TextField ipInput;
     @FXML
     private TableColumn<LinesTableRowFX, Long> idColumn;
-
     @FXML
     private TableColumn<LinesTableRowFX, Integer> distanceColumn;
-
     @FXML
     private TableColumn<LinesTableRowFX, Integer> wayNum;
-
     @FXML
     private TableColumn<LinesTableRowFX, Button> delButton;
-
     @FXML
     private Button saveZonesPerLineAmount;
     @FXML
@@ -117,6 +90,24 @@ public class MainController {
     private TextField zoneHeightValue;
     @FXML
     private Button chooseFileBtn;
+    //    -------------- Spring ----------------
+
+    @Autowired
+    private VideoRunnerImpl videoRunner;
+    @Autowired
+    private CameraRunnerImpl cameraRunner;
+    @Autowired
+    private LineConfigService lineProvider;
+    @Autowired
+    private ConfigService<Zone> zoneConfigService;
+    @Autowired
+    private AppConfigService appConfigService;
+    @Autowired
+    private DrawingService drawingService;
+    @Autowired
+    private ImageScaleService scaleService;
+    @Autowired
+    private AnchorsService anchorsService;
 
 
     @FXML
@@ -127,12 +118,10 @@ public class MainController {
 
         distanceColumn.setOnEditCommit((row) -> lineProvider.updateLeftDistance(row.getRowValue().getId(), row.getNewValue()));
         wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
-        saveZonesPerLineAmount.setOnAction(saveZonesPerLine);
-        zoneHeightButton.setOnAction(saveFirstZoneHeight);
     }
 
 
-    //    for future
+    //    for future on click handler
     private final EventHandler<MouseEvent> mouseEventEventHandler = me -> {
         if (NONE.equals(activeControl)) {
             return;
@@ -168,8 +157,8 @@ public class MainController {
     @FXML
     protected void startVideo(ActionEvent event) {
         log.info("Start work with video");
-        if (pathToVideoFile == null) {
-            chooseFile(event);
+        if (appConfigService.findOne(ConfigAttribute.PathToVideoFile).getValue() == null) {
+            final Long pathToVideoFile = chooseVideoFile();
             if (pathToVideoFile == null) return;
         }
 
@@ -180,26 +169,25 @@ public class MainController {
         drawLinesAndLabels();
     }
 
+    @FXML
+    public void chooseFile(ActionEvent actionEvent) {
+        chooseVideoFile();
+    }
 
-    public void refresh(ActionEvent actionEvent) {
+    @FXML
+    private void refresh(ActionEvent actionEvent) {
         if (lineMarkersAmount < pairs.size()) {
             drawLinesAndLabels();
         }
     }
 
     @FXML
-    public void chooseFile(ActionEvent actionEvent) {
-        File file = fileChooser.showOpenDialog(chooseFileBtn.getScene().getWindow());
-        if (file != null) {
-            pathToVideoFile = file.getAbsolutePath();
-        }
-    }
-
-    public void addAnchors(ActionEvent actionEvent) {
+    private void addAnchors(ActionEvent actionEvent) {
         anchorsService.addNewZone(imageWrapperPane);
     }
 
-    public void submitZone(ActionEvent actionEvent) {
+    @FXML
+    private void submitZone(ActionEvent actionEvent) {
         double sceneHeight = imageView.getBoundsInLocal().getHeight();
         double sceneWidth = imageView.getBoundsInLocal().getWidth();
 
@@ -209,8 +197,17 @@ public class MainController {
         drawLinesAndLabels();
     }
 
-    public void cleanAnchors(ActionEvent actionEvent) {
+    @FXML
+    private void cleanAnchors(ActionEvent actionEvent) {
         anchorsService.clean(imageWrapperPane);
+    }
+
+    private Long chooseVideoFile() {
+        File file = fileChooser.showOpenDialog(chooseFileBtn.getScene().getWindow());
+        if (file != null) {
+            return appConfigService.save(new AppConfigDTO(ConfigAttribute.PathToVideoFile, file.getAbsolutePath()));
+        }
+        return null;
     }
 
     enum OnClickMode {
@@ -256,7 +253,8 @@ public class MainController {
         drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
     }
 
-    private EventHandler<ActionEvent> saveZonesPerLine = event -> {
+    @FXML
+    private void saveZonesPerLine (ActionEvent event) {
         Integer zonesAmount = null;
         try {
             zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
@@ -268,7 +266,9 @@ public class MainController {
             log.info("Zones per line now: {}", zonesAmount);
         }
     };
-    private EventHandler<ActionEvent> saveFirstZoneHeight = event -> {
+
+    @FXML
+    private void saveFirstZoneHeight (ActionEvent event) {
         Integer zonesHeight = null;
         try {
             zonesHeight = Integer.parseInt(zoneHeightValue.getText());
@@ -281,14 +281,13 @@ public class MainController {
         }
     };
 
-    public ImageView getImageView() {
-        return imageView;
-    }
-
-    public AnchorPane getImageWrapperPane() {
-        return imageWrapperPane;
-    }
-
+    @FXML
+    private void saveIpAction(ActionEvent event) {
+            String IP = ipInput.getText();
+            if (IP != null) {
+                appConfigService.save(new AppConfigDTO(ConfigAttribute.CameraIP, IP));
+            }
+        }
 
 }
 

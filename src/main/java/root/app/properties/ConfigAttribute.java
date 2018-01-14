@@ -1,5 +1,5 @@
 package root.app.properties;
 
 public enum ConfigAttribute {
-    LinesAmount, ZonesPerLineAmount, ParentZonePoints, ZoneHeight
+    LinesAmount, ZonesPerLineAmount, ParentZonePoints, CameraIP, PathToVideoFile, ZoneHeight
 }

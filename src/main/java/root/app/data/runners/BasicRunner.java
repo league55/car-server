@@ -15,8 +15,7 @@ import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.MarkersPair;
-import root.app.model.Zone;
-import root.app.properties.ConfigService;
+import root.app.properties.AppConfigService;
 import root.app.properties.LineConfigService;
 import root.utils.Utils;
 
@@ -47,6 +46,7 @@ public abstract class BasicRunner implements Runner {
     private long carCount = 0;
 
 
+    protected final AppConfigService appConfigService;
     private final Detector carsDetector;
     private final DetectedCarProcessor carProcessor;
     private final DrawingService drawingService;
@@ -57,10 +57,10 @@ public abstract class BasicRunner implements Runner {
     private final CVShowing cvShowing;
 
     private List<Car> cars = new ArrayList<>();
-    private static long frameCounter = 0;
 
-    protected BasicRunner(Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
+    protected BasicRunner(AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
                           ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, CVShowing cvShowing) {
+        this.appConfigService = appConfigService;
         this.carsDetector = carsDetector;
         this.carProcessor = carProcessor;
         this.drawingService = drawingService;

@@ -1,21 +1,26 @@
 package root.app.data.runners.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
+import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
 import root.app.properties.LineConfigService;
 
 /**
  * Use video from camera
  */
 @Component
+@Slf4j
 public class CameraRunnerImpl extends BasicRunner {
 
     @Autowired
     public CameraRunnerImpl(
+            AppConfigService appConfigService,
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
@@ -24,12 +29,14 @@ public class CameraRunnerImpl extends BasicRunner {
             SpeedService speedService,
             LineConfigService lineProvider,
             CVShowing cvShowing) {
-        super(carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
+        super(appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
     }
 
     @Override
     protected void openCamera() {
-        this.capture.open(cameraId);
+        final String IP = appConfigService.findOne(ConfigAttribute.CameraIP).getValue();
+        log.info("Try work with remote video from address: {}", IP);
+        this.capture.open(IP);
 
         // is the video stream available?
         if (this.capture.isOpened()) {

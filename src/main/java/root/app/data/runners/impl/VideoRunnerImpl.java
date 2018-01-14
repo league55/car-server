@@ -7,6 +7,8 @@ import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
+import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
 import root.app.properties.LineConfigService;
 
 import static org.opencv.videoio.Videoio.CAP_PROP_FPS;
@@ -21,6 +23,7 @@ public class VideoRunnerImpl extends BasicRunner {
 
     @Autowired
     public VideoRunnerImpl(
+            AppConfigService appConfigService,
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
             DrawingService drawingService,
@@ -29,14 +32,16 @@ public class VideoRunnerImpl extends BasicRunner {
             SpeedService speedService,
             LineConfigService lineProvider,
             CVShowing cvShowing) {
-        super(carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
+        super(appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
     }
 
     @Override
     protected void openCamera() {
         // start the video capture
-        this.capture.open(pathToVideoFile);
-        this.capture.set(CAP_PROP_FPS, 1);
+        final String filename = appConfigService.findOne(ConfigAttribute.PathToVideoFile).getValue();
+        log.info("Try work with local video from file: {}", filename);
+        this.capture.open(filename);
+        this.capture.set(CAP_PROP_FPS, 30);
         // update the button content
         this.button.setText("Stop Video");
     }

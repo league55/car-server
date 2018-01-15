@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
+import root.app.data.services.DataOutputService;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;

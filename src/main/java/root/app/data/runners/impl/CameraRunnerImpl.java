@@ -20,6 +20,7 @@ public class CameraRunnerImpl extends BasicRunner {
 
     @Autowired
     public CameraRunnerImpl(
+            DataOutputService dataOutputService,
             AppConfigService appConfigService,
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
@@ -29,7 +30,7 @@ public class CameraRunnerImpl extends BasicRunner {
             SpeedService speedService,
             LineConfigService lineProvider,
             CVShowing cvShowing) {
-        super(appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
+        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
     }
 
     @Override
@@ -45,6 +46,7 @@ public class CameraRunnerImpl extends BasicRunner {
 
             // update the button content
             button.setText("Stop Camera");
+
         } else {
             // log the error
             System.err.println("Impossible to open the camera connection...");

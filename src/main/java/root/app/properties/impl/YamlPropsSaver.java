@@ -41,8 +41,10 @@ public class YamlPropsSaver<T> implements IOService<T> {
 
     @Override
     public void writeProperty(String fileName, T property) throws IOException {
-        YamlWriter writer = new YamlWriter(new FileWriter(fileName));
+        final FileWriter writer1 = new FileWriter(fileName);
+        YamlWriter writer = new YamlWriter(writer1);
         writer.write(property);
         writer.close();
+        writer1.close();
     }
 }

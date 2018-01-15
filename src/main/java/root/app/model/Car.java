@@ -29,6 +29,7 @@ public class Car {
     public boolean isStillTracked;
     public int numOfConsecutiveFramesWithoutAMatch;
     public Point predictedNextPosition;
+    public boolean wasCounted;
 
     private ImageScaleServiceImpl.ScreenSize screenSize;
     private List<CrossedPair> crossedPairs = Lists.newArrayList();

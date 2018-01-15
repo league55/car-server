@@ -23,6 +23,7 @@ public class VideoRunnerImpl extends BasicRunner {
 
     @Autowired
     public VideoRunnerImpl(
+            DataOutputService dataOutputService,
             AppConfigService appConfigService,
             Detector carsDetector,
             DetectedCarProcessor carProcessor,
@@ -32,7 +33,7 @@ public class VideoRunnerImpl extends BasicRunner {
             SpeedService speedService,
             LineConfigService lineProvider,
             CVShowing cvShowing) {
-        super(appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
+        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
     }
 
     @Override
@@ -50,7 +51,6 @@ public class VideoRunnerImpl extends BasicRunner {
     protected void stopCamera() {
         // update again the cameraButton content
         this.button.setText("Start Video");
-
     }
 
 }

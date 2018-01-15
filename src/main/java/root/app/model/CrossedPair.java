@@ -10,5 +10,7 @@ public class CrossedPair {
     private Long timeEnteredZone;
     private Long timeLeavedZone;
 
+    private Integer wayNumber;
+
     private Double speed;
 }

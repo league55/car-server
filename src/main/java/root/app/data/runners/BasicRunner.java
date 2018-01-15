@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
+import org.springframework.beans.factory.annotation.Autowired;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
@@ -52,14 +53,15 @@ public abstract class BasicRunner implements Runner {
     private final DrawingService drawingService;
     private final ZoneCrossingService zoneCrossingService;
     private final LineCrossingService lineCrossingService;
-    private final LineConfigService lineProvider;
+    private final LineConfigService lineConfigService;
     private final SpeedService speedService;
     private final CVShowing cvShowing;
-
+    protected final DataOutputService dataOutputService;
     private List<Car> cars = new ArrayList<>();
 
-    protected BasicRunner(AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineProvider, CVShowing cvShowing) {
+    protected BasicRunner(DataOutputService dataOutputService, AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineConfigService, CVShowing cvShowing) {
+        this.dataOutputService = dataOutputService;
         this.appConfigService = appConfigService;
         this.carsDetector = carsDetector;
         this.carProcessor = carProcessor;
@@ -67,7 +69,7 @@ public abstract class BasicRunner implements Runner {
         this.zoneCrossingService = zoneCrossingService;
         this.lineCrossingService = lineCrossingService;
         this.speedService = speedService;
-        this.lineProvider = lineProvider;
+        this.lineConfigService = lineConfigService;
         this.cvShowing = cvShowing;
     }
 
@@ -96,9 +98,12 @@ public abstract class BasicRunner implements Runner {
 
             this.timer = Executors.newSingleThreadScheduledExecutor();
             this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
+            dataOutputService.writeOnFixedRate(3000);
 
         } else {
             stopCamera();
+            dataOutputService.stopWriting();
+
             this.cameraActive = false;
             // stop the timer
             this.stopCapturing();
@@ -147,7 +152,7 @@ public abstract class BasicRunner implements Runner {
                 this.capture.read(frame2);
 
                 if (crossingLines == null || crossingLines.size() == 0) {
-                    crossingLines = lineProvider.findAll();
+                    crossingLines = lineConfigService.findAll();
                 }
 
                 if (!frame1.empty() && !frame2.empty() && crossingLines.size() > 0) {
@@ -172,6 +177,7 @@ public abstract class BasicRunner implements Runner {
 
                     cars = cars.stream().filter(Car::isStillTracked).collect(Collectors.toList());
 
+                    dataOutputService.updateCarData(cars);
                     boolean isCarCrossing = newCarCount != carCount;
                     if (isCarCrossing) {
                         log.debug("New cars, now count: {}", carCount);

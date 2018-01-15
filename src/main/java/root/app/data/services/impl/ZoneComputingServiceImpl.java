@@ -59,6 +59,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         final Point end = new Point(x2, y2, windowHeight, windowWidth);
 
         final MarkersPair pair = new MarkersPair(parentPair.getLineA(), new Line(start, end));
+
         final Long saved = lineConfigService.save(pair);
         return lineConfigService.findOne(saved);
     }

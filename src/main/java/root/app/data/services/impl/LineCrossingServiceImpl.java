@@ -57,20 +57,19 @@ public class LineCrossingServiceImpl implements LineCrossingService {
 
     @Override
     public List<Car> setCrossingTimeMarks(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize) {
-        List<Zone.ChildZone> childZones = zoneConfigService.findAll().stream()
-                .map(Zone::getChildZones).flatMap(Collection::stream)
-                .map(childZone -> imageScaleService.fixedSize(screenSize, childZone))
-                .collect(Collectors.toList());
+        zoneConfigService.findAll().forEach(parentZone -> {
+            List<Zone.ChildZone> childZones = parentZone.getChildZones().stream().map(childZone -> imageScaleService.fixedSize(screenSize, childZone)).collect(Collectors.toList());
 
+            cars.forEach(car -> {
+                findCrossedChildZone(childZones, car, parentZone.getPair().getWayNum());
+            });
 
-        cars.forEach(car -> {
-            findCrossedChildZone(childZones, car);
         });
 
         return cars;
     }
 
-    private void findCrossedChildZone(List<Zone.ChildZone> childZones, Car car) {
+    private void findCrossedChildZone(List<Zone.ChildZone> childZones, Car car, Integer wayNum) {
         final Optional<Zone.ChildZone> crossedA = childZones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineA(), car)).findFirst();
         final Optional<Zone.ChildZone> crossedB = childZones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineB(), car)).findFirst();
 
@@ -90,6 +89,7 @@ public class LineCrossingServiceImpl implements LineCrossingService {
             final root.app.model.CrossedPair crossed = new root.app.model.CrossedPair();
             crossed.setTimeEnteredZone(System.currentTimeMillis());
             crossed.setZoneId(childZone.getId());
+            crossed.setWayNumber(wayNum);
             car.getCrossedPairs().add(crossed);
         });
 

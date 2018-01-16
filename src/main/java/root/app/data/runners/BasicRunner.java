@@ -9,15 +9,14 @@ import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.videoio.VideoCapture;
-import org.springframework.beans.factory.annotation.Autowired;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
-import root.app.model.MarkersPair;
+import root.app.model.Zone;
 import root.app.properties.AppConfigService;
-import root.app.properties.LineConfigService;
+import root.app.properties.ConfigService;
 import root.utils.Utils;
 
 import java.util.ArrayList;
@@ -43,7 +42,7 @@ public abstract class BasicRunner implements Runner {
     private boolean isFirstFrame = true;
     // the id of the camera to be used
     protected static int cameraId = 0;
-    private static List<MarkersPair> crossingLines;
+    private static List<Zone> zones;
     private long carCount = 0;
 
 
@@ -53,14 +52,14 @@ public abstract class BasicRunner implements Runner {
     private final DrawingService drawingService;
     private final ZoneCrossingService zoneCrossingService;
     private final LineCrossingService lineCrossingService;
-    private final LineConfigService lineConfigService;
+    private final ConfigService<Zone> zoneConfigService;
     private final SpeedService speedService;
     private final CVShowing cvShowing;
-    protected final DataOutputService dataOutputService;
+    private final DataOutputService dataOutputService;
     private List<Car> cars = new ArrayList<>();
 
     protected BasicRunner(DataOutputService dataOutputService, AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, LineConfigService lineConfigService, CVShowing cvShowing) {
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<Zone> zoneConfigService, CVShowing cvShowing) {
         this.dataOutputService = dataOutputService;
         this.appConfigService = appConfigService;
         this.carsDetector = carsDetector;
@@ -69,7 +68,7 @@ public abstract class BasicRunner implements Runner {
         this.zoneCrossingService = zoneCrossingService;
         this.lineCrossingService = lineCrossingService;
         this.speedService = speedService;
-        this.lineConfigService = lineConfigService;
+        this.zoneConfigService = zoneConfigService;
         this.cvShowing = cvShowing;
     }
 
@@ -128,7 +127,7 @@ public abstract class BasicRunner implements Runner {
             // release the camera
             this.capture.release();
         }
-        crossingLines = Lists.newArrayList();
+        zones = Lists.newArrayList();
     }
 
     protected abstract void openCamera();
@@ -151,21 +150,16 @@ public abstract class BasicRunner implements Runner {
                 this.capture.read(frame1);
                 this.capture.read(frame2);
 
-                if (crossingLines == null || crossingLines.size() == 0) {
-                    crossingLines = lineConfigService.findAll();
+                if (zones == null || zones.size() == 0) {
+                    zones = zoneConfigService.findAll();
                 }
 
-                if (!frame1.empty() && !frame2.empty() && crossingLines.size() > 0) {
+                if (!frame1.empty() && !frame2.empty() && zones.size() > 0) {
                     // car detection
                     List<Car> currentFrameCars = carsDetector.detectCars(frame1, frame2);
 
-                    if (this.isFirstFrame) {
-                        isFirstFrame = false;
-                        cars.addAll(currentFrameCars);
-                    } else {
-                        carProcessor.matchCurrentFrameDetectedCarsToExistingDetectedCars(cars, currentFrameCars);
-                        //white boxes  drawingService.drawAndShowContours(frame2, frame2.size(), cars);
-                    }
+                    carProcessor.matchCurrentFrameDetectedCarsToExistingDetectedCars(cars, currentFrameCars);
+                    //white boxes  drawingService.drawAndShowContours(frame2, frame2.size(), cars);
 
                     currentFrameCars.clear();
 
@@ -184,7 +178,7 @@ public abstract class BasicRunner implements Runner {
                         carCount = newCarCount;
                     }
 
-//                    drawingService.showLines(frame2, crossingLines, isCarCrossing);
+//                    drawingService.showLines(frame2, zones, isCarCrossing);
                     cvShowing.drawCarInfoOnImage(cars, frame2);
                     cvShowing.drawCarCountOnImage(carCount, frame2);
 

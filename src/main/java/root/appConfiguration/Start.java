@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Core;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -18,6 +19,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  */
 @Slf4j
 @SpringBootApplication(scanBasePackages = {"root.app", "root.app.model", "root.appConfiguration"})
+@EnableCaching
 public class Start extends Application {
     private ConfigurableApplicationContext springContext;
     private Parent root;

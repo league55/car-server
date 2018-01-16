@@ -26,6 +26,8 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
 
     @Override
     public Long save(T pair) {
+        log.debug("Saving {}", T.getName());
+
         Long id;
         try {
             List<T> t = findAll();
@@ -56,6 +58,8 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
 
     @Override
     public T findOne(Long aLong) {
+        log.debug("Find one {}", T.getName());
+
         try {
             return saver.readProperty(fileName).stream().filter(pair -> aLong.equals(pair.getId())).findFirst().get();
         } catch (IOException e) {
@@ -76,6 +80,8 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
 
     @Override
     public List<T> findAll() {
+        log.debug("Find all {}", T.getName());
+
         try {
             final List<T> t = saver.readProperty(fileName);
             return t == null ? Lists.newArrayList() : t;
@@ -92,6 +98,8 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
 
     @Override
     public void delete(Long aLong) {
+        log.debug("deleting one {}", T.getName());
+
         List<T> all = findAll();
         OptionalInt index = IntStream.range(0, all.size())
                 .filter(userInd -> all.get(userInd).getId().equals(aLong))
@@ -109,8 +117,10 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
     }
 
     @Override
-    public void delete(T markersPair) {
-        delete(markersPair.getId());
+    public void delete(T dto) {
+        log.debug("deleting one {}", T.getName());
+
+        delete(dto.getId());
     }
 
 

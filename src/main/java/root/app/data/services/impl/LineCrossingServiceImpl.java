@@ -3,15 +3,15 @@ package root.app.data.services.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.LineCrossingService;
 import root.app.model.Car;
 import root.app.model.Line;
 import root.app.model.Zone;
-import root.app.properties.impl.ZoneConfigService;
+import root.app.properties.ConfigService;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 @Component
 public class LineCrossingServiceImpl implements LineCrossingService {
 
-    private final ZoneConfigService zoneConfigService;
+    private final ConfigService<Zone> zoneConfigService;
     private final ImageScaleService imageScaleService;
 
     @Autowired
-    public LineCrossingServiceImpl(ZoneConfigService zoneConfigService, ImageScaleService imageScaleService) {
+    public LineCrossingServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService, ImageScaleService imageScaleService) {
         this.zoneConfigService = zoneConfigService;
         this.imageScaleService = imageScaleService;
     }

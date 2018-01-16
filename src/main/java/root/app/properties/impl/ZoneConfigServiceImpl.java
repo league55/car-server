@@ -1,31 +1,36 @@
 package root.app.properties.impl;
 
-import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import root.app.model.Zone;
+import root.app.properties.ConfigService;
 import root.app.properties.IOService;
 
 import java.util.List;
 
-@Repository
-public class ZoneConfigService extends ConfigServiceImpl<Zone> {
+@Service
+@Slf4j
+public class ZoneConfigServiceImpl extends ConfigServiceImpl<Zone> {
 
-    public ZoneConfigService(IOService<List<Zone>> saver) {
+    public ZoneConfigServiceImpl(IOService<List<Zone>> saver) {
         super(saver, "config/zoneProps.yml");
     }
 
     @Override
     @Cacheable("zoneCache")
     public List<Zone> findAll() {
+        log.debug("Looking for all zones");
         return super.findAll();
     }
 
     @Override
     @CacheEvict(value = "zoneCache", allEntries = true)
-    public Long save(Zone pair) {
-        return super.save(pair);
+    public Long save(Zone zone) {
+        log.debug("Saving zone {}", zone.getId());
+
+        return super.save(zone);
     }
 
     @Override
@@ -36,8 +41,8 @@ public class ZoneConfigService extends ConfigServiceImpl<Zone> {
 
     @Override
     @CacheEvict(value = "zoneCache", allEntries = true)
-    public void delete(Zone markersPair) {
-        super.delete(markersPair);
+    public void delete(Zone dto) {
+        super.delete(dto);
     }
 
     @Override

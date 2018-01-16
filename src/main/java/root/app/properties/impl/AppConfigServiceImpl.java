@@ -1,5 +1,6 @@
 package root.app.properties.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.util.List;
 
 @Component
+@Slf4j
 public class AppConfigServiceImpl extends ConfigServiceImpl<AppConfigDTO> implements AppConfigService {
 
     public AppConfigServiceImpl(IOService<List<AppConfigDTO>> saver) {
@@ -26,6 +28,7 @@ public class AppConfigServiceImpl extends ConfigServiceImpl<AppConfigDTO> implem
         final AppConfigDTO empty = new AppConfigDTO();
         empty.setKey(attribute);
 
+        log.debug("Fetching {}", attribute.name());
         return findAll()
                 .stream()
                 .filter(c -> c.getKey().equals(attribute))
@@ -36,6 +39,7 @@ public class AppConfigServiceImpl extends ConfigServiceImpl<AppConfigDTO> implem
     @Override
     @Cacheable("configCache2")
     public List<AppConfigDTO> findAll() {
+        log.debug("Fetching all configs");
         return super.findAll();
     }
 
@@ -45,6 +49,7 @@ public class AppConfigServiceImpl extends ConfigServiceImpl<AppConfigDTO> implem
         AppConfigDTO prevDto = findOne(dto.getKey());
         prevDto.setValue(dto.getValue());
 
+        log.debug("Saving config {}", dto.getKey().name());
         return super.save(prevDto);
     }
 

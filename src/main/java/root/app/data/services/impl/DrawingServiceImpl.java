@@ -30,7 +30,6 @@ import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
 
-    private static MarkersPair pairInProgress;
     private final BiConsumer<Zone, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
@@ -38,7 +37,7 @@ public class DrawingServiceImpl implements DrawingService {
     private final ZoneComputingService computingService;
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService zoneConfigService, ZoneComputingService computingService) {
+    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService<Zone> zoneConfigService, ZoneComputingService computingService) {
         this.lineProvider = lineProvider;
         this.zoneConfigService = zoneConfigService;
         this.computingService = computingService;
@@ -125,11 +124,11 @@ public class DrawingServiceImpl implements DrawingService {
         children.removeIf(isLineToDelete);
         children.removeIf(node -> (LABEL_PREFIX + pair.getId()).equals(node.getId()));
     }
+
     @Override
-    public void submitZone(List<MarkersPair> pairs, MarkersPair pair, Pane pane) {
+    public void submitZone(MarkersPair pair, Pane pane) {
         final Long pairId = lineProvider.save(pair);
         zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
-        pairs.add(pairInProgress);
         log.info("Saved new line with ID {}", pairId);
     }
 

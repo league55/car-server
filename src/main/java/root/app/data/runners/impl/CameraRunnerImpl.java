@@ -2,14 +2,16 @@ package root.app.data.runners.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
+import root.app.model.Zone;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
-import root.app.properties.LineConfigService;
+import root.app.properties.ConfigService;;
 
 /**
  * Use video from camera
@@ -28,9 +30,9 @@ public class CameraRunnerImpl extends BasicRunner {
             ZoneCrossingService zoneCrossingService,
             LineCrossingService lineCrossingService,
             SpeedService speedService,
-            LineConfigService lineProvider,
+            @Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService,
             CVShowing cvShowing) {
-        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, lineProvider, cvShowing);
+        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, zoneConfigService, cvShowing);
     }
 
     @Override

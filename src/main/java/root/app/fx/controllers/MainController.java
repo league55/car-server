@@ -1,27 +1,27 @@
 package root.app.fx.controllers;
 
-import com.google.common.collect.Lists;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
-import root.app.data.services.DataOutputService;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
@@ -34,12 +34,17 @@ import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
+import root.utils.Utils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
-import static root.app.fx.controllers.MainController.OnClickMode.NONE;
 
 
 @Slf4j
@@ -48,9 +53,6 @@ public class MainController {
 
     public static String pathToVideoFile;
 
-    private static OnClickMode activeControl;
-    private static int lineMarkersAmount = -1;
-    private static List<MarkersPair> pairs;
     private final FileChooser fileChooser = new FileChooser();
 
     //    -------------- FXML ----------------
@@ -58,10 +60,6 @@ public class MainController {
     private Button cameraButton;
     @FXML
     private Button videoButton;
-    @FXML
-    private ToggleButton markerOneButton;
-    @FXML
-    private ToggleButton markerTwoButton;
     // the FXML image view
     @FXML
     private ImageView imageView;
@@ -69,8 +67,6 @@ public class MainController {
     private TableView<LinesTableRowFX> tableLines;
     @FXML
     private AnchorPane imageWrapperPane;
-    @FXML
-    private Button saveIpButton;
     @FXML
     private TextField ipInput;
     @FXML
@@ -82,17 +78,13 @@ public class MainController {
     @FXML
     private TableColumn<LinesTableRowFX, Button> delButton;
     @FXML
-    private Button saveZonesPerLineAmount;
-    @FXML
-    private Button zoneHeightButton;
-    @FXML
     private TextField zonesPerLineAmount;
     @FXML
     private TextField zoneHeightValue;
     @FXML
     private Button chooseFileBtn;
-    //    -------------- Spring ----------------
 
+    //    -------------- Spring ----------------
     @Autowired
     private VideoRunnerImpl videoRunner;
     @Autowired
@@ -100,6 +92,7 @@ public class MainController {
     @Autowired
     private LineConfigService lineProvider;
     @Autowired
+    @Qualifier("zoneConfigServiceImpl")
     private ConfigService<Zone> zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
@@ -113,28 +106,27 @@ public class MainController {
 
     @FXML
     void initialize() {
-        activeControl = NONE;
-        pairs = Lists.newArrayList();
-        imageView.setOnMousePressed(mouseEventEventHandler);
+        distanceColumn.setOnEditCommit((row) -> {
+            final Zone zone = zoneConfigService.findOne(row.getRowValue().getId());
+            zone.getPair().setDistanceLeft(row.getNewValue());
+            lineProvider.updateLeftDistance(zone.getPair().getId(), row.getNewValue());
+            zoneConfigService.save(zone);
+        });
 
-        distanceColumn.setOnEditCommit((row) -> lineProvider.updateLeftDistance(row.getRowValue().getId(), row.getNewValue()));
-        wayNum.setOnEditCommit((row) -> lineProvider.updateWayNumber(row.getRowValue().getId(), row.getNewValue()));
+        wayNum.setOnEditCommit((row) -> {
+            final Zone zone = zoneConfigService.findOne(row.getRowValue().getId());
+            zone.getPair().setWayNum(row.getNewValue());
+            lineProvider.updateWayNumber(zone.getPair().getId(), row.getNewValue());
+            zoneConfigService.save(zone);
+        });
+
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+        distanceColumn.setCellValueFactory(new PropertyValueFactory<>("distance"));
+        distanceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        wayNum.setCellValueFactory(new PropertyValueFactory<>("wayNum"));
+        wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
     }
-
-
-    //    for future on click handler
-    private final EventHandler<MouseEvent> mouseEventEventHandler = me -> {
-        if (NONE.equals(activeControl)) {
-            return;
-        }
-
-        double initX = me.getSceneX();
-        double initY = me.getSceneY();
-        double sceneHeight = imageView.getBoundsInLocal().getHeight();
-        double sceneWidth = imageView.getBoundsInLocal().getWidth();
-        me.consume();
-    };
-
 
     /**
      * The action triggered by pushing the button on the GUI
@@ -167,7 +159,7 @@ public class MainController {
         videoRunner.setImageView(imageView);
         videoRunner.setContainerPane(imageWrapperPane);
         videoRunner.startCapturing();
-        drawLinesAndLabels();
+
     }
 
     @FXML
@@ -177,9 +169,7 @@ public class MainController {
 
     @FXML
     private void refresh(ActionEvent actionEvent) {
-        if (lineMarkersAmount < pairs.size()) {
-            drawLinesAndLabels();
-        }
+        drawLinesAndLabels();
     }
 
     @FXML
@@ -192,7 +182,7 @@ public class MainController {
         double sceneHeight = imageView.getBoundsInLocal().getHeight();
         double sceneWidth = imageView.getBoundsInLocal().getWidth();
 
-        drawingService.submitZone(pairs, anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
+        drawingService.submitZone(anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
         anchorsService.clean(imageWrapperPane);
 
         drawLinesAndLabels();
@@ -211,28 +201,9 @@ public class MainController {
         return null;
     }
 
-    enum OnClickMode {
-        FIRST_MARKER(Color.RED), SECOND_MARKER(Color.DARKORANGE), NONE(null);
-
-        Color color;
-
-        OnClickMode(Color color) {
-            this.color = color;
-        }
-    }
-
     private void drawLinesAndLabels() {
         Bounds boundsInLocal = imageView.getBoundsInLocal();
-        List<MarkersPair> initLines = lineProvider.findAll();
-        pairs = scaleService.fixedSize(new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth()), initLines);
-        lineMarkersAmount = initLines.size();
-
-        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-        distanceColumn.setCellValueFactory(new PropertyValueFactory<>("distance"));
-        distanceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        wayNum.setCellValueFactory(new PropertyValueFactory<>("wayNum"));
-        wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
+        final List<Zone> zones = zoneConfigService.findAll();
 
         ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAll().stream().map((zone) -> {
             Button x = new Button("x");
@@ -250,12 +221,13 @@ public class MainController {
 
         tableLines.setItems(data);
 
+        final List<MarkersPair> pairs = scaleService.fixedSize(new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth()), zones.stream().map(Zone::getPair).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
         drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
     }
 
     @FXML
-    private void saveZonesPerLine (ActionEvent event) {
+    private void saveZonesPerLine(ActionEvent event) {
         Integer zonesAmount = null;
         try {
             zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
@@ -266,10 +238,12 @@ public class MainController {
             appConfigService.save(new AppConfigDTO(ConfigAttribute.ZonesPerLineAmount, zonesAmount + ""));
             log.info("Zones per line now: {}", zonesAmount);
         }
-    };
+    }
+
+    ;
 
     @FXML
-    private void saveFirstZoneHeight (ActionEvent event) {
+    private void saveFirstZoneHeight(ActionEvent event) {
         Integer zonesHeight = null;
         try {
             zonesHeight = Integer.parseInt(zoneHeightValue.getText());
@@ -280,15 +254,17 @@ public class MainController {
             appConfigService.save(new AppConfigDTO(ConfigAttribute.ZoneHeight, zonesHeight + ""));
             log.info("Zones height now: {}", zonesHeight);
         }
-    };
+    }
+
+    ;
 
     @FXML
     private void saveIpAction(ActionEvent event) {
-            String IP = ipInput.getText();
-            if (IP != null) {
-                appConfigService.save(new AppConfigDTO(ConfigAttribute.CameraIP, IP));
-            }
+        String IP = ipInput.getText();
+        if (IP != null) {
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.CameraIP, IP));
         }
+    }
 
 }
 

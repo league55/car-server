@@ -75,8 +75,8 @@ public class LineConfigServiceImpl extends ConfigServiceImpl<MarkersPair> implem
 
     @Override
     @CacheEvict(value = {"pairsCache", "pairsCache2"}, allEntries = true)
-    public void delete(MarkersPair markersPair) {
-        super.delete(markersPair);
+    public void delete(MarkersPair dto) {
+        super.delete(dto);
     }
 
     @Override

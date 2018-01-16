@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class ScheduledOutputTask implements Runnable {
-    private BufferedWriter out;
     private Map<Integer, OutputDto> data = new HashMap<>();
 
     private final static String FILE_NAME = "config/log.txt";
@@ -33,14 +32,14 @@ public class ScheduledOutputTask implements Runnable {
         data.values().forEach(outputDto -> {
             outputDto.setTimeCounting(timeCounting);
             try {
-                out.write("\n ");
-                out.write(outputDto.toString());
+                bw.write("\n ");
+                bw.write(outputDto.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         });
         try {
-            out.write("\n ----------- ");
+            bw.write("\n ----------- ");
         } catch (IOException e) {
             e.printStackTrace();
         }

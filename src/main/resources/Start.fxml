@@ -97,12 +97,12 @@
                         <Insets left="10.0" right="10.0" />
                     </HBox.margin>
                 </Label>
-                <TextField fx:id="zoneHeightValue" maxWidth="25.0" onAction="#saveFirstZoneHeight">
+                <TextField fx:id="zoneHeightInput" maxWidth="30.0" onAction="#saveFirstZoneHeight">
                     <HBox.margin>
                         <Insets left="30.0" right="10.0" />
                     </HBox.margin>
                 </TextField>
-                <Button fx:id="zoneHeightButton" mnemonicParsing="false" text="save" onAction="#saveFirstZoneHeight">
+                <Button mnemonicParsing="false" onAction="#saveFirstZoneHeight" text="save">
                     <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                     </HBox.margin>
@@ -112,17 +112,17 @@
                 <VBox.margin>
                     <Insets bottom="10.0" top="10.0" />
                 </VBox.margin>
-                <Label text="Зон">
+                <Label fx:id="zoneAmountLabel" text="Зон">
                     <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                     </HBox.margin>
                 </Label>
-                <TextField fx:id="zonesPerLineAmount" maxWidth="25.0" onAction="#saveZonesPerLine">
+                <TextField fx:id="zonesPerLineAmountInput" maxWidth="30.0" onAction="#saveZonesPerLine">
                     <HBox.margin>
-                        <Insets left="25.0" right="10.0" />
+                        <Insets left="50.0" right="10.0" />
                     </HBox.margin>
                 </TextField>
-                <Button fx:id="saveZonesPerLineAmount" mnemonicParsing="false" text="save" onAction="#saveZonesPerLine">
+                <Button mnemonicParsing="false" onAction="#saveZonesPerLine" text="save">
                     <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                     </HBox.margin>
@@ -132,7 +132,7 @@
                 <VBox.margin>
                     <Insets bottom="10.0" top="10.0" />
                 </VBox.margin>
-                <Label text="IP:">
+                <Label fx:id="ipLabel" text="IP:">
                     <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                     </HBox.margin>
@@ -142,9 +142,29 @@
                         <Insets left="30.0" right="10.0" />
                     </HBox.margin>
                 </TextField>
-                <Button fx:id="saveIpButton" mnemonicParsing="false" text="save" onAction="#saveIpAction">
+                <Button mnemonicParsing="false" onAction="#saveIpAction" text="save">
                     <HBox.margin>
                         <Insets left="10.0" right="10.0" />
+                    </HBox.margin>
+                </Button>
+            </HBox>
+            <HBox prefWidth="200.0">
+                <VBox.margin>
+                    <Insets bottom="10.0" top="10.0" />
+                </VBox.margin>
+                <Label fx:id="deltaTimeLabel" text="Δt мс.:">
+                    <HBox.margin>
+                        <Insets left="2.0" right="2.0" />
+                    </HBox.margin>
+                </Label>
+                <TextField fx:id="deltaTimeInput" maxWidth="90.0" onAction="#saveDeltaTime">
+                    <HBox.margin>
+                        <Insets left="25.0" right="10.0" />
+                    </HBox.margin>
+                </TextField>
+                <Button mnemonicParsing="false" onAction="#saveDeltaTime" text="save">
+                    <HBox.margin>
+                        <Insets left="10.0" />
                     </HBox.margin>
                 </Button>
             </HBox>

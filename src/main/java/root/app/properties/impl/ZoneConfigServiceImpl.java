@@ -15,7 +15,7 @@ import java.util.List;
 public class ZoneConfigServiceImpl extends ConfigServiceImpl<Zone> {
 
     public ZoneConfigServiceImpl(IOService<List<Zone>> saver) {
-        super(saver, "config/zoneProps.yml");
+        super(saver, "../config/zoneProps.yml");
     }
 
     @Override

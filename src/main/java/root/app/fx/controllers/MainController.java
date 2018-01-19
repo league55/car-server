@@ -5,10 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
@@ -34,15 +31,9 @@ import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
-import root.utils.Utils;
 
 import java.io.File;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
 
@@ -78,11 +69,19 @@ public class MainController {
     @FXML
     private TableColumn<LinesTableRowFX, Button> delButton;
     @FXML
-    private TextField zonesPerLineAmount;
+    private TextField zonesPerLineAmountInput;
     @FXML
-    private TextField zoneHeightValue;
+    private TextField zoneHeightInput;
     @FXML
     private Button chooseFileBtn;
+    @FXML
+    private TextField deltaTimeInput;
+    @FXML
+    private Label deltaTimeLabel;
+    @FXML
+    private Label ipLabel;
+    @FXML
+    private Label zoneAmountLabel;
 
     //    -------------- Spring ----------------
     @Autowired
@@ -126,6 +125,19 @@ public class MainController {
         wayNum.setCellValueFactory(new PropertyValueFactory<>("wayNum"));
         wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
+        initializeInputs();
+    }
+
+    private void initializeInputs() {
+        deltaTimeInput.setText(appConfigService.findOne(ConfigAttribute.TimeBetweenOutput).getValue());
+        ipInput.setText(appConfigService.findOne(ConfigAttribute.CameraIP).getValue());
+        zonesPerLineAmountInput.setText(appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue());
+        zoneHeightInput.setText(appConfigService.findOne(ConfigAttribute.ZoneHeight).getValue());
+
+
+        deltaTimeLabel.setTooltip(new Tooltip("Время подсчета авто"));
+        ipLabel.setTooltip(new Tooltip("IP адресс камеры"));
+        zoneAmountLabel.setTooltip(new Tooltip("Кол-во зон на полосе"));
     }
 
     /**
@@ -230,7 +242,7 @@ public class MainController {
     private void saveZonesPerLine(ActionEvent event) {
         Integer zonesAmount = null;
         try {
-            zonesAmount = Integer.parseInt(zonesPerLineAmount.getText());
+            zonesAmount = Integer.parseInt(zonesPerLineAmountInput.getText());
         } catch (NumberFormatException e) {
             log.error("Zones per line must be integer");
         }
@@ -246,7 +258,7 @@ public class MainController {
     private void saveFirstZoneHeight(ActionEvent event) {
         Integer zonesHeight = null;
         try {
-            zonesHeight = Integer.parseInt(zoneHeightValue.getText());
+            zonesHeight = Integer.parseInt(zoneHeightInput.getText());
         } catch (NumberFormatException e) {
             log.error("Zones per line must be integer");
         }
@@ -266,5 +278,14 @@ public class MainController {
         }
     }
 
+    @FXML
+    public void saveDeltaTime(ActionEvent actionEvent) {
+        try {
+            Integer timeBetweenOutput = Integer.parseInt(deltaTimeInput.getText());
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.TimeBetweenOutput, timeBetweenOutput.toString()));
+        } catch (NumberFormatException e) {
+            log.info("Not integer in time between frames input ");
+        }
+    }
 }
 

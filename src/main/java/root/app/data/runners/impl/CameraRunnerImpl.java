@@ -57,9 +57,6 @@ public class CameraRunnerImpl extends BasicRunner {
 
     @Override
     protected void stopCamera() {
-        stopCapturing();
-        // the camera is not active at this point
-        this.cameraActive = false;
         // update again the cameraButton content
         this.button.setText("Start Camera");
     }

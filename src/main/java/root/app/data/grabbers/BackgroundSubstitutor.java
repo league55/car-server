@@ -35,8 +35,8 @@ public class BackgroundSubstitutor {
         Imgproc.threshold(imgFrame1Copy, imgFrame1Copy, 90, 300, CV_THRESH_BINARY);
         Imgproc.threshold(imgFrame2Copy, imgFrame2Copy, 90, 300, CV_THRESH_BINARY);
 
-//        Core.absdiff(imgFrame1Copy, imgFrame2Copy, imgDifference);
-          Core.subtract(imgFrame1Copy, imgFrame2Copy, imgDifference);
+        Core.absdiff(imgFrame1Copy, imgFrame2Copy, imgDifference);
+//        Core.subtract(imgFrame1Copy, imgFrame2Copy, imgDifference);
 
 //        subtractorKNN.apply(imgFrame1Copy, imgDifference);
 

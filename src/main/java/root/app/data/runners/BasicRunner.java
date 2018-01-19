@@ -16,6 +16,7 @@ import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.Zone;
 import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
 import root.utils.Utils;
 
@@ -97,15 +98,16 @@ public abstract class BasicRunner implements Runner {
 
             this.timer = Executors.newSingleThreadScheduledExecutor();
             this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
-            dataOutputService.writeOnFixedRate(3000);
+            final String one = appConfigService.findOne(ConfigAttribute.TimeBetweenOutput).getValue();
+            dataOutputService.writeOnFixedRate(Integer.parseInt(one));
 
         } else {
+            this.stopCapturing();
             stopCamera();
+            this.cameraActive = false;
             dataOutputService.stopWriting();
 
-            this.cameraActive = false;
             // stop the timer
-            this.stopCapturing();
         }
     }
 

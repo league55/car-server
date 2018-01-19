@@ -1,6 +1,7 @@
 package root.app.data.services;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import root.app.model.Car;
 
@@ -16,4 +17,5 @@ public interface CVShowing {
 
     void drawCarCountOnImage(long carCount, Mat imgFrame2Copy);
 
+    void drawRect(Mat frame2, Rect roi);
 }

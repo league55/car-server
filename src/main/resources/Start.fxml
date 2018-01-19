@@ -169,6 +169,37 @@
                 </Button>
             </HBox>
 
+            <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
+                <Button onAction="#addAnchors" text="Добавить">
+                    <HBox.margin>
+                        <Insets right="5.0" />
+                    </HBox.margin>
+                </Button>
+                <Button onAction="#submitPesrsp" text="Сохранить">
+                    <HBox.margin>
+                        <Insets right="5.0" />
+                    </HBox.margin>
+                </Button>
+                <VBox.margin>
+                    <Insets bottom="15.0" top="15.0" />
+                </VBox.margin>
+            </HBox>
+            <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
+                <Button onAction="#cleanAnchors" text="Очистить">
+                    <HBox.margin>
+                        <Insets right="5.0" />
+                    </HBox.margin>
+                </Button>
+                <Button onAction="#refresh" text="Обновить">
+                    <HBox.margin>
+                        <Insets right="5.0" />
+                    </HBox.margin>
+                </Button>
+                <VBox.margin>
+                    <Insets bottom="5.0" top="5.0" />
+                </VBox.margin>
+
+            </HBox>
         </VBox>
     </right>
 </BorderPane>

@@ -4,7 +4,7 @@ import javafx.scene.layout.Pane;
 import root.app.model.MarkersPair;
 
 public interface AnchorsService {
-    void addNewZone(Pane imagePane);
+    void addAnchorsGroup(Pane imagePane);
 
     void clean(Pane imagePane);
 

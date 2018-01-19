@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
+import static root.app.data.services.impl.ImageScaleServiceImpl.*;
 
 @Slf4j
 @Service
@@ -79,11 +80,11 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void showZones(AnchorPane imageWrapperPane, List<Zone> zones) {
+    public void showZones(AnchorPane imageWrapperPane, List<Zone> zones, ScreenSize screenSize) {
         final ObservableList<Node> children = imageWrapperPane.getChildren();
 
         zones.forEach(parentZone -> {
-            List<Polygon> polygon = computingService.toFxPolygon(parentZone);
+            List<Polygon> polygon = computingService.toFxPolygon(parentZone, screenSize);
             //if these zones weren't added before
             if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getChildZones().get(0).getId())).size() == 0) {
                 children.addAll(polygon);
@@ -128,8 +129,8 @@ public class DrawingServiceImpl implements DrawingService {
     @Override
     public void submitZone(MarkersPair pair, Pane pane) {
         final Long pairId = lineProvider.save(pair);
-        zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
-        log.info("Saved new line with ID {}", pairId);
+        final Long zoneId = zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
+        log.info("Saved new zone with ID {}", zoneId);
     }
 
     private Zone getParentZone(MarkersPair pair) {

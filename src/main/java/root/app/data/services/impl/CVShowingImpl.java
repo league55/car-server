@@ -21,24 +21,22 @@ public class CVShowingImpl implements CVShowing {
     private static final int CV_FONT_HERSHEY_SIMPLEX = 1;
 
     @Override
-    public void drawCarInfoOnImage(List<Car> cars, Mat imgFrame2Copy) {
-        for (int i = 0; i < cars.size(); i++) {
-            Car car = cars.get(i);
-
+    public void drawCarInfoOnImage(List<Car> cars, Mat frame) {
+        for (Car car : cars) {
             if (car.isStillTracked) {
                 Rect currentBoundingRect = car.currentBoundingRect;
-                Imgproc.rectangle(imgFrame2Copy, currentBoundingRect.tl(), currentBoundingRect.br(), new Scalar(0, 255, 0), 3);
+                Imgproc.rectangle(frame, currentBoundingRect.tl(), currentBoundingRect.br(), new Scalar(0, 255, 0), 3);
 
                 double dblFontScale = car.currentDiagonalSize / 60.0;
                 int intFontThickness = (int) round(dblFontScale * 1.0);
                 List<Point> centerPositions = car.centerPositions;
-//              putText(imgFrame2Copy, i + "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
+//              putText(frame, i + "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
 
-                putText(imgFrame2Copy, "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
+                putText(frame, "", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 if (car.getCrossedPairs().size() > 0) {
                     Double lastSpeed = car.getCrossedPairs().get(car.getCrossedPairs().size() - 1).getSpeed();
-                    if(lastSpeed == null) lastSpeed = 0.0;
-//                    putText(imgFrame2Copy, lastSpeed + "km/h", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
+                    if (lastSpeed == null) lastSpeed = 0.0;
+//                    putText(frame, lastSpeed + "km/h", centerPositions.get(centerPositions.size() - 1), CV_FONT_HERSHEY_SIMPLEX, dblFontScale, SCALAR_GREEN, intFontThickness);
                 }
             }
         }
@@ -59,6 +57,12 @@ public class CVShowingImpl implements CVShowing {
 
         putText(imgFrame2Copy, carCount + "", ptTextBottomLeftPosition, intFontFace, dblFontScale, SCALAR_GREEN, intFontThickness);
 
+    }
+
+    @Override
+    public void drawRect(Mat frame, Rect roi) {
+        if(roi == null) return;
+        Imgproc.rectangle(frame, roi.tl(), roi.br(), new Scalar(57, 57, 57), 2);
     }
 
 

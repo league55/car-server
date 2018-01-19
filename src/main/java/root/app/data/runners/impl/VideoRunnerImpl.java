@@ -12,6 +12,7 @@ import root.app.model.Zone;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
+import root.app.properties.PolygonConfigService;
 
 import static org.opencv.videoio.Videoio.CAP_PROP_FPS;
 
@@ -33,8 +34,10 @@ public class VideoRunnerImpl extends BasicRunner {
             LineCrossingService lineCrossingService,
             SpeedService speedService,
             @Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService,
-            CVShowing cvShowing) {
-        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, zoneConfigService, cvShowing);
+            CVShowing cvShowing,
+            PolygonConfigService polygonConfigService,
+            ImageScaleService scaleService) {
+        super(dataOutputService, appConfigService, carsDetector, carProcessor, drawingService, zoneCrossingService, lineCrossingService, speedService, zoneConfigService, cvShowing, polygonConfigService, scaleService);
     }
 
     @Override

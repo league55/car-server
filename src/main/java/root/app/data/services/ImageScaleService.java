@@ -3,6 +3,7 @@ package root.app.data.services;
 import root.app.data.services.impl.ImageScaleServiceImpl;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
+import root.app.model.PolygonDTO;
 import root.app.model.Zone;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface ImageScaleService {
     Point fixScale(Point point, ImageScaleServiceImpl.ScreenSize screenSizeInit, ImageScaleServiceImpl.ScreenSize screenSize);
 
     Zone.ChildZone fixedSize(ImageScaleServiceImpl.ScreenSize screenSize, Zone.ChildZone childZone);
+
+    PolygonDTO fixScale(ImageScaleServiceImpl.ScreenSize cvMatSize, PolygonDTO roi);
 }

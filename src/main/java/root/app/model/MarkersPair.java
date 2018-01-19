@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Used for counting speed
+ * Base dto which represents two pairs of lines, distance between them
  */
 @Data
 @NoArgsConstructor

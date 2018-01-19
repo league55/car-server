@@ -3,10 +3,7 @@ package root.app.data.services.impl;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 import root.app.data.services.ImageScaleService;
-import root.app.model.Line;
-import root.app.model.MarkersPair;
-import root.app.model.Point;
-import root.app.model.Zone;
+import root.app.model.*;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -45,6 +42,20 @@ public class ImageScaleServiceImpl implements ImageScaleService {
 
         childZone.setPair(fixPair(screenSize, pair));
         return childZone;
+    }
+
+    @Override
+    public PolygonDTO fixScale(ScreenSize screenSize, PolygonDTO ROI) {
+        final ScreenSize screenSizeInit = new ScreenSize(ROI.getTopRight().getWindowHeight(), ROI.getTopRight().getWindowWidth());
+
+        PolygonDTO roi = new PolygonDTO();
+
+        roi.setTopRight(fixScale(ROI.getTopRight(), screenSizeInit, screenSize));
+        roi.setTopLeft(fixScale(ROI.getTopLeft(), screenSizeInit, screenSize));
+        roi.setBotRight(fixScale(ROI.getBotRight(), screenSizeInit, screenSize));
+        roi.setBotLeft(fixScale(ROI.getBotLeft(), screenSizeInit, screenSize));
+        roi.setDestination(ROI.getDestination());
+        return roi;
     }
 
     private BiFunction<ScreenSize, Line, Line> fixLinesScale = (screenSize, line) -> {

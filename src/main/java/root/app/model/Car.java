@@ -37,7 +37,7 @@ public class Car {
     private Point lastCenter;
     public List<Point> centerPositions;
 
-    public Car(MatOfPoint contour) {
+    public Car(MatOfPoint contour, Point ofs) {
         Point currentCenter = new Point();
         predictedNextPosition = new Point();
         centerPositions = new ArrayList<>();
@@ -45,6 +45,7 @@ public class Car {
         numOfConsecutiveFramesWithoutAMatch = 0;
 
         currentBoundingRect = Imgproc.boundingRect(currentContour);
+        currentBoundingRect = new Rect(currentBoundingRect.x + (int) ofs.x, currentBoundingRect.y + (int) ofs.y, currentBoundingRect.width, currentBoundingRect.height);
 
         currentCenter.x = (currentBoundingRect.x + currentBoundingRect.x + currentBoundingRect.width) / 2;
         currentCenter.y = (currentBoundingRect.y + currentBoundingRect.y + currentBoundingRect.height) / 2;

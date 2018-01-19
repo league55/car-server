@@ -1,6 +1,10 @@
 package root.app.data.detectors.impl;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.detectors.Detector;
@@ -24,14 +28,26 @@ public class SubstitutionDetectorImpl implements Detector {
     }
 
     @Override
-    public List<Car> detectCars(Mat frame, Mat frame2) {
-        Mat erodedMat = new Mat();
+    public List<Car> detectCars(Mat frame, Mat frame2, Rect roi) {
+        Mat copy = frame;
+        Mat copy2 = frame2;
+        Mat finalMat = new Mat();
+        Point ofs = new Point();
 
-        BackgroundSubstitutor.getObjects(frame, frame2, erodedMat);
+        if (roi != null) {
+            copy = new Mat(frame, roi);
+            copy2 = new Mat(frame2, roi);
+            finalMat = new Mat(frame2.clone(), roi);
+            ofs = new Point(roi.x, roi.y);
+        }
 
-        Mat hierarchy = new Mat();
-
-       return contourGrabber.getContours(erodedMat, hierarchy);
+        return detectCars(copy, copy2, finalMat, ofs);
     }
 
+
+    private List<Car> detectCars(Mat frame, Mat frame2, Mat finalMat, Point ofs) {
+        BackgroundSubstitutor.getObjects(frame, frame2, finalMat);
+        Mat hierarchy = new Mat();
+        return contourGrabber.getContours(finalMat, hierarchy, ofs);
+    }
 }

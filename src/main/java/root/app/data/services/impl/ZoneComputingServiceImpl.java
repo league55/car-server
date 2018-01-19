@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import root.app.data.services.ImageScaleService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.*;
 import root.app.properties.AppConfigService;
@@ -14,6 +15,8 @@ import root.app.properties.LineConfigService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static root.app.data.services.impl.ImageScaleServiceImpl.*;
+
 @Service
 public class ZoneComputingServiceImpl implements ZoneComputingService {
 
@@ -22,6 +25,8 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
     @Autowired
     private LineConfigService lineConfigService;
+    @Autowired
+    private ImageScaleService scaleService;
 
     @Override
     public ArrayList<Zone.ChildZone> getChildZones(MarkersPair pair) {
@@ -71,10 +76,9 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         return new Zone.ChildZone(zoneId, true, lineConfigService.findOne(saved));
     }
 
-    @Override
-    public Polygon toFxPolygon(Zone.ChildZone zone, Zone parent, int childId) {
+    private Polygon toFxPolygon(Zone.ChildZone childZone, ScreenSize screenSize) {
 
-        final MarkersPair pair = zone.getPair();
+        final MarkersPair pair = scaleService.fixedSize(screenSize, childZone).getPair();
 
         final Polygon polygon = new Polygon(
                 pair.getLineA().getStart().getX(), pair.getLineA().getStart().getY(),
@@ -86,17 +90,16 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         polygon.setOpacity(0.1);
         polygon.setStroke(Color.GREEN);
         polygon.setStrokeWidth(5);
-        polygon.setId(zone.getId());
+        polygon.setId(childZone.getId());
         return polygon;
     }
 
     @Override
-    public List<Polygon> toFxPolygon(Zone zone) {
+    public List<Polygon> toFxPolygon(Zone zone, ScreenSize screenSize) {
         List<Zone.ChildZone> childZones = zone.getChildZones();
         List<Polygon> polygons = Lists.newArrayList();
-        for (int i = 0; i < childZones.size(); i++) {
-            Zone.ChildZone child = childZones.get(i);
-            polygons.add(toFxPolygon(child, zone, i));
+        for (Zone.ChildZone child : childZones) {
+            polygons.add(toFxPolygon(child, screenSize));
         }
         return polygons;
     }

@@ -23,7 +23,7 @@ public class AnchorsServiceImpl implements AnchorsService {
     private ObservableList<Double> points;
 
     @Override
-    public void addNewZone(Pane imagePane) {
+    public void addAnchorsGroup(Pane imagePane) {
         clean(imagePane);
 
         points.addAll(10.0, 50.0, 50.0, 50.0, 10.0, 10.0, 50.0, 10.0);

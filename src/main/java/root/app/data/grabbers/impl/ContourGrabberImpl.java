@@ -1,9 +1,6 @@
 package root.app.data.grabbers.impl;
 
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
+import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.springframework.stereotype.Service;
 import root.app.data.grabbers.ContourGrabber;
@@ -21,7 +18,7 @@ import static org.opencv.imgproc.Imgproc.contourArea;
 public class ContourGrabberImpl implements ContourGrabber {
 
     @Override
-    public List<Car> getContours(Mat erodedMat, Mat hierarchy) {
+    public List<Car> getContours(Mat erodedMat, Mat hierarchy, Point ofs) {
         List<MatOfPoint> contours = new ArrayList<>();
         Imgproc.findContours(erodedMat, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
@@ -29,7 +26,7 @@ public class ContourGrabberImpl implements ContourGrabber {
         List<Car> currentFrameCars = new ArrayList<>();
 
         for (MatOfPoint convexHull : convexHulls) {
-            Car car = new Car(convexHull);
+            Car car = new Car(convexHull, ofs);
             //TODO: config
             if (carSizeIsOK(car)) {
                 currentFrameCars.add(car);

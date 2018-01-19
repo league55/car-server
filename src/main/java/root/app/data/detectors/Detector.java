@@ -1,6 +1,7 @@
 package root.app.data.detectors;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import root.app.model.Car;
 
 import java.util.List;
@@ -10,6 +11,6 @@ import java.util.List;
  */
 public interface Detector {
 
-    List<Car> detectCars(Mat frame, Mat frame2);
+    List<Car> detectCars(Mat frame, Mat frame2, Rect roi);
 
 }

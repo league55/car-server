@@ -8,16 +8,19 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.videoio.VideoCapture;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
+import root.app.model.PolygonDTO;
 import root.app.model.Zone;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
+import root.app.properties.PolygonConfigService;
 import root.utils.Utils;
 
 import java.util.ArrayList;
@@ -29,7 +32,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public abstract class BasicRunner implements Runner {
-    private final static int FRAME_WIDTH = 1280;
+    private final static int FRAME_WIDTH = 800;
     protected Button button;
 
     private ImageView imageView;
@@ -57,10 +60,13 @@ public abstract class BasicRunner implements Runner {
     private final SpeedService speedService;
     private final CVShowing cvShowing;
     private final DataOutputService dataOutputService;
+    private final PolygonConfigService polygonConfigService;
     private List<Car> cars = new ArrayList<>();
+    private final ImageScaleService scaleService;
 
     protected BasicRunner(DataOutputService dataOutputService, AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<Zone> zoneConfigService, CVShowing cvShowing) {
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<Zone> zoneConfigService,
+                          CVShowing cvShowing, PolygonConfigService polygonConfigService, ImageScaleService scaleService) {
         this.dataOutputService = dataOutputService;
         this.appConfigService = appConfigService;
         this.carsDetector = carsDetector;
@@ -71,6 +77,8 @@ public abstract class BasicRunner implements Runner {
         this.speedService = speedService;
         this.zoneConfigService = zoneConfigService;
         this.cvShowing = cvShowing;
+        this.polygonConfigService = polygonConfigService;
+        this.scaleService = scaleService;
     }
 
 
@@ -157,15 +165,18 @@ public abstract class BasicRunner implements Runner {
                 }
 
                 if (!frame1.empty() && !frame2.empty() && zones.size() > 0) {
+                    final ScreenSize cvMatSize = new ScreenSize(frame1.height(), frame1.width());
+                    Rect roi = getRoi(cvMatSize);
+
                     // car detection
-                    List<Car> currentFrameCars = carsDetector.detectCars(frame1, frame2);
+                    List<Car> currentFrameCars = carsDetector.detectCars(frame1, frame2, roi);
 
                     carProcessor.matchCurrentFrameDetectedCarsToExistingDetectedCars(cars, currentFrameCars);
                     //white boxes  drawingService.drawAndShowContours(frame2, frame2.size(), cars);
 
                     currentFrameCars.clear();
 
-                    lineCrossingService.setCrossingTimeMarks(cars, new ScreenSize(frame1.height(), frame1.width()));
+                    lineCrossingService.setCrossingTimeMarks(cars, cvMatSize);
                     zoneCrossingService.paintBusyZones(cars, containerPane);
 
                     speedService.countSpeed(cars);
@@ -181,6 +192,7 @@ public abstract class BasicRunner implements Runner {
                     }
 
 //                    drawingService.showLines(frame2, zones, isCarCrossing);
+                    cvShowing.drawRect(frame2, roi);
                     cvShowing.drawCarInfoOnImage(cars, frame2);
                     cvShowing.drawCarCountOnImage(carCount, frame2);
 
@@ -197,6 +209,7 @@ public abstract class BasicRunner implements Runner {
         return frame1;
     }
 
+
     private void updateImageView(ImageView view, Image image) {
         Utils.onFXThread(view.imageProperty(), image);
     }
@@ -211,6 +224,27 @@ public abstract class BasicRunner implements Runner {
 
     public void setContainerPane(Pane pane) {
         this.containerPane = pane;
+    }
+
+    private Rect getRoi(ScreenSize cvMatSize) {
+        final PolygonDTO roi = polygonConfigService.findOne(PolygonDTO.Destination.ROI);
+        if (roi != null) {
+            PolygonDTO ROI = scaleService.fixScale(cvMatSize, roi);
+
+            Double height = Math.max(ROI.getBotLeft().getY() - ROI.getTopLeft().getY(), ROI.getBotRight().getY() - ROI.getTopRight().getY());
+            Double width = Math.max(ROI.getTopRight().getX() - ROI.getTopLeft().getX(), ROI.getBotRight().getX() - ROI.getBotLeft().getX());
+
+            final int x = ROI.getTopLeft().getX().intValue();
+            final int y = ROI.getTopLeft().getY().intValue();
+            if (x + width > cvMatSize.getWindowWidth()) {
+                width -= x + width - cvMatSize.getWindowWidth();
+            }
+            if (y + height > cvMatSize.getWindowHeight()) {
+                height -= y + height - cvMatSize.getWindowHeight();
+            }
+            return new Rect(x, y, width.intValue(), height.intValue());
+        }
+        return null;
     }
 }
 

@@ -23,14 +23,8 @@ import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.fx.AnchorsService;
-import root.app.model.AppConfigDTO;
-import root.app.model.LinesTableRowFX;
-import root.app.model.MarkersPair;
-import root.app.model.Zone;
-import root.app.properties.AppConfigService;
-import root.app.properties.ConfigAttribute;
-import root.app.properties.ConfigService;
-import root.app.properties.LineConfigService;
+import root.app.model.*;
+import root.app.properties.*;
 
 import java.io.File;
 import java.util.List;
@@ -95,6 +89,8 @@ public class MainController {
     private ConfigService<Zone> zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
+    @Autowired
+    private PolygonConfigService polygonConfigService;
     @Autowired
     private DrawingService drawingService;
     @Autowired
@@ -186,7 +182,7 @@ public class MainController {
 
     @FXML
     private void addAnchors(ActionEvent actionEvent) {
-        anchorsService.addNewZone(imageWrapperPane);
+        anchorsService.addAnchorsGroup(imageWrapperPane);
     }
 
     @FXML
@@ -233,9 +229,10 @@ public class MainController {
 
         tableLines.setItems(data);
 
-        final List<MarkersPair> pairs = scaleService.fixedSize(new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth()), zones.stream().map(Zone::getPair).collect(toList()));
+        final ScreenSize screenSize = new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth());
+        final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, zones.stream().map(Zone::getPair).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
-        drawingService.showZones(imageWrapperPane, zoneConfigService.findAll());
+        drawingService.showZones(imageWrapperPane, zoneConfigService.findAll(), screenSize);
     }
 
     @FXML
@@ -268,8 +265,6 @@ public class MainController {
         }
     }
 
-    ;
-
     @FXML
     private void saveIpAction(ActionEvent event) {
         String IP = ipInput.getText();
@@ -279,13 +274,25 @@ public class MainController {
     }
 
     @FXML
-    public void saveDeltaTime(ActionEvent actionEvent) {
+    private void saveDeltaTime(ActionEvent actionEvent) {
         try {
             Integer timeBetweenOutput = Integer.parseInt(deltaTimeInput.getText());
             appConfigService.save(new AppConfigDTO(ConfigAttribute.TimeBetweenOutput, timeBetweenOutput.toString()));
         } catch (NumberFormatException e) {
             log.info("Not integer in time between frames input ");
         }
+    }
+
+    @FXML
+    private void submitPesrsp(ActionEvent actionEvent) {
+        final Bounds boundsInLocal = imageView.getBoundsInLocal();
+        final MarkersPair coordinates = anchorsService.getCoordinates(boundsInLocal.getHeight(), boundsInLocal.getWidth());
+        polygonConfigService.save(
+                new PolygonDTO(coordinates.getLineB().getStart(), //top left
+                        coordinates.getLineB().getEnd(),        //top right
+                        coordinates.getLineA().getEnd(),        //bot right
+                        coordinates.getLineA().getStart(),      //bot left
+                        PolygonDTO.Destination.ROI));
     }
 }
 

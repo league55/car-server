@@ -51,4 +51,10 @@ public class ZoneConfigServiceImpl extends ConfigServiceImpl<Zone> {
         super.deleteAll();
     }
 
+    @Override
+    @CacheEvict(value = "zoneCache", allEntries = true)
+    public void saveAll(List<Zone> all) {
+        super.saveAll(all);
+    }
+
 }

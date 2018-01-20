@@ -30,6 +30,7 @@ import static root.app.data.services.impl.ImageScaleServiceImpl.*;
 @Service
 public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
+    private static final String LINE_ID = "line_";
 
     private final BiConsumer<Zone, AnchorPane> drawLabel = new DrawLabel();
 
@@ -57,6 +58,7 @@ public class DrawingServiceImpl implements DrawingService {
                                 pair.getLineA().getEnd().getY());
 
                         lineA.setStroke(Color.RED);
+                        lineA.setId(LINE_ID + pair.getId() + "_A");
                         return lineA;
                     }).collect(toList());
 
@@ -68,8 +70,8 @@ public class DrawingServiceImpl implements DrawingService {
                                 pair.getLineB().getStart().getY(),
                                 pair.getLineB().getEnd().getX(),
                                 pair.getLineB().getEnd().getY());
-
                         lineB.setStroke(Color.DARKORANGE);
+                        lineB.setId(LINE_ID + pair.getId() + "_B");
                         return lineB;
                     }).collect(toList());
 
@@ -131,6 +133,14 @@ public class DrawingServiceImpl implements DrawingService {
         final Long pairId = lineProvider.save(pair);
         final Long zoneId = zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
         log.info("Saved new zone with ID {}", zoneId);
+    }
+
+    @Override
+    public void clearAll(AnchorPane imageWrapperPane) {
+        final ObservableList<Node> children = imageWrapperPane.getChildren();
+        children.removeIf(node -> node.getId() != null && node.getId().contains(LABEL_PREFIX));
+        children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX));
+        children.removeIf(node -> node.getId() != null && node.getId().contains(LINE_ID));
     }
 
     private Zone getParentZone(MarkersPair pair) {

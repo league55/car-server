@@ -1,5 +1,7 @@
 package root.app.properties;
 
+import root.app.model.Zone;
+
 import java.util.List;
 
 /**
@@ -21,4 +23,6 @@ public interface ConfigService<T> {
     void delete(T markersPair);
 
     void deleteAll();
+
+    void saveAll(List<T> all);
 }

@@ -20,4 +20,6 @@ public interface DrawingService {
     void removeZone(AnchorPane imageWrapperPane, Zone zone);
 
     void submitZone(MarkersPair pair, Pane pane);
+
+    void clearAll(AnchorPane imageWrapperPane);
 }

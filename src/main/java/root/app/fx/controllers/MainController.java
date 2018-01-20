@@ -5,11 +5,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
+import root.app.data.services.CalibrationService;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
@@ -35,47 +38,30 @@ import static java.util.stream.Collectors.toList;
 @Slf4j
 @Component
 public class MainController {
-
-    public static String pathToVideoFile;
-
     private final FileChooser fileChooser = new FileChooser();
+    private final ToggleGroup zoneNumberRadioGroup = new ToggleGroup();
 
     //    -------------- FXML ----------------
-    @FXML
-    private Button cameraButton;
-    @FXML
-    private Button videoButton;
-    // the FXML image view
-    @FXML
-    private ImageView imageView;
-    @FXML
-    private TableView<LinesTableRowFX> tableLines;
-    @FXML
-    private AnchorPane imageWrapperPane;
-    @FXML
-    private TextField ipInput;
-    @FXML
-    private TableColumn<LinesTableRowFX, Long> idColumn;
-    @FXML
-    private TableColumn<LinesTableRowFX, Integer> distanceColumn;
-    @FXML
-    private TableColumn<LinesTableRowFX, Integer> wayNum;
-    @FXML
-    private TableColumn<LinesTableRowFX, Button> delButton;
-    @FXML
-    private TextField zonesPerLineAmountInput;
-    @FXML
-    private TextField zoneHeightInput;
-    @FXML
-    private Button chooseFileBtn;
-    @FXML
-    private TextField deltaTimeInput;
-    @FXML
-    private Label deltaTimeLabel;
-    @FXML
-    private Label ipLabel;
-    @FXML
-    private Label zoneAmountLabel;
+    public Button cameraButton;
+    public Button videoButton;
+    public ImageView imageView;
+    public TableView<LinesTableRowFX> tableLines;
+    public AnchorPane imageWrapperPane;
+    public TextField ipInput;
+    public TableColumn<LinesTableRowFX, Long> idColumn;
+    public TableColumn<LinesTableRowFX, Integer> distanceColumn;
+    public TableColumn<LinesTableRowFX, Integer> wayNum;
+    public TableColumn<LinesTableRowFX, Button> delButton;
+    public TextField zonesPerLineAmountInput;
+    public TextField zoneHeightInput;
+    public Button chooseFileBtn;
+    public TextField deltaTimeInput;
+    public Label deltaTimeLabel;
+    public Label ipLabel;
+    public Label zoneAmountLabel;
+    public FlowPane zoneNumbersGroup;
+    public Slider horizMoveSlider;
+    public Slider verticalMoveSlider;
 
     //    -------------- Spring ----------------
     @Autowired
@@ -97,6 +83,8 @@ public class MainController {
     private ImageScaleService scaleService;
     @Autowired
     private AnchorsService anchorsService;
+    @Autowired
+    private CalibrationService calibrationService;
 
 
     @FXML
@@ -122,6 +110,41 @@ public class MainController {
         wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
         initializeInputs();
+        initializeCalibratingTab();
+    }
+
+    private void initializeCalibratingTab() {
+        initSubZoneRadioGroup();
+        initCalibratingSliders();
+    }
+
+    private void initCalibratingSliders() {
+        verticalMoveSlider.setMin(-300);
+        verticalMoveSlider.setMax(300);
+        verticalMoveSlider.setMajorTickUnit(50);
+        verticalMoveSlider.setMinorTickCount(5);
+        verticalMoveSlider.setValue(0);
+        verticalMoveSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            final Integer userData = (Integer) zoneNumberRadioGroup.getSelectedToggle().getUserData();
+            calibrationService.fixPosition(userData, oldValue.doubleValue() - newValue.doubleValue());
+            drawingService.clearAll(imageWrapperPane);
+            redrawLinesAndZones();
+        });
+    }
+
+    private void initSubZoneRadioGroup() {
+        final String amount = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue();
+        final Integer zonesAmount = Integer.valueOf(amount);
+        final Insets insets = new Insets(10);
+        for (Integer i = 0; i < zonesAmount; i++) {
+            final RadioButton button = new RadioButton(i.toString());
+            button.setToggleGroup(zoneNumberRadioGroup);
+            button.setUserData(i);
+            zoneNumbersGroup.getChildren().add(button);
+            button.setPadding(insets);
+            button.setOnAction(event -> verticalMoveSlider.setValue(0));
+        }
+
     }
 
     private void initializeInputs() {
@@ -210,9 +233,6 @@ public class MainController {
     }
 
     private void drawLinesAndLabels() {
-        Bounds boundsInLocal = imageView.getBoundsInLocal();
-        final List<Zone> zones = zoneConfigService.findAll();
-
         ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAll().stream().map((zone) -> {
             Button x = new Button("x");
             x.setTextFill(Color.RED);
@@ -229,6 +249,12 @@ public class MainController {
 
         tableLines.setItems(data);
 
+        redrawLinesAndZones();
+    }
+
+    private void redrawLinesAndZones() {
+        final List<Zone> zones = zoneConfigService.findAll();
+        Bounds boundsInLocal = imageView.getBoundsInLocal();
         final ScreenSize screenSize = new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth());
         final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, zones.stream().map(Zone::getPair).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
@@ -246,10 +272,9 @@ public class MainController {
         if (zonesAmount != null) {
             appConfigService.save(new AppConfigDTO(ConfigAttribute.ZonesPerLineAmount, zonesAmount + ""));
             log.info("Zones per line now: {}", zonesAmount);
+            initSubZoneRadioGroup();
         }
     }
-
-    ;
 
     @FXML
     private void saveFirstZoneHeight(ActionEvent event) {

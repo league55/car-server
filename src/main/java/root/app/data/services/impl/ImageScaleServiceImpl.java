@@ -72,7 +72,7 @@ public class ImageScaleServiceImpl implements ImageScaleService {
         A2.setX(A2.getX() * widthMultiplier);
         A2.setY(A2.getY() * heightMultiplier);
         A2.setWindowHeight(screenSize.getWindowHeight());
-        A2.setWindowWidth(screenSize.getWindowHeight());
+        A2.setWindowWidth(screenSize.getWindowWidth());
 
         line.setStart(A1);
         line.setEnd(A2);

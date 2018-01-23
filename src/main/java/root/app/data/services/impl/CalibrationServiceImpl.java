@@ -60,8 +60,6 @@ public class CalibrationServiceImpl implements CalibrationService {
         Point C = lineB.getStart();
         Point D = lineB.getEnd();
 
-        Point point = null;
-
         double denominator = (A.getX() - B.getX()) * (C.getY() - D.getY()) - (A.getY() - B.getY()) * (C.getX() - D.getX());
 
         if (denominator != 0) {
@@ -71,8 +69,6 @@ public class CalibrationServiceImpl implements CalibrationService {
             double py = ((A.getX() * B.getY() - A.getY() * B.getX()) * (C.getY() - D.getY()) - (A.getY() - B.getY())
                     * (C.getX() * D.getY() - C.getY() * D.getX()))
                     / denominator;
-
-//            System.out.println(px + "," + py);
 
             return new Point(px, py, D.getWindowHeight(), D.getWindowWidth());
 

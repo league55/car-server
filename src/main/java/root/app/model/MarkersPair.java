@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MarkersPair extends BasicModel {
+public class MarkersPair extends BasicModel implements Cloneable {
 
     private Line lineA;
     private Line lineB;
@@ -23,5 +23,11 @@ public class MarkersPair extends BasicModel {
     public MarkersPair(Line lineA, Line lineB) {
         this.lineA = lineA;
         this.lineB = lineB;
+    }
+
+    public MarkersPair clone() {
+        final MarkersPair markersPair = new MarkersPair(this.getLineA(), this.getLineB(), this.getDistanceLeft(), this.getWayNum());
+        markersPair.setId(this.getId());
+        return markersPair;
     }
 }

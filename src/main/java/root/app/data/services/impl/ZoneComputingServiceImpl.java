@@ -22,7 +22,6 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
     @Autowired
     private AppConfigService appConfigService;
-
     @Autowired
     private LineConfigService lineConfigService;
     @Autowired
@@ -30,7 +29,8 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
     @Override
     public ArrayList<Zone.ChildZone> getChildZones(MarkersPair pair) {
-        final Line lastLine = pair.getLineB();
+        MarkersPair basePair = pair.clone();
+        final Line lastLine = basePair.getLineB();
         AppConfigDTO zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
         Integer zonesPerLine = Integer.parseInt(zonesPerLineConfig.getValue());
         final ArrayList<Zone.ChildZone> zones = Lists.newArrayList();
@@ -38,14 +38,14 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         for (Integer i = 0; i < zonesPerLine - 1; i++) {
             final double k = 1.0 / (zonesPerLine - i - 1);
 
-            final MarkersPair childZonePair = getChildZonePair(pair, k);
+            final MarkersPair childZonePair = getChildZonePair(basePair, k);
             final Zone.ChildZone z = new Zone.ChildZone(getChildZoneId(childZonePair, i), childZonePair);
             zones.add(z);
 
-            pair.setLineA(childZonePair.getLineB());
+            basePair.setLineA(childZonePair.getLineB());
         }
         //add last zone
-        zones.add(getLastZone(pair.getLineA(), lastLine, zonesPerLine));
+        zones.add(getLastZone(basePair.getLineA(), lastLine, zonesPerLine));
         return zones;
     }
 

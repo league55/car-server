@@ -16,7 +16,7 @@ import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.PolygonDTO;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
@@ -46,7 +46,7 @@ public abstract class BasicRunner implements Runner {
     private boolean isFirstFrame = true;
     // the id of the camera to be used
     protected static int cameraId = 0;
-    private static List<Zone> zones;
+    private static List<RoadWay> wayList;
     private long carCount = 0;
 
 
@@ -56,7 +56,7 @@ public abstract class BasicRunner implements Runner {
     private final DrawingService drawingService;
     private final ZoneCrossingService zoneCrossingService;
     private final LineCrossingService lineCrossingService;
-    private final ConfigService<Zone> zoneConfigService;
+    private final ConfigService<RoadWay> zoneConfigService;
     private final SpeedService speedService;
     private final CVShowing cvShowing;
     private final DataOutputService dataOutputService;
@@ -65,7 +65,7 @@ public abstract class BasicRunner implements Runner {
     private final ImageScaleService scaleService;
 
     protected BasicRunner(DataOutputService dataOutputService, AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<Zone> zoneConfigService,
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<RoadWay> zoneConfigService,
                           CVShowing cvShowing, PolygonConfigService polygonConfigService, ImageScaleService scaleService) {
         this.dataOutputService = dataOutputService;
         this.appConfigService = appConfigService;
@@ -137,7 +137,7 @@ public abstract class BasicRunner implements Runner {
             // release the camera
             this.capture.release();
         }
-        zones = Lists.newArrayList();
+        wayList = Lists.newArrayList();
     }
 
     protected abstract void openCamera();
@@ -160,11 +160,11 @@ public abstract class BasicRunner implements Runner {
                 this.capture.read(frame1);
                 this.capture.read(frame2);
 
-                if (zones == null || zones.size() == 0) {
-                    zones = zoneConfigService.findAll();
+                if (wayList == null || wayList.size() == 0) {
+                    wayList = zoneConfigService.findAll();
                 }
 
-                if (!frame1.empty() && !frame2.empty() && zones.size() > 0) {
+                if (!frame1.empty() && !frame2.empty() && wayList.size() > 0) {
                     final ScreenSize cvMatSize = new ScreenSize(frame1.height(), frame1.width());
                     Rect roi = getRoi(cvMatSize);
 
@@ -191,7 +191,7 @@ public abstract class BasicRunner implements Runner {
                         carCount = newCarCount;
                     }
 
-//                    drawingService.showLines(frame2, zones, isCarCrossing);
+//                    drawingService.showLines(frame2, wayList, isCarCrossing);
                     cvShowing.drawRect(frame2, roi);
                     cvShowing.drawCarInfoOnImage(cars, frame2);
                     cvShowing.drawCarCountOnImage(carCount, frame2);

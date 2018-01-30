@@ -9,7 +9,7 @@ import root.app.data.services.ImageScaleService;
 import root.app.data.services.LineCrossingService;
 import root.app.model.Car;
 import root.app.model.Line;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
 
 import java.util.List;
@@ -20,11 +20,11 @@ import java.util.stream.Collectors;
 @Component
 public class LineCrossingServiceImpl implements LineCrossingService {
 
-    private final ConfigService<Zone> zoneConfigService;
+    private final ConfigService<RoadWay> zoneConfigService;
     private final ImageScaleService imageScaleService;
 
     @Autowired
-    public LineCrossingServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService, ImageScaleService imageScaleService) {
+    public LineCrossingServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService, ImageScaleService imageScaleService) {
         this.zoneConfigService = zoneConfigService;
         this.imageScaleService = imageScaleService;
     }
@@ -58,10 +58,10 @@ public class LineCrossingServiceImpl implements LineCrossingService {
     @Override
     public List<Car> setCrossingTimeMarks(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize) {
         zoneConfigService.findAll().forEach(parentZone -> {
-            List<Zone.ChildZone> childZones = parentZone.getChildZones().stream().map(childZone -> imageScaleService.fixedSize(screenSize, childZone)).collect(Collectors.toList());
+            List<RoadWay.Zone> zones = parentZone.getZones().stream().map(childZone -> imageScaleService.fixedSize(screenSize, childZone)).collect(Collectors.toList());
 
             cars.forEach(car -> {
-                findCrossedChildZone(childZones, car, parentZone.getPair().getWayNum());
+                findCrossedChildZone(zones, car, parentZone.getPair().getWayNum());
             });
 
         });
@@ -69,9 +69,9 @@ public class LineCrossingServiceImpl implements LineCrossingService {
         return cars;
     }
 
-    private void findCrossedChildZone(List<Zone.ChildZone> childZones, Car car, Integer wayNum) {
-        final Optional<Zone.ChildZone> crossedA = childZones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineA(), car)).findFirst();
-        final Optional<Zone.ChildZone> crossedB = childZones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineB(), car)).findFirst();
+    private void findCrossedChildZone(List<RoadWay.Zone> zones, Car car, Integer wayNum) {
+        final Optional<RoadWay.Zone> crossedA = zones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineA(), car)).findFirst();
+        final Optional<RoadWay.Zone> crossedB = zones.stream().filter(chZ -> isCarCrossedLine(chZ.getPair().getLineB(), car)).findFirst();
 
         crossedB.ifPresent(childZone -> {
             try {

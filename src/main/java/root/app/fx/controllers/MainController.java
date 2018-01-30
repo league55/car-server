@@ -72,7 +72,7 @@ public class MainController {
     private LineConfigService lineProvider;
     @Autowired
     @Qualifier("zoneConfigServiceImpl")
-    private ConfigService<Zone> zoneConfigService;
+    private ConfigService<RoadWay> zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
     @Autowired
@@ -90,17 +90,17 @@ public class MainController {
     @FXML
     void initialize() {
         distanceColumn.setOnEditCommit((row) -> {
-            final Zone zone = zoneConfigService.findOne(row.getRowValue().getId());
-            zone.getPair().setDistanceLeft(row.getNewValue());
-            lineProvider.updateLeftDistance(zone.getPair().getId(), row.getNewValue());
-            zoneConfigService.save(zone);
+            final RoadWay way = zoneConfigService.findOne(row.getRowValue().getId());
+            way.getPair().setDistanceLeft(row.getNewValue());
+            lineProvider.updateLeftDistance(way.getPair().getId(), row.getNewValue());
+            zoneConfigService.save(way);
         });
 
         wayNum.setOnEditCommit((row) -> {
-            final Zone zone = zoneConfigService.findOne(row.getRowValue().getId());
-            zone.getPair().setWayNum(row.getNewValue());
-            lineProvider.updateWayNumber(zone.getPair().getId(), row.getNewValue());
-            zoneConfigService.save(zone);
+            final RoadWay way = zoneConfigService.findOne(row.getRowValue().getId());
+            way.getPair().setWayNum(row.getNewValue());
+            lineProvider.updateWayNumber(way.getPair().getId(), row.getNewValue());
+            zoneConfigService.save(way);
         });
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -240,7 +240,7 @@ public class MainController {
             x.setOnAction(e -> {
                 lineProvider.delete(pair);
                 zoneConfigService.delete(zone);
-                zone.getChildZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
+                zone.getZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
                 drawingService.removeZone(imageWrapperPane, zone);
                 drawLinesAndLabels();
             });
@@ -253,10 +253,10 @@ public class MainController {
     }
 
     private void redrawLinesAndZones() {
-        final List<Zone> zones = zoneConfigService.findAll();
+        final List<RoadWay> waysList = zoneConfigService.findAll();
         Bounds boundsInLocal = imageView.getBoundsInLocal();
         final ScreenSize screenSize = new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth());
-        final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, zones.stream().map(Zone::getPair).collect(toList()));
+        final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, waysList.stream().map(RoadWay::getPair).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
         drawingService.showZones(imageWrapperPane, zoneConfigService.findAll(), screenSize);
     }

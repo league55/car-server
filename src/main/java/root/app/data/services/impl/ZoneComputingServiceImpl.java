@@ -28,18 +28,18 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     private ImageScaleService scaleService;
 
     @Override
-    public ArrayList<Zone.ChildZone> getChildZones(MarkersPair pair) {
+    public ArrayList<RoadWay.Zone> getChildZones(MarkersPair pair) {
         MarkersPair basePair = pair.clone();
         final Line lastLine = basePair.getLineB();
         AppConfigDTO zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
         Integer zonesPerLine = Integer.parseInt(zonesPerLineConfig.getValue());
-        final ArrayList<Zone.ChildZone> zones = Lists.newArrayList();
+        final ArrayList<RoadWay.Zone> zones = Lists.newArrayList();
 
         for (Integer i = 0; i < zonesPerLine - 1; i++) {
             final double k = 1.0 / (zonesPerLine - i - 1);
 
             final MarkersPair childZonePair = getChildZonePair(basePair, k);
-            final Zone.ChildZone z = new Zone.ChildZone(getChildZoneId(childZonePair, i), childZonePair);
+            final RoadWay.Zone z = new RoadWay.Zone(getChildZoneId(childZonePair, i), childZonePair);
             zones.add(z);
 
             basePair.setLineA(childZonePair.getLineB());
@@ -69,16 +69,16 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         return lineConfigService.findOne(saved);
     }
 
-    private Zone.ChildZone getLastZone(Line start, Line end, int i) {
+    private RoadWay.Zone getLastZone(Line start, Line end, int i) {
         final MarkersPair lastPair = new MarkersPair(start, end);
         final Long saved = lineConfigService.save(lastPair);
         String zoneId = getChildZoneId(lineConfigService.findOne(saved), i);
-        return new Zone.ChildZone(zoneId, true, lineConfigService.findOne(saved));
+        return new RoadWay.Zone(zoneId, true, lineConfigService.findOne(saved));
     }
 
-    private Polygon toFxPolygon(Zone.ChildZone childZone, ScreenSize screenSize) {
+    private Polygon toFxPolygon(RoadWay.Zone zone, ScreenSize screenSize) {
 
-        final MarkersPair pair = scaleService.fixedSize(screenSize, childZone).getPair();
+        final MarkersPair pair = scaleService.fixedSize(screenSize, zone).getPair();
 
         final Polygon polygon = new Polygon(
                 pair.getLineA().getStart().getX(), pair.getLineA().getStart().getY(),
@@ -90,15 +90,15 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         polygon.setOpacity(0.1);
         polygon.setStroke(Color.GREEN);
         polygon.setStrokeWidth(5);
-        polygon.setId(childZone.getId());
+        polygon.setId(zone.getId());
         return polygon;
     }
 
     @Override
-    public List<Polygon> toFxPolygon(Zone zone, ScreenSize screenSize) {
-        List<Zone.ChildZone> childZones = zone.getChildZones();
+    public List<Polygon> toFxPolygon(RoadWay way, ScreenSize screenSize) {
+        List<RoadWay.Zone> zones = way.getZones();
         List<Polygon> polygons = Lists.newArrayList();
-        for (Zone.ChildZone child : childZones) {
+        for (RoadWay.Zone child : zones) {
             polygons.add(toFxPolygon(child, screenSize));
         }
         return polygons;

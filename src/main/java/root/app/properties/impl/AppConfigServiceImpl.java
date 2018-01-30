@@ -5,7 +5,6 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import root.app.model.AppConfigDTO;
-import root.app.model.Zone;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.IOService;

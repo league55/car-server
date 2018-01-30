@@ -8,7 +8,7 @@ import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.runners.BasicRunner;
 import root.app.data.services.*;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.ConfigService;
@@ -33,7 +33,7 @@ public class VideoRunnerImpl extends BasicRunner {
             ZoneCrossingService zoneCrossingService,
             LineCrossingService lineCrossingService,
             SpeedService speedService,
-            @Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService,
+            @Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService,
             CVShowing cvShowing,
             PolygonConfigService polygonConfigService,
             ImageScaleService scaleService) {

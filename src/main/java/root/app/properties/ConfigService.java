@@ -1,7 +1,5 @@
 package root.app.properties;
 
-import root.app.model.Zone;
-
 import java.util.List;
 
 /**

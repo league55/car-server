@@ -36,12 +36,12 @@ public class ImageScaleServiceImpl implements ImageScaleService {
     }
 
     @Override
-    public Zone.ChildZone fixedSize(ScreenSize screenSize, Zone.ChildZone childZone) {
+    public RoadWay.Zone fixedSize(ScreenSize screenSize, RoadWay.Zone zone) {
 
-        final MarkersPair pair = childZone.getPair();
+        final MarkersPair pair = zone.getPair();
 
-        childZone.setPair(fixPair(screenSize, pair));
-        return childZone;
+        zone.setPair(fixPair(screenSize, pair));
+        return zone;
     }
 
     @Override

@@ -6,27 +6,27 @@ import org.springframework.stereotype.Service;
 import root.app.data.services.CalibrationService;
 import root.app.model.Line;
 import root.app.model.Point;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
 
 import java.util.List;
 
 @Service
 public class CalibrationServiceImpl implements CalibrationService {
-    private final ConfigService<Zone> zoneConfigService;
+    private final ConfigService<RoadWay> zoneConfigService;
 
     @Autowired
-    public CalibrationServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<Zone> zoneConfigService) {
+    public CalibrationServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService) {
         this.zoneConfigService = zoneConfigService;
     }
 
     @Override
     public void fixPosition(Integer n, Double deltaY) {
-        final List<Zone> all = zoneConfigService.findAll();
+        final List<RoadWay> all = zoneConfigService.findAll();
         all.forEach(zone -> {
-            final List<Zone.ChildZone> childZones = zone.getChildZones();
-            final Zone.ChildZone bottomZone = childZones.get(n);
-            final Zone.ChildZone topZone = childZones.get(n + 1);
+            final List<RoadWay.Zone> zones = zone.getZones();
+            final RoadWay.Zone bottomZone = zones.get(n);
+            final RoadWay.Zone topZone = zones.get(n + 1);
 
             fixLine(bottomZone.getPair().getLineB(), deltaY);
             fixLine(topZone.getPair().getLineA(), deltaY);
@@ -38,9 +38,9 @@ public class CalibrationServiceImpl implements CalibrationService {
         zoneConfigService.saveAll(all);
     }
 
-    private void fixXAxis(Zone zone, Line line2) {
-        Line right = new Line(zone.getPair().getLineB().getEnd(), zone.getPair().getLineA().getEnd());
-        Line left = new Line(zone.getPair().getLineB().getStart(), zone.getPair().getLineA().getStart());
+    private void fixXAxis(RoadWay way, Line line2) {
+        Line right = new Line(way.getPair().getLineB().getEnd(), way.getPair().getLineA().getEnd());
+        Line left = new Line(way.getPair().getLineB().getStart(), way.getPair().getLineA().getStart());
 
         Point intersection = intersection(right, line2);
         Point intersection2 = intersection(left, line2);

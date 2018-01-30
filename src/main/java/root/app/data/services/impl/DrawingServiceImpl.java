@@ -14,7 +14,7 @@ import root.app.data.drawingTools.DrawLabel;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 
@@ -32,14 +32,14 @@ public class DrawingServiceImpl implements DrawingService {
     public static final String LABEL_PREFIX = "pair_label_";
     private static final String LINE_ID = "line_";
 
-    private final BiConsumer<Zone, AnchorPane> drawLabel = new DrawLabel();
+    private final BiConsumer<RoadWay, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
     private final ConfigService zoneConfigService;
     private final ZoneComputingService computingService;
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService<Zone> zoneConfigService, ZoneComputingService computingService) {
+    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService<RoadWay> zoneConfigService, ZoneComputingService computingService) {
         this.lineProvider = lineProvider;
         this.zoneConfigService = zoneConfigService;
         this.computingService = computingService;
@@ -82,13 +82,13 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void showZones(AnchorPane imageWrapperPane, List<Zone> zones, ScreenSize screenSize) {
+    public void showZones(AnchorPane imageWrapperPane, List<RoadWay> roadWays, ScreenSize screenSize) {
         final ObservableList<Node> children = imageWrapperPane.getChildren();
 
-        zones.forEach(parentZone -> {
+        roadWays.forEach(parentZone -> {
             List<Polygon> polygon = computingService.toFxPolygon(parentZone, screenSize);
-            //if these zones weren't added before
-            if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getChildZones().get(0).getId())).size() == 0) {
+            //if these way weren't added before
+            if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getZones().get(0).getId())).size() == 0) {
                 children.addAll(polygon);
             }
 
@@ -98,17 +98,17 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void removeZone(AnchorPane imageWrapperPane, Zone zone) {
-        MarkersPair pair = zone.getPair();
+    public void removeZone(AnchorPane imageWrapperPane, RoadWay way) {
+        MarkersPair pair = way.getPair();
         final ObservableList<Node> children = imageWrapperPane.getChildren();
 
         removePair(imageWrapperPane, pair);
-        zone.getChildZones().forEach(child -> removePair(imageWrapperPane, child.getPair()));
-        zone.getChildZones().forEach(child -> removeChildZone(imageWrapperPane, child));
-        children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX + zone.getId()));
+        way.getZones().forEach(child -> removePair(imageWrapperPane, child.getPair()));
+        way.getZones().forEach(child -> removeChildZone(imageWrapperPane, child));
+        children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX + way.getId()));
     }
 
-    private void removeChildZone(AnchorPane imageWrapperPane, Zone.ChildZone child) {
+    private void removeChildZone(AnchorPane imageWrapperPane, RoadWay.Zone child) {
         Predicate<Node> isZoneToDelete = node -> node instanceof Polygon && (child.getId().equals(node.getId()));
         final ObservableList<Node> children = imageWrapperPane.getChildren();
 
@@ -143,8 +143,8 @@ public class DrawingServiceImpl implements DrawingService {
         children.removeIf(node -> node.getId() != null && node.getId().contains(LINE_ID));
     }
 
-    private Zone getParentZone(MarkersPair pair) {
-        return new Zone(pair, computingService.getChildZones(pair));
+    private RoadWay getParentZone(MarkersPair pair) {
+        return new RoadWay(pair, computingService.getChildZones(pair));
     }
 
 }

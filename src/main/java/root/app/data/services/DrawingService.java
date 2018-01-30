@@ -4,7 +4,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import root.app.data.services.impl.ImageScaleServiceImpl;
 import root.app.model.MarkersPair;
-import root.app.model.Zone;
+import root.app.model.RoadWay;
 
 import java.util.List;
 
@@ -15,9 +15,9 @@ public interface DrawingService {
 
     void showLines(AnchorPane imageWrapperPane, List<MarkersPair> lines);
 
-    void showZones(AnchorPane imageWrapperPane, List<Zone> zones, ImageScaleServiceImpl.ScreenSize screenSize);
+    void showZones(AnchorPane imageWrapperPane, List<RoadWay> roadWays, ImageScaleServiceImpl.ScreenSize screenSize);
 
-    void removeZone(AnchorPane imageWrapperPane, Zone zone);
+    void removeZone(AnchorPane imageWrapperPane, RoadWay way);
 
     void submitZone(MarkersPair pair, Pane pane);
 

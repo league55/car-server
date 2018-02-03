@@ -19,7 +19,7 @@ public interface DrawingService {
 
     void removeZone(AnchorPane imageWrapperPane, RoadWay way);
 
-    void submitZone(MarkersPair pair, Pane pane);
+    void submitRegion(MarkersPair pair, Pane pane);
 
     void clearAll(AnchorPane imageWrapperPane);
 }

@@ -1,5 +1,6 @@
 package root.app.data.services.impl;
 
+import com.google.common.collect.Lists;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
@@ -14,9 +15,11 @@ import root.app.data.drawingTools.DrawLabel;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
+import root.app.model.Region;
 import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
+import root.app.properties.RegionConfigService;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -35,12 +38,14 @@ public class DrawingServiceImpl implements DrawingService {
     private final BiConsumer<RoadWay, AnchorPane> drawLabel = new DrawLabel();
 
     private final LineConfigService lineProvider;
+    private final RegionConfigService regionConfigService;
     private final ConfigService zoneConfigService;
     private final ZoneComputingService computingService;
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider, ConfigService<RoadWay> zoneConfigService, ZoneComputingService computingService) {
+    public DrawingServiceImpl(LineConfigService lineProvider, RegionConfigService regionConfigService, ConfigService<RoadWay> zoneConfigService, ZoneComputingService computingService) {
         this.lineProvider = lineProvider;
+        this.regionConfigService = regionConfigService;
         this.zoneConfigService = zoneConfigService;
         this.computingService = computingService;
     }
@@ -129,10 +134,13 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void submitZone(MarkersPair pair, Pane pane) {
+    public void submitRegion(MarkersPair pair, Pane pane) {
         final Long pairId = lineProvider.save(pair);
-        final Long zoneId = zoneConfigService.save(getParentZone(lineProvider.findOne(pairId)));
-        log.info("Saved new zone with ID {}", zoneId);
+        final MarkersPair savedPair = lineProvider.findOne(pairId);
+
+        regionConfigService.save(new Region(savedPair, Lists.newArrayList()));
+        zoneConfigService.saveAll(getRoadWays(savedPair));
+        log.info("Saved new region");
     }
 
     @Override
@@ -143,8 +151,8 @@ public class DrawingServiceImpl implements DrawingService {
         children.removeIf(node -> node.getId() != null && node.getId().contains(LINE_ID));
     }
 
-    private RoadWay getParentZone(MarkersPair pair) {
-        return new RoadWay(pair, computingService.getChildZones(pair));
+    private List<RoadWay> getRoadWays(MarkersPair pair) {
+        return computingService.getRoadWays(pair);
     }
 
 }

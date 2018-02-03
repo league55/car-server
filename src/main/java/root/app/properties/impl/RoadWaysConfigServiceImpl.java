@@ -11,9 +11,9 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class ZoneConfigServiceImpl extends ConfigServiceImpl<RoadWay> {
+public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> {
 
-    public ZoneConfigServiceImpl(IOService<List<RoadWay>> saver) {
+    public RoadWaysConfigServiceImpl(IOService<List<RoadWay>> saver) {
         super(saver, "../config/zoneProps.yml");
     }
 

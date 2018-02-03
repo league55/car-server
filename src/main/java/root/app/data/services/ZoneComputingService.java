@@ -15,7 +15,7 @@ import static root.app.data.services.impl.ImageScaleServiceImpl.*;
 public interface ZoneComputingService {
     String ZONE_PREFIX = "zone_";
 
-    ArrayList<RoadWay.Zone> getChildZones(MarkersPair pair);
+    List<RoadWay> getRoadWays(MarkersPair pair);
 
     List<Polygon> toFxPolygon(RoadWay way, ScreenSize screenSize);
 

@@ -24,7 +24,7 @@ public class LineCrossingServiceImpl implements LineCrossingService {
     private final ImageScaleService imageScaleService;
 
     @Autowired
-    public LineCrossingServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService, ImageScaleService imageScaleService) {
+    public LineCrossingServiceImpl(@Qualifier("roadWaysConfigServiceImpl") ConfigService<RoadWay> zoneConfigService, ImageScaleService imageScaleService) {
         this.zoneConfigService = zoneConfigService;
         this.imageScaleService = imageScaleService;
     }

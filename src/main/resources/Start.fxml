@@ -68,7 +68,7 @@
                                     <Insets right="5.0" />
                                 </HBox.margin>
                             </Button>
-                            <Button onAction="#submitPesrsp" text="Сохранить ROI" />
+                            <Button onAction="#submitROI" text="Сохранить ROI" />
                             <VBox.margin>
                                 <Insets bottom="5.0" />
                             </VBox.margin>

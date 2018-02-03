@@ -135,10 +135,6 @@ public class ConfigServiceImpl<T extends BasicModel> implements ConfigService<T>
 
     @Override
     public void saveAll(List<T> all) {
-        try {
-            saver.writeProperty(fileName, all);
-        } catch (IOException e) {
-            log.error("Failed to save all, ", e);
-        }
+        all.forEach(this::save);
     }
 }

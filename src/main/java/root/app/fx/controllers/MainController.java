@@ -71,7 +71,7 @@ public class MainController {
     @Autowired
     private LineConfigService lineProvider;
     @Autowired
-    @Qualifier("zoneConfigServiceImpl")
+    @Qualifier("roadWaysConfigServiceImpl")
     private ConfigService<RoadWay> zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
@@ -213,7 +213,7 @@ public class MainController {
         double sceneHeight = imageView.getBoundsInLocal().getHeight();
         double sceneWidth = imageView.getBoundsInLocal().getWidth();
 
-        drawingService.submitZone(anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
+        drawingService.submitRegion(anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
         anchorsService.clean(imageWrapperPane);
 
         drawLinesAndLabels();
@@ -309,7 +309,7 @@ public class MainController {
     }
 
     @FXML
-    private void submitPesrsp(ActionEvent actionEvent) {
+    private void submitROI(ActionEvent actionEvent) {
         final Bounds boundsInLocal = imageView.getBoundsInLocal();
         final MarkersPair coordinates = anchorsService.getCoordinates(boundsInLocal.getHeight(), boundsInLocal.getWidth());
         polygonConfigService.save(

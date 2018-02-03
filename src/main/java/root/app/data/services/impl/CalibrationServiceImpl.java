@@ -16,7 +16,7 @@ public class CalibrationServiceImpl implements CalibrationService {
     private final ConfigService<RoadWay> zoneConfigService;
 
     @Autowired
-    public CalibrationServiceImpl(@Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService) {
+    public CalibrationServiceImpl(@Qualifier("roadWaysConfigServiceImpl") ConfigService<RoadWay> zoneConfigService) {
         this.zoneConfigService = zoneConfigService;
     }
 
@@ -54,7 +54,8 @@ public class CalibrationServiceImpl implements CalibrationService {
         line.getEnd().setY(line.getEnd().getY() + deltaY);
     }
 
-    private Point intersection(Line lineA, Line lineB) {
+    @Override
+    public Point intersection(Line lineA, Line lineB) {
         Point A = lineA.getStart();
         Point B = lineA.getEnd();
         Point C = lineB.getStart();

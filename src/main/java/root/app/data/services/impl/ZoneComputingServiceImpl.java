@@ -5,12 +5,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import root.app.data.services.CalibrationService;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.*;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 import root.app.properties.LineConfigService;
+import root.utils.DeepCopy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +28,28 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     private LineConfigService lineConfigService;
     @Autowired
     private ImageScaleService scaleService;
+    @Autowired
+    private CalibrationService calibrationService;
 
     @Override
-    public ArrayList<RoadWay.Zone> getChildZones(MarkersPair pair) {
+    public List<RoadWay> getRoadWays(MarkersPair pair) {
         MarkersPair basePair = pair.clone();
-        final Line lastLine = basePair.getLineB();
-        AppConfigDTO zonesPerLineConfig = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount);
-        Integer zonesPerLine = Integer.parseInt(zonesPerLineConfig.getValue());
+
+        Integer zonesPerLine = Integer.parseInt(appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue());
+        Integer ways = Integer.valueOf(appConfigService.findOne(ConfigAttribute.RoadWaysAmount).getValue());
+
+        List<MarkersPair> basePairs = getBasePairs(basePair.clone(), ways);
+
+        List<RoadWay> roadWays = Lists.newArrayList();
+        basePairs.forEach(pair1 -> {
+            roadWays.add(getRoadWay(zonesPerLine, pair1, pair1.getLineB()));
+        });
+
+        return roadWays;
+    }
+
+    private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair basePair, Line lastLine) {
+        RoadWay roadWay = new RoadWay();
         final ArrayList<RoadWay.Zone> zones = Lists.newArrayList();
 
         for (Integer i = 0; i < zonesPerLine - 1; i++) {
@@ -46,7 +63,50 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         }
         //add last zone
         zones.add(getLastZone(basePair.getLineA(), lastLine, zonesPerLine));
-        return zones;
+
+        roadWay.setPair(basePair);
+        roadWay.setZones(zones);
+
+        return roadWay;
+    }
+
+    private List<MarkersPair> getBasePairs(MarkersPair clone, Integer ways) {
+        List<MarkersPair> basePairs = Lists.newArrayList();
+
+
+        double delta_A_X = (clone.getLineA().getEnd().getX() - clone.getLineA().getStart().getX()) / ways ;
+        double delta_B_X = (clone.getLineB().getEnd().getX() - clone.getLineB().getStart().getX()) / ways ;
+
+        for (Integer i = 0; i < ways; i++) {
+            MarkersPair template = (MarkersPair) DeepCopy.copy(clone);
+            MarkersPair pair = (MarkersPair) DeepCopy.copy(clone);
+
+            pair.setWayNum(i + 1);
+
+            //counting X
+            pair.getLineA().getStart().setX(template.getLineA().getStart().getX() + delta_A_X * i);
+            pair.getLineA().getEnd().setX(template.getLineA().getStart().getX() + delta_A_X * (i + 1));
+
+            pair.getLineB().getStart().setX(template.getLineB().getStart().getX() + delta_B_X * i);
+            pair.getLineB().getEnd().setX(template.getLineB().getStart().getX() + delta_B_X * (i + 1));
+
+
+            //fixing Y
+            final Line left = new Line(pair.getLineA().getStart(), pair.getLineB().getStart());
+            final Line right = new Line(pair.getLineA().getEnd(), pair.getLineB().getEnd());
+            pair.getLineA().setStart(calibrationService.intersection(clone.getLineA(), left));
+            pair.getLineA().setEnd(calibrationService.intersection(clone.getLineA(), right));
+
+            pair.getLineB().setStart(calibrationService.intersection(clone.getLineB(), left));
+            pair.getLineB().setEnd(calibrationService.intersection(clone.getLineB(), right));
+
+            final Long id = lineConfigService.save(pair);
+
+            basePairs.add(lineConfigService.findOne(id));
+
+        }
+
+        return basePairs;
     }
 
 

@@ -4,9 +4,11 @@ package root.app.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
-public class Point {
+public class Point implements Serializable {
 
     private Double x;
     private Double y;

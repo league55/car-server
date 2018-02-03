@@ -33,7 +33,7 @@ public class VideoRunnerImpl extends BasicRunner {
             ZoneCrossingService zoneCrossingService,
             LineCrossingService lineCrossingService,
             SpeedService speedService,
-            @Qualifier("zoneConfigServiceImpl") ConfigService<RoadWay> zoneConfigService,
+            @Qualifier("roadWaysConfigServiceImpl") ConfigService<RoadWay> zoneConfigService,
             CVShowing cvShowing,
             PolygonConfigService polygonConfigService,
             ImageScaleService scaleService) {

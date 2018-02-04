@@ -22,6 +22,7 @@ import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 import root.app.properties.RegionConfigService;
+import root.app.properties.RoadWaysConfigService;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,7 +48,7 @@ public class DrawingServiceImpl implements DrawingService {
     private ZoneLabel zoneLabel = new ZoneLabel();
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider, RegionConfigService regionConfigService, ConfigService<RoadWay> zoneConfigService, ZoneComputingService computingService) {
+    public DrawingServiceImpl(LineConfigService lineProvider, RegionConfigService regionConfigService, RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
         this.lineProvider = lineProvider;
         this.regionConfigService = regionConfigService;
         this.zoneConfigService = zoneConfigService;

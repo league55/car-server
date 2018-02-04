@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 
 
 @Slf4j
@@ -72,7 +73,7 @@ public class MainController {
     private LineConfigService lineProvider;
     @Autowired
     @Qualifier("roadWaysConfigServiceImpl")
-    private ConfigService<RoadWay> zoneConfigService;
+    private RoadWaysConfigService zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
     @Autowired
@@ -90,17 +91,16 @@ public class MainController {
     @FXML
     void initialize() {
         distanceColumn.setOnEditCommit((row) -> {
-            final RoadWay way = zoneConfigService.findOne(row.getRowValue().getId());
-            way.getPair().setDistanceLeft(row.getNewValue());
-            lineProvider.updateLeftDistance(way.getPair().getId(), row.getNewValue());
-            zoneConfigService.save(way);
+            final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
+            roadRow.forEach(r -> r.getPair().setRealDistance(row.getNewValue()));
+            zoneConfigService.saveZones(roadRow);
         });
 
         wayNum.setOnEditCommit((row) -> {
-            final RoadWay way = zoneConfigService.findOne(row.getRowValue().getId());
-            way.getPair().setWayNum(row.getNewValue());
-            lineProvider.updateWayNumber(way.getPair().getId(), row.getNewValue());
-            zoneConfigService.save(way);
+            final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
+            roadRow.forEach(r -> r.getPair().setWayNum(row.getNewValue()));
+
+            zoneConfigService.saveZones(roadRow);
         });
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -235,18 +235,18 @@ public class MainController {
     }
 
     private void drawLinesAndLabels() {
-        ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAll().stream().map((zone) -> {
+        ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAllZones().stream().map((zone) -> {
             Button x = new Button("x");
             x.setTextFill(Color.RED);
             final MarkersPair pair = zone.getPair();
-            x.setOnAction(e -> {
-                lineProvider.delete(pair);
-                zoneConfigService.delete(zone);
-                zone.getZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
-                drawingService.removeZone(imageWrapperPane, zone);
-                drawLinesAndLabels();
-            });
-            return new LinesTableRowFX(zone.getId(), pair.getDistanceLeft(), pair.getWayNum(), x);
+//            x.setOnAction(e -> {
+//                lineProvider.delete(pair);
+//                zoneConfigService.delete(zone);
+//                zone.getZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
+//                drawingService.removeZone(imageWrapperPane, zone);
+//                drawLinesAndLabels();
+//            });
+            return new LinesTableRowFX(zone.getId().substring(ZONE_PREFIX.length()), pair.getRealDistance(), pair.getWayNum(), x);
         }).collect(toList()));
 
         tableLines.setItems(data);

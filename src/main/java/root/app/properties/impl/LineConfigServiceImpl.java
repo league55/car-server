@@ -40,10 +40,10 @@ public class LineConfigServiceImpl extends ConfigServiceImpl<MarkersPair> implem
         MarkersPair markersPair = findOne(id);
 
         if (markersPair != null) {
-            markersPair.setDistanceLeft(distance);
+            markersPair.setRealDistance(distance);
             save(markersPair);
         } else {
-            log.error("Can't update distanceLeft for {}", id);
+            log.error("Can't update realDistance for {}", id);
         }
     }
 

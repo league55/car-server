@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class LinesTableRowFX {
-    Long id;
+    String id;
     Integer distance;
     Integer wayNum;
     Button delButton;

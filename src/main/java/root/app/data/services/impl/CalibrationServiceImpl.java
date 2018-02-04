@@ -8,15 +8,16 @@ import root.app.model.Line;
 import root.app.model.Point;
 import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
+import root.app.properties.RoadWaysConfigService;
 
 import java.util.List;
 
 @Service
 public class CalibrationServiceImpl implements CalibrationService {
-    private final ConfigService<RoadWay> zoneConfigService;
+    private final RoadWaysConfigService zoneConfigService;
 
     @Autowired
-    public CalibrationServiceImpl(@Qualifier("roadWaysConfigServiceImpl") ConfigService<RoadWay> zoneConfigService) {
+    public CalibrationServiceImpl(@Qualifier("roadWaysConfigServiceImpl") RoadWaysConfigService zoneConfigService) {
         this.zoneConfigService = zoneConfigService;
     }
 

@@ -33,17 +33,15 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
     @Override
     public List<RoadWay> getRoadWays(MarkersPair pair) {
-        MarkersPair basePair = pair.clone();
-
         Integer zonesPerLine = Integer.parseInt(appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue());
         Integer ways = Integer.valueOf(appConfigService.findOne(ConfigAttribute.RoadWaysAmount).getValue());
 
-        List<MarkersPair> basePairs = getBasePairs(basePair.clone(), ways);
+        List<MarkersPair> basePairs = getBasePairs((MarkersPair) DeepCopy.copy(pair), ways);
 
         List<RoadWay> roadWays = Lists.newArrayList();
-        for (int i = 0; i < basePairs.size(); i++) {
-            MarkersPair pair1 = basePairs.get(i);
-            roadWays.add(getRoadWay(zonesPerLine, pair1, pair1.getLineB(), i));
+        for (int wayNum = 0; wayNum < basePairs.size(); wayNum++) {
+            MarkersPair pair1 = basePairs.get(wayNum);
+            roadWays.add(getRoadWay(zonesPerLine, pair1, pair1.getLineB(), wayNum + 1));
         }
 
         return roadWays;
@@ -56,7 +54,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         for (Integer zoneNum = 0; zoneNum < zonesPerLine - 1; zoneNum++) {
             final double k = 1.0 / (zonesPerLine - zoneNum - 1);
 
-            final MarkersPair childZonePair = getChildZonePair(basePair, k);
+            final MarkersPair childZonePair = getChildZonePair(basePair, k, wayNum);
             final RoadWay.Zone z = new RoadWay.Zone(getChildZoneId(wayNum, zoneNum), childZonePair);
             zones.add(z);
 
@@ -74,15 +72,14 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     private List<MarkersPair> getBasePairs(MarkersPair clone, Integer ways) {
         List<MarkersPair> basePairs = Lists.newArrayList();
 
-
-        double delta_A_X = (clone.getLineA().getEnd().getX() - clone.getLineA().getStart().getX()) / ways ;
-        double delta_B_X = (clone.getLineB().getEnd().getX() - clone.getLineB().getStart().getX()) / ways ;
+        double delta_A_X = (clone.getLineA().getEnd().getX() - clone.getLineA().getStart().getX()) / ways;
+        double delta_B_X = (clone.getLineB().getEnd().getX() - clone.getLineB().getStart().getX()) / ways;
 
         for (Integer i = 0; i < ways; i++) {
             MarkersPair template = (MarkersPair) DeepCopy.copy(clone);
             MarkersPair pair = (MarkersPair) DeepCopy.copy(clone);
 
-            pair.setWayNum(i + 1);
+            pair.setWayNum(i);
 
             //counting X
             pair.getLineA().getStart().setX(template.getLineA().getStart().getX() + delta_A_X * i);
@@ -111,7 +108,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     }
 
 
-    private MarkersPair getChildZonePair(MarkersPair parentPair, double k) {
+    private MarkersPair getChildZonePair(MarkersPair parentPair, double k, Integer wayNum) {
         double x1 = (parentPair.getLineA().getStart().getX() + parentPair.getLineB().getStart().getX() * k) / (1.0 + k);
         double y1 = (parentPair.getLineA().getStart().getY() + parentPair.getLineB().getStart().getY() * k) / (1.0 + k);
 
@@ -126,12 +123,15 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
         final MarkersPair pair = new MarkersPair(parentPair.getLineA(), new Line(start, end));
 
+        pair.setWayNum(wayNum);
+
         final Long saved = lineConfigService.save(pair);
         return lineConfigService.findOne(saved);
     }
 
     private RoadWay.Zone getLastZone(Line start, Line end, int wayNum, Integer zonesPerLine) {
         final MarkersPair lastPair = new MarkersPair(start, end);
+        lastPair.setWayNum(wayNum);
         final Long saved = lineConfigService.save(lastPair);
         String zoneId = getChildZoneId(wayNum, zonesPerLine - 1);
         return new RoadWay.Zone(zoneId, true, lineConfigService.findOne(saved));
@@ -176,7 +176,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     }
 
     private String getChildZoneId(Integer wayNum, Integer zoneNum) {
-        return ZONE_PREFIX + (wayNum + 1) + "_" + (zoneNum + 1);
+        return ZONE_PREFIX + wayNum + "_" + (zoneNum + 1);
     }
 
 }

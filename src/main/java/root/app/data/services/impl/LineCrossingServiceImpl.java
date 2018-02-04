@@ -11,6 +11,7 @@ import root.app.model.Car;
 import root.app.model.Line;
 import root.app.model.RoadWay;
 import root.app.properties.ConfigService;
+import root.app.properties.RoadWaysConfigService;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,11 +21,11 @@ import java.util.stream.Collectors;
 @Component
 public class LineCrossingServiceImpl implements LineCrossingService {
 
-    private final ConfigService<RoadWay> zoneConfigService;
+    private final RoadWaysConfigService zoneConfigService;
     private final ImageScaleService imageScaleService;
 
     @Autowired
-    public LineCrossingServiceImpl(@Qualifier("roadWaysConfigServiceImpl") ConfigService<RoadWay> zoneConfigService, ImageScaleService imageScaleService) {
+    public LineCrossingServiceImpl(RoadWaysConfigService zoneConfigService, ImageScaleService imageScaleService) {
         this.zoneConfigService = zoneConfigService;
         this.imageScaleService = imageScaleService;
     }

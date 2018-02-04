@@ -17,10 +17,7 @@ import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.PolygonDTO;
 import root.app.model.RoadWay;
-import root.app.properties.AppConfigService;
-import root.app.properties.ConfigAttribute;
-import root.app.properties.ConfigService;
-import root.app.properties.PolygonConfigService;
+import root.app.properties.*;
 import root.utils.Utils;
 
 import java.util.ArrayList;
@@ -56,7 +53,7 @@ public abstract class BasicRunner implements Runner {
     private final DrawingService drawingService;
     private final ZoneCrossingService zoneCrossingService;
     private final LineCrossingService lineCrossingService;
-    private final ConfigService<RoadWay> zoneConfigService;
+    private final RoadWaysConfigService zoneConfigService;
     private final SpeedService speedService;
     private final CVShowing cvShowing;
     private final DataOutputService dataOutputService;
@@ -65,7 +62,7 @@ public abstract class BasicRunner implements Runner {
     private final ImageScaleService scaleService;
 
     protected BasicRunner(DataOutputService dataOutputService, AppConfigService appConfigService, Detector carsDetector, DetectedCarProcessor carProcessor, DrawingService drawingService,
-                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, ConfigService<RoadWay> zoneConfigService,
+                          ZoneCrossingService zoneCrossingService, LineCrossingService lineCrossingService, SpeedService speedService, RoadWaysConfigService zoneConfigService,
                           CVShowing cvShowing, PolygonConfigService polygonConfigService, ImageScaleService scaleService) {
         this.dataOutputService = dataOutputService;
         this.appConfigService = appConfigService;

@@ -41,28 +41,29 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         List<MarkersPair> basePairs = getBasePairs(basePair.clone(), ways);
 
         List<RoadWay> roadWays = Lists.newArrayList();
-        basePairs.forEach(pair1 -> {
-            roadWays.add(getRoadWay(zonesPerLine, pair1, pair1.getLineB()));
-        });
+        for (int i = 0; i < basePairs.size(); i++) {
+            MarkersPair pair1 = basePairs.get(i);
+            roadWays.add(getRoadWay(zonesPerLine, pair1, pair1.getLineB(), i));
+        }
 
         return roadWays;
     }
 
-    private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair basePair, Line lastLine) {
+    private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair basePair, Line lastLine, int wayNum) {
         RoadWay roadWay = new RoadWay();
         final ArrayList<RoadWay.Zone> zones = Lists.newArrayList();
 
-        for (Integer i = 0; i < zonesPerLine - 1; i++) {
-            final double k = 1.0 / (zonesPerLine - i - 1);
+        for (Integer zoneNum = 0; zoneNum < zonesPerLine - 1; zoneNum++) {
+            final double k = 1.0 / (zonesPerLine - zoneNum - 1);
 
             final MarkersPair childZonePair = getChildZonePair(basePair, k);
-            final RoadWay.Zone z = new RoadWay.Zone(getChildZoneId(childZonePair, i), childZonePair);
+            final RoadWay.Zone z = new RoadWay.Zone(getChildZoneId(wayNum, zoneNum), childZonePair);
             zones.add(z);
 
             basePair.setLineA(childZonePair.getLineB());
         }
         //add last zone
-        zones.add(getLastZone(basePair.getLineA(), lastLine, zonesPerLine));
+        zones.add(getLastZone(basePair.getLineA(), lastLine, wayNum, zonesPerLine));
 
         roadWay.setPair(basePair);
         roadWay.setZones(zones);
@@ -129,10 +130,10 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         return lineConfigService.findOne(saved);
     }
 
-    private RoadWay.Zone getLastZone(Line start, Line end, int i) {
+    private RoadWay.Zone getLastZone(Line start, Line end, int wayNum, Integer zonesPerLine) {
         final MarkersPair lastPair = new MarkersPair(start, end);
         final Long saved = lineConfigService.save(lastPair);
-        String zoneId = getChildZoneId(lineConfigService.findOne(saved), i);
+        String zoneId = getChildZoneId(wayNum, zonesPerLine - 1);
         return new RoadWay.Zone(zoneId, true, lineConfigService.findOne(saved));
     }
 
@@ -174,8 +175,8 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         );
     }
 
-    private String getChildZoneId(MarkersPair pair, Integer i) {
-        return ZONE_PREFIX + pair.getId() + "_" + i;
+    private String getChildZoneId(Integer wayNum, Integer zoneNum) {
+        return ZONE_PREFIX + (wayNum + 1) + "_" + (zoneNum + 1);
     }
 
 }

@@ -3,6 +3,7 @@ package root.app.data.services.impl;
 import com.google.common.collect.Lists;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.drawingTools.DrawLabel;
+import root.app.data.drawingTools.ZoneLabel;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
@@ -21,6 +23,7 @@ import root.app.properties.ConfigService;
 import root.app.properties.LineConfigService;
 import root.app.properties.RegionConfigService;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
@@ -41,6 +44,7 @@ public class DrawingServiceImpl implements DrawingService {
     private final RegionConfigService regionConfigService;
     private final ConfigService zoneConfigService;
     private final ZoneComputingService computingService;
+    private ZoneLabel zoneLabel = new ZoneLabel();
 
     @Autowired
     public DrawingServiceImpl(LineConfigService lineProvider, RegionConfigService regionConfigService, ConfigService<RoadWay> zoneConfigService, ZoneComputingService computingService) {
@@ -94,10 +98,11 @@ public class DrawingServiceImpl implements DrawingService {
             List<Polygon> polygon = computingService.toFxPolygon(parentZone, screenSize);
             //if these way weren't added before
             if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getZones().get(0).getId())).size() == 0) {
+                final List<Label> labels = roadWays.stream().map(RoadWay::getZones).flatMap(Collection::stream).map(zone -> zoneLabel.apply(zone)).collect(toList());
                 children.addAll(polygon);
+                children.addAll(labels);
             }
 
-            drawLabel.accept(parentZone, imageWrapperPane);
 
         });
     }

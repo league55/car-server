@@ -121,8 +121,7 @@ public class MainController {
     private void initCalibratingSliders() {
         verticalMoveSlider.setMin(-300);
         verticalMoveSlider.setMax(300);
-        verticalMoveSlider.setMajorTickUnit(50);
-        verticalMoveSlider.setMinorTickCount(5);
+        verticalMoveSlider.setMinorTickCount(1);
         verticalMoveSlider.setValue(0);
         verticalMoveSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             final Integer userData = (Integer) zoneNumberRadioGroup.getSelectedToggle().getUserData();
@@ -133,11 +132,13 @@ public class MainController {
     }
 
     private void initSubZoneRadioGroup() {
+        zoneNumbersGroup.getChildren().clear();
+
         final String amount = appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue();
         final Integer zonesAmount = Integer.valueOf(amount);
         final Insets insets = new Insets(10);
-        for (Integer i = 0; i < zonesAmount; i++) {
-            final RadioButton button = new RadioButton(i.toString());
+        for (Integer i = 0; i < zonesAmount - 1; i++) {
+            final RadioButton button = new RadioButton(i + 1 + "");
             button.setToggleGroup(zoneNumberRadioGroup);
             button.setUserData(i);
             zoneNumbersGroup.getChildren().add(button);
@@ -146,6 +147,7 @@ public class MainController {
         }
 
     }
+
 
     private void initializeInputs() {
         deltaTimeInput.setText(appConfigService.findOne(ConfigAttribute.TimeBetweenOutput).getValue());

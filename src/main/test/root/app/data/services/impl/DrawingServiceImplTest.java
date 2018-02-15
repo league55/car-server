@@ -12,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 import root.app.model.Line;
 import root.app.model.MarkersPair;
 import root.app.model.Point;
-import root.app.properties.LineConfigService;
 
 import java.util.ArrayList;
 import java.util.List;

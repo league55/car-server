@@ -1,6 +1,5 @@
 package root.app.data.services.impl;
 
-import com.google.common.collect.Lists;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -17,21 +16,16 @@ import root.app.data.drawingTools.ZoneLabel;
 import root.app.data.services.DrawingService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
-import root.app.model.Region;
 import root.app.model.RoadWay;
-import root.app.properties.ConfigService;
-import root.app.properties.LineConfigService;
-import root.app.properties.RegionConfigService;
 import root.app.properties.RoadWaysConfigService;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
 import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
-import static root.app.data.services.impl.ImageScaleServiceImpl.*;
+import static root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 
 @Slf4j
 @Service
@@ -41,14 +35,12 @@ public class DrawingServiceImpl implements DrawingService {
 
     private final BiConsumer<RoadWay, AnchorPane> drawLabel = new DrawLabel();
 
-    private final RegionConfigService regionConfigService;
     private final RoadWaysConfigService zoneConfigService;
     private final ZoneComputingService computingService;
     private ZoneLabel zoneLabel = new ZoneLabel();
 
     @Autowired
-    public DrawingServiceImpl(RegionConfigService regionConfigService, RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
-        this.regionConfigService = regionConfigService;
+    public DrawingServiceImpl(RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
         this.zoneConfigService = zoneConfigService;
         this.computingService = computingService;
     }
@@ -129,7 +121,6 @@ public class DrawingServiceImpl implements DrawingService {
 
     @Override
     public void submitRegion(MarkersPair pair, Pane pane) {
-        regionConfigService.save(new Region(pair, Lists.newArrayList()));
         zoneConfigService.saveAll(getRoadWays(pair));
         log.info("Saved new region");
     }

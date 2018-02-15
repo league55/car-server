@@ -15,9 +15,7 @@ public interface DrawingService {
 
     void showLines(AnchorPane imageWrapperPane, List<MarkersPair> lines);
 
-    void showZones(AnchorPane imageWrapperPane, List<RoadWay> roadWays, ImageScaleServiceImpl.ScreenSize screenSize);
-
-    void removeZone(AnchorPane imageWrapperPane, RoadWay way);
+    void showZones(AnchorPane imageWrapperPane, ImageScaleServiceImpl.ScreenSize screenSize);
 
     void submitRegion(MarkersPair pair, Pane pane);
 

@@ -62,7 +62,6 @@ public class Start extends Application {
         // load the native OpenCV library
         log.info(System.getProperty("java.library.path"));
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        System.loadLibrary("opencv_ffmpeg331_64");
 
         launch(Start.class, args);
     }

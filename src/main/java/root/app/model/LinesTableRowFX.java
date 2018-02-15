@@ -11,5 +11,4 @@ public class LinesTableRowFX {
     String id;
     Integer distance;
     Integer wayNum;
-    Button delButton;
 }

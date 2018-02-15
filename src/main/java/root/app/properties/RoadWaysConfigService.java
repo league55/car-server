@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface RoadWaysConfigService extends ConfigService<RoadWay> {
 
+    List<RoadWay> findAll();
+
     RoadWay.Zone findZone(String zoneId);
 
-    List<RoadWay.Zone> findRow(String zoneId);
+    List<RoadWay.Zone> findRow(String rowNum);
 
     List<RoadWay.Zone> findAllZones();
 

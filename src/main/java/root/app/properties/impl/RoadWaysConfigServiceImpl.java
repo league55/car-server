@@ -23,7 +23,7 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-    @Cacheable("zoneCache")
+//    @Cacheable(value = "zoneCache")
     public List<RoadWay> findAll() {
         log.debug("Looking for all zones");
         return super.findAll();
@@ -56,11 +56,10 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-    @Cacheable("zoneCache2")
-    public List<RoadWay.Zone> findRow(String zoneId) {
+    public List<RoadWay.Zone> findRow(String rowNum) {
         //zone_1_1
-        String fixedId = zoneId.contains(ZONE_PREFIX) ? zoneId : ZONE_PREFIX + zoneId;
-        String rowId = ZONE_PREFIX + fixedId.split("_")[1];
+        String fixedId = rowNum.contains(ZONE_PREFIX) ? rowNum : ZONE_PREFIX + rowNum;
+        String rowId = ZONE_PREFIX + fixedId.split("_")[2];
         return findAllZones().stream().filter(zone -> zone.getId().contains(rowId)).collect(toList());
     }
 

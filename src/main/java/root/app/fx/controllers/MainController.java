@@ -12,7 +12,6 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
-import root.app.data.services.CalibrationService;
-import root.app.data.services.DrawingService;
-import root.app.data.services.ImageScaleService;
+import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.fx.AnchorsService;
 import root.app.model.*;
@@ -31,8 +28,10 @@ import root.app.properties.*;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
+import static org.springframework.util.StringUtils.isEmpty;
 import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 
 
@@ -61,8 +60,8 @@ public class MainController {
     public Label ipLabel;
     public Label zoneAmountLabel;
     public FlowPane zoneNumbersGroup;
-    public Slider horizMoveSlider;
     public Slider verticalMoveSlider;
+    public TextField deleteRowInput;
 
     //    -------------- Spring ----------------
     @Autowired
@@ -70,12 +69,12 @@ public class MainController {
     @Autowired
     private CameraRunnerImpl cameraRunner;
     @Autowired
-    private LineConfigService lineProvider;
-    @Autowired
     @Qualifier("roadWaysConfigServiceImpl")
     private RoadWaysConfigService zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
+    @Autowired
+    private ReconfiguringService reconfiguringService;
     @Autowired
     private PolygonConfigService polygonConfigService;
     @Autowired
@@ -86,6 +85,8 @@ public class MainController {
     private AnchorsService anchorsService;
     @Autowired
     private CalibrationService calibrationService;
+    @Autowired
+    private ApplicationStateService applicationStateService;
 
 
     @FXML
@@ -94,13 +95,14 @@ public class MainController {
             final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
             roadRow.forEach(r -> r.getPair().setRealDistance(row.getNewValue()));
             zoneConfigService.saveZones(roadRow);
+            drawLinesAndLabelsAndTable();
         });
 
         wayNum.setOnEditCommit((row) -> {
             final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
             roadRow.forEach(r -> r.getPair().setWayNum(row.getNewValue()));
-
             zoneConfigService.saveZones(roadRow);
+            drawLinesAndLabelsAndTable();
         });
 
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -108,7 +110,6 @@ public class MainController {
         distanceColumn.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
         wayNum.setCellValueFactory(new PropertyValueFactory<>("wayNum"));
         wayNum.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        delButton.setCellValueFactory(new PropertyValueFactory<>("delButton"));
         initializeInputs();
         initializeCalibratingTab();
     }
@@ -121,7 +122,8 @@ public class MainController {
     private void initCalibratingSliders() {
         verticalMoveSlider.setMin(-300);
         verticalMoveSlider.setMax(300);
-        verticalMoveSlider.setMinorTickCount(1);
+        verticalMoveSlider.setMajorTickUnit(50);
+        verticalMoveSlider.setMinorTickCount(5);
         verticalMoveSlider.setValue(0);
         verticalMoveSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             final Integer userData = (Integer) zoneNumberRadioGroup.getSelectedToggle().getUserData();
@@ -129,6 +131,7 @@ public class MainController {
             drawingService.clearAll(imageWrapperPane);
             redrawLinesAndZones();
         });
+        verticalMoveSlider.adjustValue(0);
     }
 
     private void initSubZoneRadioGroup() {
@@ -202,7 +205,7 @@ public class MainController {
 
     @FXML
     private void refresh(ActionEvent actionEvent) {
-        drawLinesAndLabels();
+        drawLinesAndLabelsAndTable();
     }
 
     @FXML
@@ -218,7 +221,7 @@ public class MainController {
         drawingService.submitRegion(anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
         anchorsService.clean(imageWrapperPane);
 
-        drawLinesAndLabels();
+        drawLinesAndLabelsAndTable();
     }
 
     @FXML
@@ -234,23 +237,14 @@ public class MainController {
         return null;
     }
 
-    private void drawLinesAndLabels() {
+    private void drawLinesAndLabelsAndTable() {
         ObservableList<LinesTableRowFX> data = FXCollections.observableArrayList(zoneConfigService.findAllZones().stream().map((zone) -> {
-            Button x = new Button("x");
-            x.setTextFill(Color.RED);
             final MarkersPair pair = zone.getPair();
-//            x.setOnAction(e -> {
-//                lineProvider.delete(pair);
-//                zoneConfigService.delete(zone);
-//                zone.getZones().forEach(childZone -> lineProvider.delete(childZone.getPair()));
-//                drawingService.removeZone(imageWrapperPane, zone);
-//                drawLinesAndLabels();
-//            });
-            return new LinesTableRowFX(zone.getId().substring(ZONE_PREFIX.length()), pair.getRealDistance(), pair.getWayNum(), x);
+            return new LinesTableRowFX(zone.getId().substring(ZONE_PREFIX.length()), pair.getRealDistance(), pair.getWayNum());
         }).collect(toList()));
 
         tableLines.setItems(data);
-
+        initSubZoneRadioGroup();
         redrawLinesAndZones();
     }
 
@@ -260,7 +254,7 @@ public class MainController {
         final ScreenSize screenSize = new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth());
         final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, waysList.stream().map(RoadWay::getPair).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
-        drawingService.showZones(imageWrapperPane, zoneConfigService.findAll(), screenSize);
+        drawingService.showZones(imageWrapperPane, screenSize);
     }
 
     @FXML
@@ -320,6 +314,40 @@ public class MainController {
                         coordinates.getLineA().getEnd(),        //bot right
                         coordinates.getLineA().getStart(),      //bot left
                         PolygonDTO.Destination.ROI));
+    }
+
+    public void resetZones(ActionEvent actionEvent) {
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        final ImageView graphic = new ImageView(this.getClass().getResource("/static/icons/achtung.gif").toString());
+        graphic.setFitWidth(48);
+        graphic.setFitHeight(48);
+        alert.setGraphic(graphic);
+
+        alert.setTitle("Удалить зоны");
+        alert.setHeaderText("Вы собираетесь удалить все зоны");
+        alert.setContentText("Это действие необратимо и потребуется перекалибровка приложения");
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.get() == ButtonType.OK) {
+            applicationStateService.resetZones();
+            drawingService.clearAll(imageWrapperPane);
+            drawLinesAndLabelsAndTable();
+        }
+
+
+    }
+
+    public void deleteRow(ActionEvent actionEvent) {
+        if(isEmpty(deleteRowInput.getText())) return;
+        try {
+            reconfiguringService.removeRow(Integer.parseInt(deleteRowInput.getText()));
+            drawingService.clearAll(imageWrapperPane);
+            drawLinesAndLabelsAndTable();
+        } catch (NumberFormatException e) {
+            log.error("Trying to delete non integer row ", e);
+        }
     }
 }
 

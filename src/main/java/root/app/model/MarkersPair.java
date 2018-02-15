@@ -13,8 +13,9 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MarkersPair extends BasicModel implements Cloneable, Serializable {
+public class MarkersPair implements Cloneable, Serializable {
 
+    private Long id = 0L;
     private Line lineA;
     private Line lineB;
 

@@ -17,8 +17,11 @@ public interface ZoneComputingService {
 
     List<RoadWay> getRoadWays(MarkersPair pair);
 
-    List<Polygon> toFxPolygon(RoadWay way, ScreenSize screenSize);
+    List<Polygon> toFxPolygons(List<RoadWay.Zone> zones, ScreenSize screenSize);
 
     public List<Double> getPolygonPoints(MarkersPair pair);
 
+    @org.jetbrains.annotations.NotNull
+    @org.jetbrains.annotations.Contract(pure = true)
+    String getChildZoneId(Integer wayNum, Integer zoneNum);
 }

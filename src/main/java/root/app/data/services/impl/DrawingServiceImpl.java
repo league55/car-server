@@ -41,15 +41,13 @@ public class DrawingServiceImpl implements DrawingService {
 
     private final BiConsumer<RoadWay, AnchorPane> drawLabel = new DrawLabel();
 
-    private final LineConfigService lineProvider;
     private final RegionConfigService regionConfigService;
-    private final ConfigService zoneConfigService;
+    private final RoadWaysConfigService zoneConfigService;
     private final ZoneComputingService computingService;
     private ZoneLabel zoneLabel = new ZoneLabel();
 
     @Autowired
-    public DrawingServiceImpl(LineConfigService lineProvider, RegionConfigService regionConfigService, RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
-        this.lineProvider = lineProvider;
+    public DrawingServiceImpl(RegionConfigService regionConfigService, RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
         this.regionConfigService = regionConfigService;
         this.zoneConfigService = zoneConfigService;
         this.computingService = computingService;
@@ -92,31 +90,21 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void showZones(AnchorPane imageWrapperPane, List<RoadWay> roadWays, ScreenSize screenSize) {
+    public void showZones(AnchorPane imageWrapperPane, ScreenSize screenSize) {
         final ObservableList<Node> children = imageWrapperPane.getChildren();
 
-        roadWays.forEach(parentZone -> {
-            List<Polygon> polygon = computingService.toFxPolygon(parentZone, screenSize);
-            //if these way weren't added before
-            if (children.filtered(node -> node.getId() != null && node.getId().equals(parentZone.getZones().get(0).getId())).size() == 0) {
-                final List<Label> labels = roadWays.stream().map(RoadWay::getZones).flatMap(Collection::stream).map(zone -> zoneLabel.apply(zone)).collect(toList());
-                children.addAll(polygon);
-                children.addAll(labels);
-            }
+        final List<RoadWay.Zone> allZones = zoneConfigService.findAllZones();
 
+        if (allZones.isEmpty()) return;
 
-        });
-    }
+        List<Polygon> polygon = computingService.toFxPolygons(allZones, screenSize);
+        //if these way weren't added before
+        if (children.filtered(node -> node.getId() != null && node.getId().equals(allZones.get(0).getId())).size() == 0) {
+            children.addAll(polygon);
+            final List<Label> labels = allZones.stream().map(zone -> zoneLabel.apply(zone)).collect(toList());
+            children.addAll(labels);
+        }
 
-    @Override
-    public void removeZone(AnchorPane imageWrapperPane, RoadWay way) {
-        MarkersPair pair = way.getPair();
-        final ObservableList<Node> children = imageWrapperPane.getChildren();
-
-        removePair(imageWrapperPane, pair);
-        way.getZones().forEach(child -> removePair(imageWrapperPane, child.getPair()));
-        way.getZones().forEach(child -> removeChildZone(imageWrapperPane, child));
-        children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX + way.getId()));
     }
 
     private void removeChildZone(AnchorPane imageWrapperPane, RoadWay.Zone child) {
@@ -141,11 +129,8 @@ public class DrawingServiceImpl implements DrawingService {
 
     @Override
     public void submitRegion(MarkersPair pair, Pane pane) {
-        final Long pairId = lineProvider.save(pair);
-        final MarkersPair savedPair = lineProvider.findOne(pairId);
-
-        regionConfigService.save(new Region(savedPair, Lists.newArrayList()));
-        zoneConfigService.saveAll(getRoadWays(savedPair));
+        regionConfigService.save(new Region(pair, Lists.newArrayList()));
+        zoneConfigService.saveAll(getRoadWays(pair));
         log.info("Saved new region");
     }
 

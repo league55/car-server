@@ -3,6 +3,7 @@ package root.app.data.services.impl;
 import com.google.common.collect.Lists;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.services.CalibrationService;
@@ -22,14 +23,16 @@ import static root.app.data.services.impl.ImageScaleServiceImpl.*;
 @Service
 public class ZoneComputingServiceImpl implements ZoneComputingService {
 
+    private final AppConfigService appConfigService;
+    private final ImageScaleService scaleService;
+    private final CalibrationService calibrationService;
+
     @Autowired
-    private AppConfigService appConfigService;
-    @Autowired
-    private LineConfigService lineConfigService;
-    @Autowired
-    private ImageScaleService scaleService;
-    @Autowired
-    private CalibrationService calibrationService;
+    public ZoneComputingServiceImpl(AppConfigService appConfigService, ImageScaleService scaleService, CalibrationService calibrationService) {
+        this.appConfigService = appConfigService;
+        this.scaleService = scaleService;
+        this.calibrationService = calibrationService;
+    }
 
     @Override
     public List<RoadWay> getRoadWays(MarkersPair pair) {
@@ -47,9 +50,10 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         return roadWays;
     }
 
-    private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair basePair, Line lastLine, int wayNum) {
+    private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair pair, Line lastLine, int wayNum) {
         RoadWay roadWay = new RoadWay();
         final ArrayList<RoadWay.Zone> zones = Lists.newArrayList();
+        MarkersPair basePair = (MarkersPair) DeepCopy.copy(pair);
 
         for (Integer zoneNum = 0; zoneNum < zonesPerLine - 1; zoneNum++) {
             final double k = 1.0 / (zonesPerLine - zoneNum - 1);
@@ -63,7 +67,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         //add last zone
         zones.add(getLastZone(basePair.getLineA(), lastLine, wayNum, zonesPerLine));
 
-        roadWay.setPair(basePair);
+        roadWay.setPair(pair);
         roadWay.setZones(zones);
 
         return roadWay;
@@ -98,9 +102,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
             pair.getLineB().setStart(calibrationService.intersection(clone.getLineB(), left));
             pair.getLineB().setEnd(calibrationService.intersection(clone.getLineB(), right));
 
-            final Long id = lineConfigService.save(pair);
-
-            basePairs.add(lineConfigService.findOne(id));
+            basePairs.add(pair);
 
         }
 
@@ -125,16 +127,15 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
         pair.setWayNum(wayNum);
 
-        final Long saved = lineConfigService.save(pair);
-        return lineConfigService.findOne(saved);
+        return pair;
     }
 
-    private RoadWay.Zone getLastZone(Line start, Line end, int wayNum, Integer zonesPerLine) {
+
+    private @NotNull RoadWay.Zone getLastZone(Line start, Line end, int wayNum, Integer zonesPerLine) {
         final MarkersPair lastPair = new MarkersPair(start, end);
         lastPair.setWayNum(wayNum);
-        final Long saved = lineConfigService.save(lastPair);
         String zoneId = getChildZoneId(wayNum, zonesPerLine - 1);
-        return new RoadWay.Zone(zoneId, true, lineConfigService.findOne(saved));
+        return new RoadWay.Zone(zoneId, true, lastPair);
     }
 
     private Polygon toFxPolygon(RoadWay.Zone zone, ScreenSize screenSize) {
@@ -156,8 +157,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     }
 
     @Override
-    public List<Polygon> toFxPolygon(RoadWay way, ScreenSize screenSize) {
-        List<RoadWay.Zone> zones = way.getZones();
+    public List<Polygon> toFxPolygons(List<RoadWay.Zone> zones , ScreenSize screenSize) {
         List<Polygon> polygons = Lists.newArrayList();
         for (RoadWay.Zone child : zones) {
             polygons.add(toFxPolygon(child, screenSize));
@@ -175,7 +175,10 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         );
     }
 
-    private String getChildZoneId(Integer wayNum, Integer zoneNum) {
+    @Override
+    @org.jetbrains.annotations.NotNull
+    @org.jetbrains.annotations.Contract(pure = true)
+    public String getChildZoneId(Integer wayNum, Integer zoneNum) {
         return ZONE_PREFIX + wayNum + "_" + (zoneNum + 1);
     }
 

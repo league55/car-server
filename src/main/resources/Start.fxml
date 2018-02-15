@@ -61,6 +61,11 @@
                             <VBox.margin>
                                 <Insets bottom="5.0" top="5.0" />
                             </VBox.margin>
+                            <Button onAction="#cleanAnchors" text="Очистить">
+                                <HBox.margin>
+                                    <Insets right="5.0" />
+                                </HBox.margin>
+                            </Button>
                         </HBox>
                         <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
                             <Button onAction="#submitZone" text="Сохранить зону">
@@ -77,7 +82,7 @@
 
                         </HBox>
                         <HBox alignment="TOP_CENTER" prefWidth="125.0" BorderPane.alignment="CENTER">
-                            <Button onAction="#cleanAnchors" text="Очистить">
+                            <Button onAction="#resetZones" text="Удалить зоны">
                                 <HBox.margin>
                                     <Insets right="5.0" />
                                 </HBox.margin>
@@ -92,14 +97,34 @@
                             </VBox.margin>
 
                         </HBox>
-                        <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="139.0" prefHeight="200" prefWidth="125.0">
+                        <HBox prefWidth="200.0">
+                            <VBox.margin>
+                                <Insets bottom="10.0" top="10.0" />
+                            </VBox.margin>
+                            <Label fx:id="deleteRowLabel" text="Удалить строку">
+                                <HBox.margin>
+                                    <Insets left="2.0" right="2.0" />
+                                </HBox.margin>
+                            </Label>
+                            <TextField fx:id="deleteRowInput" maxWidth="25.0" onAction="#deleteRow">
+                                <HBox.margin>
+                                    <Insets left="25.0" right="10.0" />
+                                </HBox.margin>
+                            </TextField>
+                            <Button mnemonicParsing="false" onAction="#deleteRow" text="save">
+                                <HBox.margin>
+                                    <Insets left="10.0" />
+                                </HBox.margin>
+                            </Button>
+                        </HBox>
+
+                        <HBox alignment="TOP_CENTER" layoutX="10.0" layoutY="139.0" prefHeight="350" prefWidth="125.0">
                             <TableView fx:id="tableLines" editable="true">
                                 <columns>
                                     <!-- Колонки таблицы -->
                                     <TableColumn fx:id="idColumn" editable="false" prefWidth="55.0" text="id" />
                                     <TableColumn fx:id="distanceColumn" prefWidth="55.0" text="метров" />
                                     <TableColumn fx:id="wayNum" prefWidth="55.0" text="полоса" />
-                                    <TableColumn fx:id="delButton" editable="false" prefWidth="30.0" text="del" />
                                 </columns>
                             </TableView>
                         </HBox>
@@ -194,11 +219,6 @@
                             <Slider fx:id="verticalMoveSlider" orientation="VERTICAL" minHeight="400" showTickMarks="true" snapToTicks="true">
                                 <HBox.margin>
                                     <Insets left="50.0" top="20"/>
-                                </HBox.margin>
-                            </Slider>
-                            <Slider fx:id="horizMoveSlider" orientation="VERTICAL" minHeight="250" showTickMarks="true" snapToTicks="true">
-                                <HBox.margin>
-                                    <Insets left="50.0" top="20" />
                                 </HBox.margin>
                             </Slider>
                         </HBox>

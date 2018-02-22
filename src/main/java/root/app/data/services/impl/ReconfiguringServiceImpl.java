@@ -18,8 +18,14 @@ public class ReconfiguringServiceImpl implements ReconfiguringService {
 
     @Override
     public void removeRow(int i) {
-        int num = i - 1;
         final List<RoadWay> all = roadWaysConfigService.findAll();
+        if(i == 1) {
+            removeFirstRow(all);
+            return;
+        } else if(i == all.size()) {
+            removeLastRow(all);
+        }
+        int num = i - 1;
         all.forEach(roadWay -> {
             final RoadWay.Zone rowToDelete = roadWay.getZones().get(i);
             roadWay.getZones().get(num - 1).getPair().setLineB(rowToDelete.getPair().getLineB());
@@ -33,6 +39,26 @@ public class ReconfiguringServiceImpl implements ReconfiguringService {
     @Override
     public void addRow(int i) {
 
+    }
+
+    private void removeLastRow(List<RoadWay> all) {
+        all.forEach(roadWay -> {
+            roadWay.getZones().remove(all.size() - 1);
+            roadWay.setZones(fixZoneIds(roadWay));
+            roadWay.getPair().setLineB(roadWay.getZones().get(all.size() - 1).getPair().getLineB());
+        });
+
+        roadWaysConfigService.saveAll(all);
+    }
+
+    private void removeFirstRow(List<RoadWay> all) {
+        all.forEach(roadWay -> {
+            roadWay.getZones().remove(0);
+            roadWay.setZones(fixZoneIds(roadWay));
+            roadWay.getPair().setLineA(roadWay.getZones().get(0).getPair().getLineA());
+        });
+
+        roadWaysConfigService.saveAll(all);
     }
 
     private List<RoadWay.Zone> fixZoneIds(RoadWay roadWay) {

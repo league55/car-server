@@ -69,17 +69,16 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
         final List<RoadWay> roadWays = findAll();
 
         for (RoadWay.Zone newZone : zones) {
-            roadWays.get(newZone.getPair().getWayNum() - 1).getZones()
-                    .stream()
-                    .filter(zone -> zone.getId().equals(newZone.getId()))
-                    .forEach(zone -> zone = newZone);
+            roadWays.forEach(roadWay -> {
+//               roadWay.getZones().f
+            });
         }
-
+//TODO
         saveAll(roadWays);
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(cacheNames = {"zoneCache","zoneCache2"}, allEntries = true)
     public void saveZone(RoadWay.Zone newZone) {
         final List<RoadWay> roadWays = findAll();
 

@@ -2,9 +2,13 @@ package root.app.data.grabbers.impl;
 
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.app.data.grabbers.ContourGrabber;
+import root.app.model.AppConfigDTO;
 import root.app.model.Car;
+import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,9 @@ import static org.opencv.imgproc.Imgproc.contourArea;
  */
 @Service
 public class ContourGrabberImpl implements ContourGrabber {
+
+    @Autowired
+    private AppConfigService appConfigService;
 
     @Override
     public List<Car> getContours(Mat erodedMat, Mat hierarchy, Point ofs) {
@@ -37,12 +44,13 @@ public class ContourGrabberImpl implements ContourGrabber {
     }
 
     private boolean carSizeIsOK(Car car) {
-        return car.currentBoundingRect.area() > 400 &&
+        final int area = Integer.parseInt(appConfigService.findOne(ConfigAttribute.MinimumCarArea).getValue());
+        return car.currentBoundingRect.area() > area &&
                 car.currentAspectRatio > 0.2 &&
-                car.currentAspectRatio < 4.0 &&
-                car.currentBoundingRect.width > 30 &&
-                car.currentBoundingRect.height > 30 &&
-                car.currentDiagonalSize > 100.0 &&
+                car.currentAspectRatio < 3.0 &&
+//                car.currentBoundingRect.width > 30 &&
+//                car.currentBoundingRect.height > 30 &&
+//                car.currentDiagonalSize > 100.0 &&
                 (contourArea(car.currentContour) / car.currentBoundingRect.area()) > 0.50;
     }
 

@@ -62,6 +62,8 @@ public class MainController {
     public FlowPane zoneNumbersGroup;
     public Slider verticalMoveSlider;
     public TextField deleteRowInput;
+    public TextField roadWaysAmountInput;
+    public TextField minCarSizeTextField;
 
     //    -------------- Spring ----------------
     @Autowired
@@ -69,7 +71,6 @@ public class MainController {
     @Autowired
     private CameraRunnerImpl cameraRunner;
     @Autowired
-    @Qualifier("roadWaysConfigServiceImpl")
     private RoadWaysConfigService zoneConfigService;
     @Autowired
     private AppConfigService appConfigService;
@@ -93,15 +94,15 @@ public class MainController {
     void initialize() {
         distanceColumn.setOnEditCommit((row) -> {
             final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
-            roadRow.forEach(r -> r.getPair().setRealDistance(row.getNewValue()));
-            zoneConfigService.saveZones(roadRow);
+            final List<RoadWay.Zone> zones = roadRow.stream().peek(r -> r.getPair().setRealDistance(row.getNewValue())).collect(toList());
+            zoneConfigService.saveZones(zones);
             drawLinesAndLabelsAndTable();
         });
 
         wayNum.setOnEditCommit((row) -> {
             final List<RoadWay.Zone> roadRow = zoneConfigService.findRow(row.getRowValue().getId());
-            roadRow.forEach(r -> r.getPair().setWayNum(row.getNewValue()));
-            zoneConfigService.saveZones(roadRow);
+            final List<RoadWay.Zone> zones = roadRow.stream().peek(r -> r.getPair().setWayNum(row.getNewValue())).collect(toList());
+            zoneConfigService.saveZones(zones);
             drawLinesAndLabelsAndTable();
         });
 
@@ -157,7 +158,8 @@ public class MainController {
         ipInput.setText(appConfigService.findOne(ConfigAttribute.CameraIP).getValue());
         zonesPerLineAmountInput.setText(appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue());
         zoneHeightInput.setText(appConfigService.findOne(ConfigAttribute.ZoneHeight).getValue());
-
+        roadWaysAmountInput.setText(appConfigService.findOne(ConfigAttribute.RoadWaysAmount).getValue());
+        minCarSizeTextField.setText(appConfigService.findOne(ConfigAttribute.MinimumCarArea).getValue());
 
         deltaTimeLabel.setTooltip(new Tooltip("Время подсчета авто"));
         ipLabel.setTooltip(new Tooltip("IP адресс камеры"));
@@ -316,7 +318,8 @@ public class MainController {
                         PolygonDTO.Destination.ROI));
     }
 
-    public void resetZones(ActionEvent actionEvent) {
+    @FXML
+    private void resetZones(ActionEvent actionEvent) {
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         final ImageView graphic = new ImageView(this.getClass().getResource("/static/icons/achtung.gif").toString());
@@ -340,7 +343,7 @@ public class MainController {
     }
 
     public void deleteRow(ActionEvent actionEvent) {
-        if(isEmpty(deleteRowInput.getText())) return;
+        if (isEmpty(deleteRowInput.getText())) return;
         try {
             reconfiguringService.removeRow(Integer.parseInt(deleteRowInput.getText()));
             drawingService.clearAll(imageWrapperPane);
@@ -348,6 +351,35 @@ public class MainController {
         } catch (NumberFormatException e) {
             log.error("Trying to delete non integer row ", e);
         }
+    }
+
+    @FXML
+    private void saveRoadWaysAmount(ActionEvent actionEvent) {
+        Integer roadWaysAmount = null;
+        try {
+            roadWaysAmount = Integer.parseInt(roadWaysAmountInput.getText());
+        } catch (NumberFormatException e) {
+            log.error("RoadWaysAmount must be integer");
+        }
+        if (roadWaysAmount != null) {
+            appConfigService.save(new AppConfigDTO(ConfigAttribute.RoadWaysAmount, roadWaysAmount + ""));
+            log.info("RoadWaysAmount now: {}", roadWaysAmount);
+        }
+
+    }
+
+    public void minCarSizePlus(ActionEvent actionEvent) {
+        final int currValue = Integer.parseInt(appConfigService.findOne(ConfigAttribute.MinimumCarArea).getValue());
+        final String newValue = String.valueOf(currValue + 100);
+        appConfigService.save(new AppConfigDTO(ConfigAttribute.MinimumCarArea, newValue));
+        minCarSizeTextField.setText(newValue);
+    }
+
+    public void minCarSizeMinus(ActionEvent actionEvent) {
+        final int currValue = Integer.parseInt(appConfigService.findOne(ConfigAttribute.MinimumCarArea).getValue());
+        final String newValue = String.valueOf(currValue - 100);
+        appConfigService.save(new AppConfigDTO(ConfigAttribute.MinimumCarArea, newValue));
+        minCarSizeTextField.setText(newValue);
     }
 }
 

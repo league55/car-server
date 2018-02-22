@@ -1,16 +1,22 @@
 package root.app.data.services.impl;
 
+import javafx.geometry.Bounds;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.services.ImageScaleService;
 import root.app.data.services.LineCrossingService;
+import root.app.data.services.ZoneComputingService;
 import root.app.model.Car;
 import root.app.model.Line;
+import root.app.model.MarkersPair;
 import root.app.model.RoadWay;
-import root.app.properties.ConfigService;
 import root.app.properties.RoadWaysConfigService;
 
 import java.util.List;
@@ -23,11 +29,13 @@ public class LineCrossingServiceImpl implements LineCrossingService {
 
     private final RoadWaysConfigService zoneConfigService;
     private final ImageScaleService imageScaleService;
+    private final ZoneComputingService zoneComputingService;
 
     @Autowired
-    public LineCrossingServiceImpl(RoadWaysConfigService zoneConfigService, ImageScaleService imageScaleService) {
+    public LineCrossingServiceImpl(RoadWaysConfigService zoneConfigService, ImageScaleService imageScaleService, ZoneComputingService zoneComputingService) {
         this.zoneConfigService = zoneConfigService;
         this.imageScaleService = imageScaleService;
+        this.zoneComputingService = zoneComputingService;
     }
 
     @Override
@@ -54,6 +62,21 @@ public class LineCrossingServiceImpl implements LineCrossingService {
         boolean isDesiredLine = currentPosition.x > lineStartX && currentPosition.x < lineEndX;
 
         return carCrossedLine && isDesiredLine;
+    }
+
+    public boolean isCarTakesZone(RoadWay.Zone zone, Car car) {
+        final Rect boundingRect = car.currentBoundingRect;
+        if (car.getCenterPositions().size() < 2 || !car.isStillTracked() || boundingRect == null) return false;
+
+        final MarkersPair pair = zone.getPair();
+        final Polygon zoneRect = new Polygon((zoneComputingService.getPolygonPoints(pair).stream().mapToDouble(i -> i).toArray()));
+        final Rectangle carRect = new Rectangle(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+        Bounds bounds = Shape.intersect(carRect, zoneRect).getBoundsInParent();
+
+        final double intersectionArea = bounds.getHeight() * bounds.getWidth();
+        final double zoneArea = zoneRect.getBoundsInParent().getHeight() * zoneRect.getBoundsInParent().getWidth();
+
+        return (1 - (zoneArea - intersectionArea) / zoneArea > 0.3);
     }
 
     @Override

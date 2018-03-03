@@ -29,19 +29,19 @@ public class SubstitutionDetectorImpl implements Detector {
 
     @Override
     public List<Car> detectCars(Mat frame, Mat frame2, Rect roi) {
-        Mat copy = frame;
-        Mat copy2 = frame2;
-        Mat finalMat = new Mat();
-        Point ofs = new Point();
+//        Mat copy = frame;
+//        Mat copy2 = frame2;
+//        Mat finalMat = new Mat();
+//        Point ofs = new Point();
+//
+//        if (roi != null) {
+//            copy = new Mat(frame, roi);
+//            copy2 = new Mat(frame2, roi);
+//            finalMat = new Mat(frame2.clone(), roi);
+//            ofs = new Point(roi.x, roi.y);
+//        }
 
-        if (roi != null) {
-            copy = new Mat(frame, roi);
-            copy2 = new Mat(frame2, roi);
-            finalMat = new Mat(frame2.clone(), roi);
-            ofs = new Point(roi.x, roi.y);
-        }
-
-        return detectCars(copy, copy2, finalMat, ofs);
+        return detectCars(frame, frame2, new Mat(), new Point());
     }
 
 

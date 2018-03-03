@@ -1,7 +1,6 @@
 package root.app.data.services.impl;
 
 import javafx.geometry.Bounds;
-import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -82,12 +81,12 @@ public class LineCrossingServiceImpl implements LineCrossingService {
     @Override
     public List<Car> setCrossingTimeMarks(List<Car> cars, ImageScaleServiceImpl.ScreenSize screenSize) {
         zoneConfigService.findAll().forEach(parentZone -> {
+            //TODO: THIS BREAKS
             List<RoadWay.Zone> zones = parentZone.getZones().stream().map(childZone -> imageScaleService.fixedSize(screenSize, childZone)).collect(Collectors.toList());
 
             cars.forEach(car -> {
                 findCrossedChildZone(zones, car, parentZone.getPair().getWayNum());
             });
-
         });
 
         return cars;
@@ -116,7 +115,6 @@ public class LineCrossingServiceImpl implements LineCrossingService {
             crossed.setWayNumber(wayNum);
             car.getCrossedPairs().add(crossed);
         });
-
     }
 
 }

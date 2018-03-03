@@ -20,4 +20,6 @@ public interface ImageScaleService {
     RoadWay.Zone fixedSize(ImageScaleServiceImpl.ScreenSize screenSize, RoadWay.Zone zone);
 
     PolygonDTO fixScale(ImageScaleServiceImpl.ScreenSize cvMatSize, PolygonDTO roi);
+
+    MarkersPair fixPair(ImageScaleServiceImpl.ScreenSize screenSize, MarkersPair pair);
 }

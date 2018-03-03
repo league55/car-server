@@ -12,10 +12,14 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Line implements Serializable{
+public class Line implements Cloneable, Serializable{
 
     private Point start;
 
     private Point end;
 
+    @Override
+    public Line clone()  {
+        return new Line(start.clone(), end.clone());
+    }
 }

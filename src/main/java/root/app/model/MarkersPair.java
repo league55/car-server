@@ -26,4 +26,9 @@ public class MarkersPair implements Cloneable, Serializable {
         this.lineA = lineA;
         this.lineB = lineB;
     }
+
+    @Override
+    public MarkersPair clone() {
+        return new MarkersPair(id, lineA.clone(), lineB.clone(), realDistance, wayNum);
+    }
 }

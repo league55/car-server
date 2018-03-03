@@ -254,7 +254,7 @@ public class MainController {
         final List<RoadWay> waysList = zoneConfigService.findAll();
         Bounds boundsInLocal = imageView.getBoundsInLocal();
         final ScreenSize screenSize = new ScreenSize(boundsInLocal.getHeight(), boundsInLocal.getWidth());
-        final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, waysList.stream().map(RoadWay::getPair).collect(toList()));
+        final List<MarkersPair> pairs = scaleService.fixedSize(screenSize, waysList.stream().map(RoadWay::getPair).map(MarkersPair::clone).collect(toList()));
         drawingService.showLines(imageWrapperPane, pairs);
         drawingService.showZones(imageWrapperPane, screenSize);
     }

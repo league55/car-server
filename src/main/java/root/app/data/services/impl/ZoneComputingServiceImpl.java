@@ -38,7 +38,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         Integer zonesPerLine = Integer.parseInt(appConfigService.findOne(ConfigAttribute.ZonesPerLineAmount).getValue());
         Integer ways = Integer.valueOf(appConfigService.findOne(ConfigAttribute.RoadWaysAmount).getValue());
 
-        List<MarkersPair> basePairs = getBasePairs((MarkersPair) DeepCopy.copy(pair), ways);
+        List<MarkersPair> basePairs = getBasePairs(pair.clone(), ways);
 
         List<RoadWay> roadWays = Lists.newArrayList();
         for (int wayNum = 0; wayNum < basePairs.size(); wayNum++) {
@@ -52,7 +52,7 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
     private RoadWay getRoadWay(Integer zonesPerLine, MarkersPair pair, Line lastLine, int wayNum) {
         RoadWay roadWay = new RoadWay();
         final ArrayList<RoadWay.Zone> zones = Lists.newArrayList();
-        MarkersPair basePair = (MarkersPair) DeepCopy.copy(pair);
+        MarkersPair basePair = pair.clone();
 
         for (Integer zoneNum = 0; zoneNum < zonesPerLine - 1; zoneNum++) {
             final double k = 1.0 / (zonesPerLine - zoneNum - 1);
@@ -79,8 +79,8 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
         double delta_B_X = (clone.getLineB().getEnd().getX() - clone.getLineB().getStart().getX()) / ways;
 
         for (Integer i = 0; i < ways; i++) {
-            MarkersPair template = (MarkersPair) DeepCopy.copy(clone);
-            MarkersPair pair = (MarkersPair) DeepCopy.copy(clone);
+            MarkersPair template = clone.clone();
+            MarkersPair pair = clone.clone();
 
             pair.setWayNum(i);
 
@@ -172,6 +172,16 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
                 pair.getLineB().getEnd().getX(), pair.getLineB().getEnd().getY(),
                 pair.getLineB().getStart().getX(), pair.getLineB().getStart().getY()
         );
+    }
+
+    @Override
+    public org.opencv.core.Point[] toCvPoint(MarkersPair pair) {
+        return new org.opencv.core.Point[]{
+                new org.opencv.core.Point(pair.getLineA().getStart().getX(), pair.getLineA().getStart().getY()),
+                new org.opencv.core.Point(pair.getLineA().getEnd().getX(), pair.getLineA().getEnd().getY()),
+                new org.opencv.core.Point(pair.getLineB().getEnd().getX(), pair.getLineB().getEnd().getY()),
+                new org.opencv.core.Point(pair.getLineB().getStart().getX(), pair.getLineB().getStart().getY()),
+        };
     }
 
     @Override

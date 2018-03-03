@@ -23,15 +23,16 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-//    @Cacheable(value = "zoneCache")
+    @Cacheable(value = "zoneCache")
     public List<RoadWay> findAll() {
         log.debug("Looking for all zones");
         return super.findAll();
     }
 
     @Override
-    public long count() {
-        return 0;
+    @Cacheable("zoneCache2")
+    public List<RoadWay.Zone> findAllZones() {
+        return findAll().stream().map(RoadWay::getZones).flatMap(Collection::stream).collect(toList());
     }
 
     @Override
@@ -48,7 +49,6 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-    @Cacheable("zoneCache2")
     public RoadWay.Zone findZone(String zoneId) {
         //zone_1_1
         String fixedId = zoneId.contains(ZONE_PREFIX) ? zoneId : ZONE_PREFIX + zoneId;
@@ -64,28 +64,32 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(value = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void saveZones(List<RoadWay.Zone> zones) {
         final List<RoadWay> roadWays = findAll();
 
-        for (RoadWay.Zone newZone : zones) {
-            roadWays.forEach(roadWay -> {
-//               roadWay.getZones().f
+        roadWays.forEach(roadWay -> {
+            zones.forEach(newZone -> {
+                for (int i = 0; i < roadWay.getZones().size(); i++) {
+                    if (roadWay.getZones().get(i).getId().equals(newZone.getId())) {
+                        roadWay.getZones().set(i, newZone);
+                    }
+                }
             });
-        }
-//TODO
+        });
+
         saveAll(roadWays);
     }
 
     @Override
-    @CacheEvict(cacheNames = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(cacheNames = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void saveZone(RoadWay.Zone newZone) {
         final List<RoadWay> roadWays = findAll();
 
-            roadWays.get(newZone.getPair().getWayNum() - 1).getZones()
-                    .stream()
-                    .filter(zone -> zone.getId().equals(newZone.getId()))
-                    .forEach(zone -> zone = newZone);
+        roadWays.get(newZone.getPair().getWayNum() - 1).getZones()
+                .stream()
+                .filter(zone -> zone.getId().equals(newZone.getId()))
+                .forEach(zone -> zone = newZone);
 
         saveAll(roadWays);
     }
@@ -96,32 +100,26 @@ public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implem
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(value = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void delete(Long aLong) {
         super.delete(aLong);
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(value = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void delete(RoadWay dto) {
         super.delete(dto);
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(value = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void deleteAll() {
         super.deleteAll();
     }
 
     @Override
-    @CacheEvict(value = {"zoneCache","zoneCache2"}, allEntries = true)
+    @CacheEvict(value = {"zoneCache", "zoneCache2"}, allEntries = true)
     public void saveAll(List<RoadWay> all) {
         super.saveAll(all);
-    }
-
-    @Override
-    @Cacheable("zoneCache2")
-    public List<RoadWay.Zone> findAllZones() {
-        return findAll().stream().map(RoadWay::getZones).flatMap(Collection::stream).collect(toList());
     }
 }

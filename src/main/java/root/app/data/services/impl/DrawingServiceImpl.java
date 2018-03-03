@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import root.app.data.drawingTools.DrawLabel;
 import root.app.data.drawingTools.ZoneLabel;
 import root.app.data.services.DrawingService;
+import root.app.data.services.ImageScaleService;
 import root.app.data.services.ZoneComputingService;
 import root.app.model.MarkersPair;
 import root.app.model.RoadWay;
@@ -36,12 +37,14 @@ public class DrawingServiceImpl implements DrawingService {
     private final BiConsumer<RoadWay, AnchorPane> drawLabel = new DrawLabel();
 
     private final RoadWaysConfigService zoneConfigService;
+    private final ImageScaleService scaleService;
     private final ZoneComputingService computingService;
     private ZoneLabel zoneLabel = new ZoneLabel();
 
     @Autowired
-    public DrawingServiceImpl(RoadWaysConfigService zoneConfigService, ZoneComputingService computingService) {
+    public DrawingServiceImpl(RoadWaysConfigService zoneConfigService, ImageScaleService scaleService, ZoneComputingService computingService) {
         this.zoneConfigService = zoneConfigService;
+        this.scaleService = scaleService;
         this.computingService = computingService;
     }
 
@@ -121,7 +124,7 @@ public class DrawingServiceImpl implements DrawingService {
 
     @Override
     public void submitRegion(MarkersPair pair, Pane pane) {
-        zoneConfigService.saveAll(getRoadWays(pair));
+        zoneConfigService.saveAll(computingService.getRoadWays(pair));
         log.info("Saved new region");
     }
 
@@ -131,10 +134,6 @@ public class DrawingServiceImpl implements DrawingService {
         children.removeIf(node -> node.getId() != null && node.getId().contains(LABEL_PREFIX));
         children.removeIf(node -> node.getId() != null && node.getId().contains(ZONE_PREFIX));
         children.removeIf(node -> node.getId() != null && node.getId().contains(LINE_ID));
-    }
-
-    private List<RoadWay> getRoadWays(MarkersPair pair) {
-        return computingService.getRoadWays(pair);
     }
 
 }

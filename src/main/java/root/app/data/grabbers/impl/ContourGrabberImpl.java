@@ -34,7 +34,6 @@ public class ContourGrabberImpl implements ContourGrabber {
 
         for (MatOfPoint convexHull : convexHulls) {
             Car car = new Car(convexHull, ofs);
-            //TODO: config
             if (carSizeIsOK(car)) {
                 currentFrameCars.add(car);
             }

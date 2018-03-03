@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-public class Point implements Serializable {
+public class Point implements Cloneable {
 
     private Double x;
     private Double y;
@@ -31,6 +31,11 @@ public class Point implements Serializable {
     public Point(org.opencv.core.Point lastCenter) {
         this.x = lastCenter.x;
         this.y = lastCenter.y;
+    }
+
+    @Override
+    public Point clone() {
+        return new Point(this.x, this.y, this.getWindowHeight(), this.getWindowWidth());
     }
 }
 

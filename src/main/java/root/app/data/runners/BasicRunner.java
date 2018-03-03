@@ -174,7 +174,6 @@ public abstract class BasicRunner implements Runner {
                     currentFrameCars.clear();
 
                     lineCrossingService.setCrossingTimeMarks(cars, cvMatSize);
-                    zoneCrossingService.paintBusyZones(cars, containerPane);
 
                     speedService.countSpeed(cars);
                     long newCarCount = zoneCrossingService.countCars(cars);
@@ -192,6 +191,7 @@ public abstract class BasicRunner implements Runner {
                     cvShowing.drawRect(frame2, roi);
                     cvShowing.drawCarInfoOnImage(cars, frame2);
                     cvShowing.drawCarCountOnImage(carCount, frame2);
+//                    cvShowing.drawZones(frame2, cvMatSize, cars);
 
                     return frame2;
                 }

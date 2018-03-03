@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.springframework.stereotype.Service;
 import root.app.data.services.ImageScaleService;
 import root.app.model.*;
+import root.utils.DeepCopy;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -23,9 +24,10 @@ public class ImageScaleServiceImpl implements ImageScaleService {
     }
 
     @Override
-    public Point fixScale(Point point, ScreenSize screenSizeInit, ScreenSize screenSize) {
+    public Point fixScale(Point pointInit, ScreenSize screenSizeInit, ScreenSize screenSize) {
         double heightMultiplier = screenSize.getWindowHeight() / screenSizeInit.getWindowHeight();
         double widthMultiplier = screenSize.getWindowWidth() / screenSizeInit.getWindowWidth();
+        Point point = pointInit.clone();
 
         point.setX(point.getX() * widthMultiplier);
         point.setY(point.getY() * heightMultiplier);
@@ -37,11 +39,9 @@ public class ImageScaleServiceImpl implements ImageScaleService {
 
     @Override
     public RoadWay.Zone fixedSize(ScreenSize screenSize, RoadWay.Zone zone) {
+        final MarkersPair pair = zone.getPair().clone();
 
-        final MarkersPair pair = zone.getPair();
-
-        zone.setPair(fixPair(screenSize, pair));
-        return zone;
+        return new RoadWay.Zone(zone.getId(), zone.getIsLast(), fixPair(screenSize, pair));
     }
 
     @Override
@@ -93,7 +93,9 @@ public class ImageScaleServiceImpl implements ImageScaleService {
 
     }
 
-    private MarkersPair fixPair(ScreenSize screenSize, MarkersPair pair) {
+    public MarkersPair fixPair(ScreenSize screenSize, MarkersPair pairInit) {
+        MarkersPair pair = pairInit.clone();
+
         pair.setLineA(fixLinesScale.apply(screenSize, pair.getLineA()));
         pair.setLineB(fixLinesScale.apply(screenSize, pair.getLineB()));
         return pair;

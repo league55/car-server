@@ -21,6 +21,8 @@ public interface ZoneComputingService {
 
     public List<Double> getPolygonPoints(MarkersPair pair);
 
+    org.opencv.core.Point[] toCvPoint(MarkersPair pair);
+
     @org.jetbrains.annotations.NotNull
     @org.jetbrains.annotations.Contract(pure = true)
     String getChildZoneId(Integer wayNum, Integer zoneNum);

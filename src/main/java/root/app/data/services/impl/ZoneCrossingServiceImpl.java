@@ -31,32 +31,33 @@ public class ZoneCrossingServiceImpl implements ZoneCrossingService {
     }
 
     @Override
+    @Deprecated
     public void paintBusyZones(List<Car> cars, Pane zonesContainer) {
 
-        final List<String> childZonesWithCars = cars.stream()
-                .map(Car::getCrossedPairs)
-                .flatMap(Collection::stream)
-                .filter(cz -> cz.getTimeEnteredZone() != null && cz.getTimeLeavedZone() == null)
-                .map(CrossedPair::getZoneId)
-                .collect(Collectors.toList());
+//        final List<String> childZonesWithCars = cars.stream()
+//                .map(Car::getCrossedPairs)
+//                .flatMap(Collection::stream)
+//                .filter(cz -> cz.getTimeEnteredZone() != null && cz.getTimeLeavedZone() == null)
+//                .map(CrossedPair::getZoneId)
+//                .collect(Collectors.toList());
+//
+//        final List<String> childZonesWithoutCars = cars.stream()
+//                .map(Car::getCrossedPairs)
+//                .flatMap(Collection::stream)
+//                .filter(cz -> cz.getTimeEnteredZone() != null && cz.getTimeLeavedZone() != null)
+//                .map(CrossedPair::getZoneId)
+//                .collect(Collectors.toList());
 
-        final List<String> childZonesWithoutCars = cars.stream()
-                .map(Car::getCrossedPairs)
-                .flatMap(Collection::stream)
-                .filter(cz -> cz.getTimeEnteredZone() != null && cz.getTimeLeavedZone() != null)
-                .map(CrossedPair::getZoneId)
-                .collect(Collectors.toList());
-
-        childZonesWithCars.forEach(id -> {
-            final FilteredList<Node> polygon = zonesContainer.getChildren().filtered(node -> id.equals(node.getId()));
-            polygon.forEach(p -> ((Polygon) p).setFill(Color.GREEN));
-        });
-
-
-        childZonesWithoutCars.forEach(id -> {
-            final FilteredList<Node> polygon = zonesContainer.getChildren().filtered(node -> id.equals(node.getId()));
-            polygon.forEach(p -> ((Polygon) p).setFill(Color.RED));
-        });
+//        childZonesWithCars.forEach(id -> {
+//            final FilteredList<Node> polygon = zonesContainer.getChildren().filtered(node -> id.equals(node.getId()));
+//            polygon.forEach(p -> ((Polygon) p).setFill(Color.GREEN));
+//        });
+//
+//
+//        childZonesWithoutCars.forEach(id -> {
+//            final FilteredList<Node> polygon = zonesContainer.getChildren().filtered(node -> id.equals(node.getId()));
+//            polygon.forEach(p -> ((Polygon) p).setFill(Color.RED));
+//        });
 
     }
 }

@@ -17,7 +17,7 @@ public class CalibrationServiceImpl implements CalibrationService {
     private final RoadWaysConfigService zoneConfigService;
 
     @Autowired
-    public CalibrationServiceImpl(@Qualifier("roadWaysConfigServiceImpl") RoadWaysConfigService zoneConfigService) {
+    public CalibrationServiceImpl(RoadWaysConfigService zoneConfigService) {
         this.zoneConfigService = zoneConfigService;
     }
 
@@ -72,7 +72,7 @@ public class CalibrationServiceImpl implements CalibrationService {
                     * (C.getX() * D.getY() - C.getY() * D.getX()))
                     / denominator;
 
-            return new Point(px, py, D.getWindowHeight(), D.getWindowWidth());
+            return new Point(px, py, A.getWindowHeight(), A.getWindowWidth());
 
         }
 

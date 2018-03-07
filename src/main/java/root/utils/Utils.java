@@ -6,6 +6,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import org.opencv.core.Mat;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 
@@ -25,9 +26,9 @@ public final class Utils {
      * @param frame the {@link Mat} representing the current frame
      * @return the {@link Image} to show
      */
-    public static Image mat2Image(Mat frame) {
+    public static Image mat2Image(BufferedImage frame) {
         try {
-            return SwingFXUtils.toFXImage(matToBufferedImage(frame), null);
+            return SwingFXUtils.toFXImage(frame, null);
         } catch (Exception e) {
             System.err.println("Cannot convert the Mat object: " + e);
             return null;
@@ -53,7 +54,7 @@ public final class Utils {
      * @param original the {@link Mat} object in BGR or grayscale
      * @return the corresponding {@link BufferedImage}
      */
-    private static BufferedImage matToBufferedImage(Mat original) {
+    public static BufferedImage matToBufferedImage(Mat original) {
         // init
         BufferedImage image = null;
         int width = original.width(), height = original.height(), channels = original.channels();
@@ -69,5 +70,17 @@ public final class Utils {
         System.arraycopy(sourcePixels, 0, targetPixels, 0, sourcePixels.length);
 
         return image;
+    }
+
+
+    public static BufferedImage resize(BufferedImage img, int newW, int newH) {
+        java.awt.Image tmp = img.getScaledInstance(newW, newH, java.awt.Image.SCALE_SMOOTH);
+        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = dimg.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return dimg;
     }
 }

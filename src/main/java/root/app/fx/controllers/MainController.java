@@ -16,7 +16,6 @@ import javafx.stage.FileChooser;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import root.app.data.runners.impl.CameraRunnerImpl;
 import root.app.data.runners.impl.VideoRunnerImpl;
@@ -24,14 +23,17 @@ import root.app.data.services.*;
 import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.fx.AnchorsService;
 import root.app.model.*;
-import root.app.properties.*;
+import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
+import root.app.properties.PolygonConfigService;
+import root.app.properties.RoadWaysConfigService;
 
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
+import static ch.qos.logback.core.util.OptionHelper.isEmpty;
 import static java.util.stream.Collectors.toList;
-import static org.springframework.util.StringUtils.isEmpty;
 import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 
 
@@ -175,8 +177,6 @@ public class MainController {
     protected void startCamera(ActionEvent event) {
         log.info("Start work with camera");
         cameraRunner.setActionButton(cameraButton);
-        cameraRunner.setImageView(imageView);
-        cameraRunner.setContainerPane(imageWrapperPane);
         cameraRunner.startCapturing();
     }
 
@@ -194,8 +194,6 @@ public class MainController {
         }
 
         videoRunner.setActionButton(videoButton);
-        videoRunner.setImageView(imageView);
-        videoRunner.setContainerPane(imageWrapperPane);
         videoRunner.startCapturing();
 
     }

@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.videoio.VideoCapture;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import root.app.data.detectors.Detector;
 import root.app.data.processors.DetectedCarProcessor;
 import root.app.data.services.*;
@@ -20,6 +22,8 @@ import root.app.model.RoadWay;
 import root.app.properties.*;
 import root.utils.Utils;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -27,25 +31,25 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static root.app.controllers.WebSocketEventListener.imgToBase64String;
+import static root.utils.Utils.resize;
+
 @Slf4j
 public abstract class BasicRunner implements Runner {
-    private final static int FRAME_WIDTH = 800;
     protected Button button;
 
-    private ImageView imageView;
-    private Pane containerPane;
     // the OpenCV object that realizes the video capture
     private ScheduledExecutorService timer;
     // the OpenCV object that realizes the video capture
     protected VideoCapture capture = new VideoCapture();
     // a flag to change the button behavior
-    protected boolean cameraActive = false;
-    private boolean isFirstFrame = true;
+    protected static boolean cameraActive = false;
     // the id of the camera to be used
-    protected static int cameraId = 0;
     private static List<RoadWay> wayList;
     private long carCount = 0;
 
+    @Autowired
+    private SimpMessageSendingOperations messagingTemplate;
 
     protected final AppConfigService appConfigService;
     private final Detector carsDetector;
@@ -81,44 +85,34 @@ public abstract class BasicRunner implements Runner {
 
     @Override
     public void startCapturing() {
-
-        // set a fixed width for the frame
-        this.imageView.setFitWidth(FRAME_WIDTH);
-        log.debug("Frame width is {}px", FRAME_WIDTH);
-//         preserve image ratio
-//        this.imageView.setPreserveRatio(true);
-        if (!this.cameraActive) {
-            this.cameraActive = true;
+        if (cameraActive) return;
+            cameraActive = true;
 
             openCamera();
             // grab a frame every 33 ms (30 frames/sec)
             Runnable frameGrabber = () -> {
                 // effectively grab and process a single frame
                 Mat frame = grabFrame();
-
-                // convert and show the frame
-                Image imageToShow = Utils.mat2Image(frame);
-                updateImageView(imageView, imageToShow);
+                BufferedImage currFrame = resize(Utils.matToBufferedImage(frame), 600, 400);
+                if(currFrame != null) {
+                    log.info("Frame");
+                    messagingTemplate.convertAndSend("/topic/greetings", imgToBase64String(currFrame, "png"));
+                }
             };
 
             this.timer = Executors.newSingleThreadScheduledExecutor();
             this.timer.scheduleAtFixedRate(frameGrabber, 0, 33, TimeUnit.MILLISECONDS);
             final String one = appConfigService.findOne(ConfigAttribute.TimeBetweenOutput).getValue();
             dataOutputService.writeOnFixedRate(Integer.parseInt(one));
-
-        } else {
-            this.stopCapturing();
-            stopCamera();
-            this.cameraActive = false;
-            dataOutputService.stopWriting();
-
-            // stop the timer
-        }
     }
 
 
     @Override
     public void stopCapturing() {
+        stopCamera();
+        cameraActive = false;
+        dataOutputService.stopWriting();
+
         if (this.timer != null && !this.timer.isShutdown()) {
             try {
                 // stop the timer
@@ -188,10 +182,10 @@ public abstract class BasicRunner implements Runner {
                     }
 
 //                    drawingService.showLines(frame2, wayList, isCarCrossing);
-                    cvShowing.drawRect(frame2, roi);
+//                    cvShowing.drawRect(frame2, roi);
                     cvShowing.drawCarInfoOnImage(cars, frame2);
                     cvShowing.drawCarCountOnImage(carCount, frame2);
-//                    cvShowing.drawZones(frame2, cvMatSize, cars);
+                    cvShowing.drawZones(frame2, cvMatSize, cars);
 
                     return frame2;
                 }
@@ -207,20 +201,8 @@ public abstract class BasicRunner implements Runner {
     }
 
 
-    private void updateImageView(ImageView view, Image image) {
-        Utils.onFXThread(view.imageProperty(), image);
-    }
-
     public void setActionButton(Button button) {
         this.button = button;
-    }
-
-    public void setImageView(ImageView imageView) {
-        this.imageView = imageView;
-    }
-
-    public void setContainerPane(Pane pane) {
-        this.containerPane = pane;
     }
 
     private Rect getRoi(ScreenSize cvMatSize) {
@@ -243,5 +225,6 @@ public abstract class BasicRunner implements Runner {
         }
         return null;
     }
+
 }
 

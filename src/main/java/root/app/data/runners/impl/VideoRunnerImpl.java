@@ -45,13 +45,13 @@ public class VideoRunnerImpl extends BasicRunner {
         this.capture.open(filename);
         this.capture.set(CAP_PROP_FPS, 30);
         // update the button content
-        this.button.setText("Stop Video");
+//        this.button.setText("Stop Video");
     }
 
     @Override
     protected void stopCamera() {
         // update again the cameraButton content
-        this.button.setText("Start Video");
+//        this.button.setText("Start Video");
     }
 
 }

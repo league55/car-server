@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import root.app.properties.ConfigAttribute;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
+import static ch.qos.logback.core.util.OptionHelper.isEmpty;
 
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor

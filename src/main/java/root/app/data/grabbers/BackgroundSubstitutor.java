@@ -42,7 +42,7 @@ public class BackgroundSubstitutor {
 
         subtractorKNN.apply(imgFrame1Copy, imgFrame2Copy);
 
-        Imgproc.threshold(imgDifference, imgThresh, 30, 255.0, CV_THRESH_BINARY);
+//        Imgproc.threshold(imgDifference, imgThresh, 30, 255.0, CV_THRESH_BINARY);
 
 // this place may change, maybe there's sense to make it configurable
         Imgproc.dilate(imgFrame2Copy, imgFrame2Copy, structuringElement3x3);

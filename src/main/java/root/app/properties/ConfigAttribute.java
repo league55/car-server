@@ -1,8 +1,5 @@
 package root.app.properties;
 
-import lombok.Data;
-
-
 public enum ConfigAttribute {
     ZonesPerLineAmount("1"),
     CameraIP("http://192.168.1.1"),

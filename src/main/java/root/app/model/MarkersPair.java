@@ -27,6 +27,11 @@ public class MarkersPair implements Cloneable, Serializable {
         this.lineB = lineB;
     }
 
+    public MarkersPair(CalibrationDTO dto) {
+        this.lineA = new Line(dto.getBotLeftAnchor(), dto.getBotRightAnchor());
+        this.lineB = new Line(dto.getTopLeftAnchor(), dto.getTopRightAnchor());
+    }
+
     @Override
     public MarkersPair clone() {
         return new MarkersPair(id, lineA.clone(), lineB.clone(), realDistance, wayNum);

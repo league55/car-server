@@ -123,7 +123,7 @@ public class DrawingServiceImpl implements DrawingService {
     }
 
     @Override
-    public void submitRegion(MarkersPair pair, Pane pane) {
+    public void submitRegion(MarkersPair pair) {
         zoneConfigService.saveAll(computingService.getRoadWays(pair));
         log.info("Saved new region");
     }

@@ -17,7 +17,7 @@ public interface DrawingService {
 
     void showZones(AnchorPane imageWrapperPane, ImageScaleServiceImpl.ScreenSize screenSize);
 
-    void submitRegion(MarkersPair pair, Pane pane);
+    void submitRegion(MarkersPair pair);
 
     void clearAll(AnchorPane imageWrapperPane);
 }

@@ -25,9 +25,6 @@ public class VideoController {
     @Autowired
     private BasicRunner videoRunner;
 
-    @Autowired
-    private XugglerRtmpReferenceImpl xugglerRtmpReference;
-
     @RequestMapping("/video/{cameraId}")
     public String getVideoStream(@PathVariable String cameraId) {
         return "blabla" + cameraId;

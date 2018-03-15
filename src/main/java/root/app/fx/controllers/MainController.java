@@ -218,7 +218,7 @@ public class MainController {
         double sceneHeight = imageView.getBoundsInLocal().getHeight();
         double sceneWidth = imageView.getBoundsInLocal().getWidth();
 
-        drawingService.submitRegion(anchorsService.getCoordinates(sceneHeight, sceneWidth), imageWrapperPane);
+        drawingService.submitRegion(anchorsService.getCoordinates(sceneHeight, sceneWidth));
         anchorsService.clean(imageWrapperPane);
 
         drawLinesAndLabelsAndTable();

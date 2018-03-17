@@ -24,10 +24,9 @@ public class SettingsController {
     private AppConfigService appConfigService;
 
     @PostMapping("settings")
-    public void updateProperty(@RequestBody AppConfigDTO appConfig) {
-        Validate.notNull(appConfig);
-        appConfigService.save(appConfig);
-        log.info("Updated {} to {}", appConfig.getKey().name(), appConfig.getValue());
+    public void updateProperty(@RequestBody List<AppConfigDTO> appConfig) {
+        Validate.notEmpty(appConfig);
+        appConfig.forEach(c -> appConfigService.save(c));
     }
 
     @GetMapping("settings")

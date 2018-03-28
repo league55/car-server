@@ -7,10 +7,6 @@ import root.app.data.services.ApplicationStateService;
 import root.app.data.services.DrawingService;
 import root.app.model.CalibrationDTO;
 import root.app.model.MarkersPair;
-import root.app.model.Point;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")

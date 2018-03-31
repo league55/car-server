@@ -17,9 +17,10 @@ public class Start {
     public static void main(String[] args) {
         try {
             log.info("Try load system lib");
-            System.loadLibrary("opencv_java331");
+            System.load("/tmp/opencv_java331.dll");
+//            System.loadLibrary("opencv_java331");
         } catch (Exception e) {
-            log.error("failed to load dll from system, trying file", e);
+            log.error("failed to load dll from system, trying file");
             System.load("/tmp/opencv_java331.dll");
         }
         SpringApplication.run(Start.class, args);

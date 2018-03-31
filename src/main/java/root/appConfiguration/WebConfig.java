@@ -16,6 +16,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/*").allowedOrigins("http://localhost:3000");
                 registry.addMapping("/*").allowedOrigins("http://league55.github.io");
+                registry.addMapping("/*").allowedOrigins("https://cars-server.herokuapp.com");
                 registry.addMapping("/*").allowedOrigins("/*");
             }
         };

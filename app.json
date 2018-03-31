@@ -1,0 +1,25 @@
+{
+  "name": "car-server",
+  "description": "server for traffic project",
+  "scripts": {
+    "postdeploy": "startup.sh"
+  },
+  "env": {
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/jvm"
+    },
+    {
+      "url": "heroku/java"
+    }
+  ]
+}

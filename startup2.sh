@@ -1,3 +1,3 @@
 cp opencv_java331.dll /tmp
 cp src/main/resources/CarsDrivingUnderBridge.mp4 /tmp
-java -Dserver.port=8080 -jar target/*.jar
+java -Dserver.port=$PORT $JAVA_OPTS -jar target/*.jar

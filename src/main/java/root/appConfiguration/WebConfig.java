@@ -17,7 +17,9 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         return new WebMvcConfigurerAdapter() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/calibration").allowedOrigins("http://localhost:3000");
+                registry.addMapping("/*").allowedOrigins("http://localhost:3000");
+                registry.addMapping("/*").allowedOrigins("http://league55.github.io");
+                registry.addMapping("/*").allowedOrigins("/*");
             }
         };
     }

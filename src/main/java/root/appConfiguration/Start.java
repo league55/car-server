@@ -1,11 +1,12 @@
 package root.appConfiguration;
 
-import com.intel.analytics.bigdl.opencv.OpenCV;
 import lombok.extern.slf4j.Slf4j;
-import org.opencv.core.Core;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.xeustechnologies.jcl.JarClassLoader;
+
+import java.net.URL;
 
 /**
  * The main class for a JavaFX application. It creates and handle the main
@@ -15,13 +16,23 @@ import org.springframework.cache.annotation.EnableCaching;
 @SpringBootApplication(scanBasePackages = {"root.app", "root.app.model", "root.appConfiguration"})
 @EnableCaching
 public class Start {
+    private final static String ACWRAPPER = "opencv_java331";
 
     public static void main(String[] args) {
         // load the native OpenCV library
-        nu.pattern.OpenCV.loadShared();
-        System.loadLibrary(org.opencv.core.Core.NATIVE_LIBRARY_NAME);
-        log.info(System.getProperty("java.library.path"));
-        log.info(String.valueOf(OpenCV.isOpenCVLoaded()));
+//        nu.pattern.OpenCV.loadShared();
+//        nu.pattern.OpenCV.loadLocally();
+        try {
+            JarClassLoader jcl = new JarClassLoader();
+
+            jcl.add(new URL("opencv_java331.dll"));
+
+        } catch (Exception e) {
+            log.error("failed to load dll from jar", e);
+            System.loadLibrary("opencv_java331");
+        }
+        int rate = 10;
+        int amount = 1 - rate/100*1 - rate/100;
         SpringApplication.run(Start.class, args);
 
     }

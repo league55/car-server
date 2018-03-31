@@ -4,10 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import root.app.data.services.DrawingService;
 import root.app.model.AppConfigDTO;
-import root.app.model.CalibrationDTO;
-import root.app.model.MarkersPair;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
 

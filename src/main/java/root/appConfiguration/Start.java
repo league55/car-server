@@ -1,6 +1,7 @@
 package root.appConfiguration;
 
 import lombok.extern.slf4j.Slf4j;
+import nu.pattern.OpenCV;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -17,7 +18,8 @@ public class Start {
     public static void main(String[] args) {
         try {
             log.info("Try load system lib");
-            System.load("/tmp/opencv_java331.dll");
+            OpenCV.loadShared();
+//            System.load("/tmp/opencv_java331.dll");
 //            System.loadLibrary("opencv_java331");
         } catch (Exception e) {
             log.error("failed to load dll from system, trying file");

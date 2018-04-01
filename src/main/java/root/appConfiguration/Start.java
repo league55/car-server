@@ -18,7 +18,6 @@ public class Start {
     public static void main(String[] args) {
         try {
             log.info("Try load system lib");
-            log.info("System is {} bit ", System.getProperty("sun.arch.data.model"));
 //            OpenCV.loadShared();
             System.load("/tmp/opencv_java331.dll");
 //            System.loadLibrary("opencv_java331");

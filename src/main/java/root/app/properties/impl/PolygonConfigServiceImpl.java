@@ -17,7 +17,7 @@ public class PolygonConfigServiceImpl extends ConfigServiceImpl<PolygonDTO> impl
 
 
     public PolygonConfigServiceImpl(IOService<List<PolygonDTO>> saver) {
-        super(saver, "../polygons.yml");
+        super(saver, "../config/polygons.yml");
     }
 
     @Override

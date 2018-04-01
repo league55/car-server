@@ -19,7 +19,7 @@ import static root.app.data.services.ZoneComputingService.ZONE_PREFIX;
 public class RoadWaysConfigServiceImpl extends ConfigServiceImpl<RoadWay> implements RoadWaysConfigService {
 
     public RoadWaysConfigServiceImpl(IOService<List<RoadWay>> saver) {
-        super(saver, "../zoneProps.yml");
+        super(saver, "../config/zoneProps.yml");
     }
 
     @Override

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class ScheduledOutputTask implements Runnable {
     private Map<Integer, OutputDto> data = new HashMap<>();
 
-    private final static String FILE_NAME = "../log.txt";
+    private final static String FILE_NAME = "../config/log.txt";
     private FileWriter fw;
     private BufferedWriter bw;
     private Integer period;

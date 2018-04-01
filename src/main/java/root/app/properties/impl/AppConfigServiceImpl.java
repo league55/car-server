@@ -17,7 +17,7 @@ import java.util.List;
 public class AppConfigServiceImpl extends ConfigServiceImpl<AppConfigDTO> implements AppConfigService {
 
     public AppConfigServiceImpl(IOService<List<AppConfigDTO>> saver) {
-        super(saver, "../config/appProps.yml");
+        super(saver, "../appProps.yml");
     }
 
 

@@ -3,9 +3,6 @@ package root.app.data.runners;
 
 import com.google.common.collect.Lists;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
@@ -19,10 +16,12 @@ import root.app.data.services.impl.ImageScaleServiceImpl.ScreenSize;
 import root.app.model.Car;
 import root.app.model.PolygonDTO;
 import root.app.model.RoadWay;
-import root.app.properties.*;
+import root.app.properties.AppConfigService;
+import root.app.properties.ConfigAttribute;
+import root.app.properties.PolygonConfigService;
+import root.app.properties.RoadWaysConfigService;
 import root.utils.Utils;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +108,6 @@ public abstract class BasicRunner implements Runner {
 
     @Override
     public void stopCapturing() {
-        stopCamera();
         cameraActive = false;
         dataOutputService.stopWriting();
 
@@ -132,8 +130,6 @@ public abstract class BasicRunner implements Runner {
     }
 
     protected abstract void openCamera();
-
-    protected abstract void stopCamera();
 
     /**
      * Get a frame from the opened video stream (if any)
@@ -200,9 +196,9 @@ public abstract class BasicRunner implements Runner {
         return frame1;
     }
 
-
-    public void setActionButton(Button button) {
-        this.button = button;
+    @Override
+    public boolean isRunning() {
+        return cameraActive;
     }
 
     private Rect getRoi(ScreenSize cvMatSize) {

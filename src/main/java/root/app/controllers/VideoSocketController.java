@@ -9,7 +9,7 @@ import root.app.data.runners.BasicRunner;
 @Controller
 public class VideoSocketController {
 
-
+    //TODO: reuse for messaging
     @MessageMapping("/")
     public void greeting(String message) throws Exception {
     }

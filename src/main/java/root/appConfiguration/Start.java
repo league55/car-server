@@ -5,6 +5,10 @@ import nu.pattern.OpenCV;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * The main class for a JavaFX application. It creates and handle the main
@@ -18,9 +22,9 @@ public class Start {
     public static void main(String[] args) {
         try {
             log.info("Try load system lib");
-            OpenCV.loadShared();
+//            OpenCV.loadShared();
 //            System.load("/tmp/opencv_java331.dll");
-//            System.loadLibrary("opencv_java331");
+            System.loadLibrary("opencv_java331");
         } catch (Exception e) {
             log.error("failed to load dll from system, trying file");
             System.load("/tmp/opencv_java331.dll");

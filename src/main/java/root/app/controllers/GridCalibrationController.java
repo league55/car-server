@@ -4,6 +4,7 @@ import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,12 +17,15 @@ import java.util.Arrays;
 @Controller
 @RequestMapping("grid")
 public class GridCalibrationController {
-
+    private final CalibrationService calibrationService;
 
     @Autowired
-    private CalibrationService calibrationService;
+    public GridCalibrationController(CalibrationService calibrationService) {
+        this.calibrationService = calibrationService;
+    }
 
     @PostMapping
+    @CrossOrigin(origins = "http://localhost:3000")
     public ResponseEntity updateGrid(@RequestBody GridUpdateRequest updateRequest) {
         if (!valid(updateRequest)) {
             return ResponseEntity.badRequest().build();

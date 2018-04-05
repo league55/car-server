@@ -44,13 +44,6 @@ public class VideoRunnerImpl extends BasicRunner {
         log.info("Try work with local video from file: {}", filename);
         this.capture.open(filename);
         // update the button content
-//        this.button.setText("Stop Video");
-    }
-
-    @Override
-    protected void stopCamera() {
-        // update again the cameraButton content
-//        this.button.setText("Start Video");
     }
 
 }

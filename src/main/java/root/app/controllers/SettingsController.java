@@ -17,19 +17,23 @@ import static java.util.stream.Collectors.toList;
 @CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 public class SettingsController {
+    private final AppConfigService appConfigService;
+
     @Autowired
-    private AppConfigService appConfigService;
+    public SettingsController(AppConfigService appConfigService) {
+        this.appConfigService = appConfigService;
+    }
 
     @PostMapping("settings")
     public void updateProperty(@RequestBody List<AppConfigDTO> appConfig) {
         Validate.notEmpty(appConfig);
-        appConfig.forEach(c -> appConfigService.save(c));
+        appConfig.forEach(appConfigService::save);
     }
 
     @GetMapping("settings")
     @CrossOrigin(origins = "http://localhost:3000")
     public List<AppConfigDTO> loadProps() {
         log.info("Loaded all config");
-        return Arrays.stream(ConfigAttribute.values()).map(key -> appConfigService.findOne(key)).collect(toList());
+        return appConfigService.findAll();
     }
 }

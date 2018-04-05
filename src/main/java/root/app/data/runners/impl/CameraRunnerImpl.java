@@ -46,22 +46,12 @@ public class CameraRunnerImpl extends BasicRunner {
 
         // is the video stream available?
         if (this.capture.isOpened()) {
-            this.cameraActive = true;
-            // start the video capture
-
-            // update the button content
-            button.setText("Stop Camera");
+            cameraActive = true;
 
         } else {
             // log the error
             System.err.println("Impossible to open the camera connection...");
         }
-    }
-
-    @Override
-    protected void stopCamera() {
-        // update again the cameraButton content
-        this.button.setText("Start Camera");
     }
 
 

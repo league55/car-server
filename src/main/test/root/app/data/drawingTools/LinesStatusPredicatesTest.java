@@ -53,10 +53,10 @@ public class LinesStatusPredicatesTest {
         final Line lineWithoutEnd = new Line(new Point(0.0, 0.0), null);
 
         return new Object[]{
-                new Object[]{new MarkersPair(1L, completeLine, completeLine), COMPLETE_PAIRS},
-                new Object[]{new MarkersPair(1L, lineWithoutEnd, completeLine), LINE_A_WITHOUT_END},
-                new Object[]{new MarkersPair(1L, completeLine, null), LINE_A_COMPLETE},
-                new Object[]{new MarkersPair(1L, completeLine, lineWithoutEnd), LINE_B_WITHOUT_END}
+                new Object[]{new MarkersPair(1L, completeLine, completeLine, 0, 0), COMPLETE_PAIRS},
+                new Object[]{new MarkersPair(1L, lineWithoutEnd, completeLine, 0, 0), LINE_A_WITHOUT_END},
+                new Object[]{new MarkersPair(1L, completeLine, null, 0, 0), LINE_A_COMPLETE},
+                new Object[]{new MarkersPair(1L, completeLine, lineWithoutEnd, 0, 0), LINE_B_WITHOUT_END}
         };
     }
 }

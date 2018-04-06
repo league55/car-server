@@ -95,7 +95,7 @@ public abstract class BasicRunner implements Runner {
                 BufferedImage currFrame = resize(Utils.matToBufferedImage(frame), 600, 400);
                 if(currFrame != null) {
                     log.info("Frame");
-                    messagingTemplate.convertAndSend("/topic/greetings", imgToBase64String(currFrame, "png"));
+                    messagingTemplate.convertAndSend("/stream", imgToBase64String(currFrame, "png"));
                 }
             };
 

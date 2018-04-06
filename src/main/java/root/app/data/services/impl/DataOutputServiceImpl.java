@@ -1,24 +1,19 @@
 package root.app.data.services.impl;
 
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import root.app.data.services.DataOutputService;
 import root.app.model.Car;
 import root.app.properties.AppConfigService;
 import root.app.properties.ConfigAttribute;
-import root.utils.OutputDto;
 import root.utils.ScheduledOutputTask;
 
-import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -29,16 +24,19 @@ public class DataOutputServiceImpl implements DataOutputService {
     private final AppConfigService appConfigService;
     private Integer period;
 
+    private final SimpMessageSendingOperations messagingTemplate;
+
     @Autowired
-    public DataOutputServiceImpl(AppConfigService appConfigService) {
+    public DataOutputServiceImpl(AppConfigService appConfigService, SimpMessageSendingOperations messagingTemplate) {
         this.appConfigService = appConfigService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
     public void writeOnFixedRate(Integer millis) {
         this.period = millis;
 
-        this.task = new ScheduledOutputTask();
+        this.task = new ScheduledOutputTask(messagingTemplate);
         this.task.setPeriod(millis);
         this.executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(task, millis, millis, TimeUnit.MILLISECONDS);

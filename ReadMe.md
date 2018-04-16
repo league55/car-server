@@ -10,5 +10,6 @@ There is possibility for operator to set markers for measuring cars,
  ## set up
  
  * copy .dll files to C:\Windows\System32
- * compile with javac
- * run with java -jar <jarName>
+ * mvn clean install
+ * run with java -jar target/<jarName>
+ * now can open localhost:8080

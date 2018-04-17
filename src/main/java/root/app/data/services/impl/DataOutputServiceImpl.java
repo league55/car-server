@@ -55,10 +55,11 @@ public class DataOutputServiceImpl implements DataOutputService {
     @Override
     public void stopWriting() {
         try {
+            executor.shutdown();
             executor.awaitTermination(1, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error("InterruptedException on task stop ", e);
         }
-        executor.shutdown();
+
     }
 }

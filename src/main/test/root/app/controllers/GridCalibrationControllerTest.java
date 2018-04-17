@@ -1,5 +1,6 @@
 package root.app.controllers;
 
+import com.google.common.collect.Lists;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import org.junit.Before;
@@ -8,20 +9,18 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import root.app.controllers.request.GridUpdateRequest;
 import root.app.data.services.CalibrationService;
 
-import javax.xml.ws.soap.MTOM;
+import java.util.List;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static root.app.properties.ConfigAttribute.ZonesPerLineAmount;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnitParamsRunner.class)
 public class GridCalibrationControllerTest {
@@ -29,13 +28,17 @@ public class GridCalibrationControllerTest {
     @Mock
     private CalibrationService calibrationService;
 
-    @InjectMocks
     private GridCalibrationController controller;
 
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+
+        List<CalibrationService> calibrationServices = Lists.newArrayList(calibrationService);
+        when(calibrationService.canCalibrate(any())).thenReturn(true);
+
+        controller = new GridCalibrationController(calibrationServices);
     }
 
     @Test

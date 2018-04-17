@@ -23,13 +23,11 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
 
     private final AppConfigService appConfigService;
     private final ImageScaleService scaleService;
-    private final CalibrationService calibrationService;
 
     @Autowired
-    public ZoneComputingServiceImpl(AppConfigService appConfigService, ImageScaleService scaleService, CalibrationService calibrationService) {
+    public ZoneComputingServiceImpl(AppConfigService appConfigService, ImageScaleService scaleService) {
         this.appConfigService = appConfigService;
         this.scaleService = scaleService;
-        this.calibrationService = calibrationService;
     }
 
     @Override
@@ -94,11 +92,11 @@ public class ZoneComputingServiceImpl implements ZoneComputingService {
             //fixing Y
             final Line left = new Line(pair.getLineA().getStart(), pair.getLineB().getStart());
             final Line right = new Line(pair.getLineA().getEnd(), pair.getLineB().getEnd());
-            pair.getLineA().setStart(calibrationService.intersection(clone.getLineA(), left));
-            pair.getLineA().setEnd(calibrationService.intersection(clone.getLineA(), right));
+            pair.getLineA().setStart(CalibrationService.intersection(clone.getLineA(), left));
+            pair.getLineA().setEnd(CalibrationService.intersection(clone.getLineA(), right));
 
-            pair.getLineB().setStart(calibrationService.intersection(clone.getLineB(), left));
-            pair.getLineB().setEnd(calibrationService.intersection(clone.getLineB(), right));
+            pair.getLineB().setStart(CalibrationService.intersection(clone.getLineB(), left));
+            pair.getLineB().setEnd(CalibrationService.intersection(clone.getLineB(), right));
 
             basePairs.add(pair);
 

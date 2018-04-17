@@ -1,6 +1,5 @@
 package root.app.controllers;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,15 +12,16 @@ import root.app.data.services.CalibrationService;
 import root.app.properties.ConfigAttribute;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Controller
 @RequestMapping("grid")
 public class GridCalibrationController {
-    private final CalibrationService calibrationService;
+    private final List<CalibrationService> calibrationServices;
 
     @Autowired
-    public GridCalibrationController(CalibrationService calibrationService) {
-        this.calibrationService = calibrationService;
+    public GridCalibrationController(List<CalibrationService> calibrationServices) {
+        this.calibrationServices = calibrationServices;
     }
 
     @PostMapping
@@ -31,12 +31,20 @@ public class GridCalibrationController {
             return ResponseEntity.badRequest().build();
         }
 
-        calibrationService.fixPosition(updateRequest.getLineNumber(), updateRequest.getValue());
+        getCalibrationService(updateRequest.getCalibrationType()).fixPosition(updateRequest.getLineNumber(), updateRequest.getValue());
 
         return ResponseEntity.ok().build();
     }
 
     private boolean valid(GridUpdateRequest updateRequest) {
         return updateRequest.getValue() != null && Arrays.stream(ConfigAttribute.values()).anyMatch(v -> v.name().equals(updateRequest.getCalibrationType()));
+    }
+
+    private CalibrationService getCalibrationService(String calType) {
+        return calibrationServices
+                .stream()
+                .filter(service -> service.canCalibrate(calType))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Wrong calibration Type"));
     }
 }

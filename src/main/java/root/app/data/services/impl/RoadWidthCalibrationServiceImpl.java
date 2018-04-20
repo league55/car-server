@@ -40,11 +40,15 @@ public class RoadWidthCalibrationServiceImpl implements CalibrationService {
 
             fixLineX(delta, leftZone, rightZone);
         }
+        fixLast(delta, roadWayLeft, roadWayRight);
 
-//        final double oldTopX = roadWayLeft.get(0).getPair().getLineB().getEnd().getX();
-//        final double newTopX = oldTopX * delta;
-//        roadWayLeft.get(0).getPair().getLineB().getEnd().setX(newTopX);
-//        roadWayRight.get(0).getPair().getLineB().getStart().setX(newTopX);
+    }
+
+    private void fixLast(Double delta, List<RoadWay.Zone> roadWayLeft, List<RoadWay.Zone> roadWayRight) {
+        final double oldTopX = roadWayLeft.get(roadWayLeft.size() - 1).getPair().getLineB().getEnd().getX();
+        final double newTopX = oldTopX * (1 - delta / 100);
+        roadWayLeft.get(roadWayLeft.size() - 1).getPair().getLineB().getEnd().setX(newTopX);
+        roadWayRight.get(roadWayLeft.size() - 1).getPair().getLineB().getStart().setX(newTopX);
     }
 
     private void fixYAxis(RoadWay way, Line line2) {
